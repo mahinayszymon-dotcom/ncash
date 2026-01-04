@@ -1,0 +1,303 @@
+/*Forget Password Page*/
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.graphic_img, 
+.graphic_text, 
+.forget_pass_panel_container, button#return {
+    opacity: 0; 
+    animation: fadeInAnimation ease 0.7s forwards;
+}
+
+.graphic_img {
+    animation-delay: 0.1s; 
+}
+
+.graphic_text {
+    animation-delay: 0.35s; 
+}
+
+button#return {
+    animation-delay: 0.45s; 
+}
+
+.forget_pass_panel_container {
+    animation-delay: 0.6s; 
+}
+
+body {
+    position: relative;
+}
+
+button#return {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    outline: none;
+    padding: 8px 12px 8px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--main-background-data);
+    color: var(--black-dark);
+    transition: background-color 0.1s ease;
+}
+
+button#return img {
+    opacity: 0.9;
+}
+
+button#return:hover {
+    background-color: var(--nav-focused);
+}
+
+.main2 {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100vh;
+    background: var(--red-gradient-reversed);
+    overflow: hidden;
+}
+
+.forget_pass_panel {
+    background-color: var(--main-background-login);
+    min-width: 500px;
+    flex: 1 1 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px 0 0 30px;
+}
+
+    .forget_pass_panel_container {
+        padding: 20px;
+        max-width: 650px;
+    }
+
+        .forget_pass_panel .forget_pass_panel_container .logo img {
+            width: 25%;
+        }
+
+        .forget_pass_panel .forget_pass_panel_container  .login_header {
+            padding: 0 0 20px;
+
+        }
+
+            .forget_pass_panel .forget_pass_panel_container .email_input .input_container {
+                position: relative;
+            }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="email"], .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="text"] {
+                    margin: 10px 0;
+                    padding: 14px 14px 14px 50px;
+                    font-size: 16px;
+                    border-radius: 10px;
+                    border: 1px solid var(--text-outline-light);
+                    width: 100%;
+                    outline: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon1, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon2, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon3, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon4  {
+                    position: absolute;
+                    top: 50%;
+                    left: 15px;
+                    width: 24px;
+                    height: 24px;
+                    transform: translateY(-50%);
+                    opacity: 0.6;
+                    z-index: 99;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon2 {
+                    display: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container:focus-within .left_icon2 {
+                    display: block;
+                    opacity: 0.9;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon4 {
+                    display: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container:focus-within .left_icon4 {
+                    display: block;
+                    opacity: 0.9;
+                }
+
+                
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="email"]:focus, .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="text"]:focus {
+                    border-color: var(--red-dark);
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="email"]:focus + .left_icon1 {
+                    display: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="email"]:focus + .left_icon2 {
+                    display: block;
+                }
+
+                
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container .visibility_icon, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .visibility_icon2 {
+                    position: absolute;
+                    top: 50%;
+                    right: 15px;
+                    width: 22px;
+                    height: 22px;
+                    transform: translateY(-50%);
+                    opacity: 0.6;
+                    cursor: pointer;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container .visibility_icon2 {
+                    display: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container:focus-within .visibility_icon2 {
+                    display: block;
+                    opacity: 0.9;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="password"] {
+                    margin: 10px 0;
+                    padding: 14px 14px 14px 50px;
+                    font-size: 16px;
+                    border-radius: 10px;
+                    border: 1px solid var(--text-outline-light);
+                    width: 100%;
+                    outline: none;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="password"]:focus {
+                    border-color: var(--red-dark);
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input input[type="checkbox"] {
+                    accent-color: var(--red-dark);
+                    cursor: pointer;
+                    margin-right: 10px;
+                }
+
+                .forget_pass_panel .forget_pass_panel_container .email_input label {
+                    opacity: 0.8;
+                }
+
+                .login_subcontent {
+                    width: 100%; 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center;
+                }
+
+                .subcontent_left, .subcontent_right {
+                    display: flex;
+                    align-items: center;
+                }
+
+                .subcontent_right a {
+                    font-weight: 500; 
+                    color: var(--red-dark);
+                }
+
+                .subcontent_right a:hover {
+                    text-decoration: underline;
+                }
+
+        .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont {
+            margin: 30px 0 30px;
+        }
+
+            .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont button {
+                width: 100%;
+                padding: 15px;
+                border-radius: 10px;
+                color: var(--main-content);
+                background-color: var(--red-light);
+            }
+
+            .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont button {
+                width: 100%;
+                padding: 15px;
+                border-radius: 10px;
+                color: var(--main-content);
+                background-color: var(--red-dark);
+                border: none;
+            }
+
+            .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont button:hover {
+                background-color: var(--red-hover);
+                transition: 0.2s;
+            }
+
+            .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont :not(button:hover) {
+                background-color: var(--red-dark);
+                transition: 0.2s;
+            }
+
+        .forget_pass_panel .forget_pass_panel_container .forget_pass_footer {
+            margin-top: 10%;
+            text-align: center;
+        }
+
+        .forget_pass_panel .forget_pass_panel_container .forget_pass_footer p {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+.forget_pass_graphic {
+    background-color: transparent;
+    padding: 40px;
+    min-width: 500px;
+    flex: 2.3 1 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.forget_pass_graphic .graphic_img {
+    height: 40%;
+}
+
+.forget_pass_graphic .graphic_img img {
+    width: 100%;
+    height: auto;
+    max-width: 650px;
+    object-fit: contain;
+}
+
+.forget_pass_graphic .graphic_text {
+    text-align: center;
+    line-height: 2;
+}
+
+.forget_pass_graphic .graphic_text h2, .forget_pass_graphic .graphic_text p {
+    color: var(--main-content) !important;
+}
+/*End of Forget Password Page*/
+
+/*Register Page*/
+
+/*End of Register Page*/
+
+/*Change Password Page*/
+
+/*Change Password Page*/

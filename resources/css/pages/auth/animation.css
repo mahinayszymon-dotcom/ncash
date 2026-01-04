@@ -1,0 +1,31 @@
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.graphic_img, 
+.graphic_text, 
+.login_panel_container {
+    opacity: 0; 
+    animation: fadeInAnimation ease 0.7s; 
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+.graphic_img {
+    animation-delay: 0.6s; 
+}
+
+.graphic_text {
+    animation-delay: 0.35s; 
+}
+
+.login_panel_container {
+    animation-delay: 0.1s; 
+}

@@ -1,0 +1,27 @@
+<?php
+    include("../config/db_conn.php"); 
+    echo "success";
+
+    $newPass = "admin1100"; 
+    $user_id = 1;                      
+
+    $hashedNewPass = password_hash($newPass, PASSWORD_DEFAULT);
+    $curDate = new DateTime();
+    $current = $curDate->format('Y-m-d H:i:s');
+
+    $sql = "UPDATE users 
+            SET password = ?, updated_at = ? 
+            WHERE user_id = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssi", $hashedNewPass, $current, $user_id);
+
+    if ($stmt->execute()) {
+        echo "Successfully updated user ID $user_id with a new temporary password.";
+    } else {
+        echo "Error updating record: " . $conn->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+?>

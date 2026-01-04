@@ -1,0 +1,42 @@
+:root {
+  /* Primary Colors */
+    --black-dark: #2c2929;                 
+    --loading-dark: #3d3d3d; 
+    --nav-unfocused: #958d8d; 
+    --text-outline-light: #bfb6b6;
+    --table-border-bottom: #d0caca; 
+    --nav-focused: #e1dbdb; 
+    --input-border: #e1dada; 
+    --main-content: #f7f4f4; 
+    --main-background: #f0ecec; 
+    --main-background-login: #faf8f8;
+    --main-background-data: #f1eded;
+
+  /* Secondary Colors */
+    --red-vvdark: #5e2222;
+    --red-vdark: #7a3333;
+    --red-hover: #8a3333;
+    --red-dark: #9e3b3b;
+    --red-light: #b84b4b;
+    --red-more-lighter: #cf6666;
+    --red-gradient: linear-gradient(135deg, #5c2424, #5c2424, #8c3a3a, #5c2424);
+    --red-gradient-reversed: linear-gradient(135deg, #5c2424, #8c3a3a, #5c2424, #5c2424);
+    --red-gradient-nav: linear-gradient(#612626, #8c3a3a, #8c3a3a, #8c3a3a, #5c2424);
+
+  /* Additional Colors */
+    --reports-gradient-sub: linear-gradient(to right, #e67e73, #f2a49e);
+    --reports-gradient: linear-gradient(to right, #4a3b4a, #2c2830);
+    --reports-gradient2: linear-gradient(135deg, #4a3b4a, #2c2830, #332e37);
+    --reports-gradient-light: #e3dced;
+    --reports-text: #b8a8b8;
+    --purple: #4a3b4a;
+    --purple-dark: #3d3743;
+    --success: #527b55;
+    --search: #a7948f;
+    --request-light: #39528b;
+    --request-dark: #324879;
+    --blue: #2C3E50;
+    --complete: #27AE60;
+    --late: #C0392B;
+    --gold: #b1822a;
+}

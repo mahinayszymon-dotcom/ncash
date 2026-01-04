@@ -1,0 +1,10 @@
+# Restrict .files
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Restrict directories
+# RedirectMatch 403 /resources/js
+# RedirectMatch 403 /config
+# RedirectMatch 403 /db

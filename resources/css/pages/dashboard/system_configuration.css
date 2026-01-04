@@ -1,0 +1,11 @@
+.nav_links_admin ul li:nth-child(3) {
+    background-color: var(--red-vdark);
+    opacity: 1;
+}
+
+.nav_links_admin ul li:nth-child(3) img {
+    opacity: 1;
+}
+
+
+/* MAIN CONTENT */

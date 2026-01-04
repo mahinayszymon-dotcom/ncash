@@ -1,0 +1,123 @@
+button:disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #efeded;
+    color: #999999;
+}
+
+button:not(:disabled):hover, 
+button:not(:disabled):focus {
+    background-color: #efeded;
+}
+
+.data_actions .delete {
+    border: none;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    background-color: var(--red-dark);
+    border-radius: 5px;
+    transition: background-color 0.1s ease;
+}
+
+.data_actions .delete p {
+    color: var(--main-content) !important;
+}
+
+.data_actions .delete:not(:disabled):hover, 
+.data_actions .delete:not(:disabled):focus {
+    background-color: var(--red-vdark);
+}
+
+.data_actions .delete:disabled {
+    background-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.data_actions .delete:disabled p {
+    cursor: not-allowed;
+}
+
+.data_actions .request {
+    border: none;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    background-color: var(--request-light);
+    border-radius: 5px;
+    transition: background-color 0.1s ease;
+}
+
+.data_actions .request p {
+    color: var(--main-content) !important;
+}
+
+.data_actions .request:not(:disabled):hover, 
+.data_actions .request:not(:disabled):focus {
+    background-color: var(--request-dark);
+}
+
+.data_actions .request:disabled {
+    background-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.data_actions .request:disabled p {
+    cursor: not-allowed;
+}
+
+.data_panel_subheaderC {
+    height: 40px;
+    width: 100%;
+}
+
+.archive_nav_links {
+    display: flex;
+    height: 100%;
+    /* border-bottom: 2px solid var(--red-dark); */
+    padding: 5px 0;
+    /* background: linear-gradient(to right, var(--main-background), var(--main-content)); */
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.archive_nav_links a {
+    font-size: 16px;
+    width: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    color: var(--black-dark);
+    font-weight: 500;
+    background-color: var(--main-background-data);
+    border-radius: 5px;
+    transition: border-bottom 0.1s ease;
+    margin: 0 15px 0 0;
+    opacity: 0.75;
+    /* border-bottom: 0px solid var(--red-dark); */
+    transition: 
+        opacity 0.1s ease, 
+        background-color 0.1s ease, 
+        border-radius 0.1s ease;
+}
+
+.archive_nav_links a:hover {
+    border-radius: 10px 10px 0 0;
+    /* border-bottom: 2px solid var(--red-dark); */
+    background-color: var(--main-background-data);
+    opacity: 1;
+}
+
+/* .archive_nav_links a:hover {
+    border-bottom: 2px solid var(--red-dark);
+} */

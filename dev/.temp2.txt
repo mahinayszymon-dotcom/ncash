@@ -1,0 +1,13 @@
+<?php
+    if ($role === "admin") {
+        // test ko lang, tanggalin mo nalang if may logic na
+        echo '<button class="delete" onclick="if (confirm(\'Confirm permanent deletion of data?\')) {
+            // If the user clicks OK, this code executes:
+            window.location.reload(); 
+            // OR, if you want to redirect to a specific page:
+            // window.location.href = \'archive.php\'; 
+        }"><img src="../resources/img/icons/delete_forever_w.png" alt="delete_forever"><p>Delete Permanently</p></button>';
+    } else {
+        echo '<button class="request"><img src="../resources/img/icons/remind.png" alt="request"><p>Request Deletion</p></button>';
+    }
+?>

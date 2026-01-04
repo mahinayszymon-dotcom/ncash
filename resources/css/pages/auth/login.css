@@ -1,0 +1,359 @@
+.main {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100vh;
+    background: var(--red-gradient);
+    overflow: hidden;
+}
+
+    .login_panel {
+        background-color: var(--main-background-login);
+        min-width: 500px;
+        flex: 1 1 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0 30px 30px 0;
+    }
+
+        .login_panel_container {
+            padding: 20px;
+        }
+
+            .login_panel .login_panel_container .logo img {
+                width: 25%;
+            }
+
+            .login_panel .login_panel_container  .login_header {
+                padding: 0 0 20px;
+
+            }
+
+                .login_panel .login_panel_container .login_input .input_container {
+                    position: relative;
+                }
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="text"] {
+                        margin: 10px 0;
+                        padding: 14px 14px 14px 50px;
+                        font-size: 16px;
+                        border-radius: 10px;
+                        border: 1px solid var(--text-outline-light);
+                        width: 100%;
+                        outline: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4  {
+                        position: absolute;
+                        top: 50%;
+                        left: 15px;
+                        width: 24px;
+                        height: 24px;
+                        transform: translateY(-50%);
+                        opacity: 0.6;
+                        z-index: 99;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container .left_icon2 {
+                        display: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container:focus-within .left_icon2 {
+                        display: block;
+                        opacity: 0.9;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container .left_icon4 {
+                        display: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container:focus-within .left_icon4 {
+                        display: block;
+                        opacity: 0.9;
+                    }
+
+                    
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="text"]:focus {
+                        border-color: var(--red-dark);
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="text"]:focus + .left_icon1 {
+                        display: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="text"]:focus + .left_icon2 {
+                        display: block;
+                    }
+
+                    
+
+                    .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
+                        position: absolute;
+                        top: 50%;
+                        right: 15px;
+                        width: 22px;
+                        height: 22px;
+                        transform: translateY(-50%);
+                        opacity: 0.6;
+                        cursor: pointer;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
+                        display: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container:focus-within .visibility_icon2 {
+                        display: block;
+                        opacity: 0.9;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="password"] {
+                        margin: 10px 0;
+                        padding: 14px 14px 14px 50px;
+                        font-size: 16px;
+                        border-radius: 10px;
+                        border: 1px solid var(--text-outline-light);
+                        width: 100%;
+                        outline: none;
+                    }
+
+                    .login_panel .login_panel_container .login_input .input_container input[type="password"]:focus {
+                        border-color: var(--red-dark);
+                    }
+
+                    .login_panel .login_panel_container .login_input input[type="checkbox"] {
+                        accent-color: var(--red-dark);
+                        cursor: pointer;
+                        margin-right: 10px;
+                    }
+
+                    .login_panel .login_panel_container .login_input label {
+                        opacity: 0.8;
+                    }
+
+                    .login_subcontent {
+                        width: 100%; 
+                        display: flex; 
+                        justify-content: space-between; 
+                        align-items: center;
+                    }
+
+                    .subcontent_left, .subcontent_right {
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .subcontent_right a {
+                        font-weight: 500; 
+                        color: var(--red-dark);
+                    }
+
+                    .subcontent_right a:hover {
+                        text-decoration: underline;
+                    }
+
+            .login_panel .login_panel_container .login_btn_cont {
+                margin: 30px 0 30px;
+            }
+
+                .login_panel .login_panel_container .login_btn_cont button {
+                    width: 100%;
+                    padding: 15px;
+                    border-radius: 10px;
+                    color: var(--main-content);
+                    background-color: var(--red-light);
+                }
+
+                .login_panel .login_panel_container .login_btn_cont button {
+                    width: 100%;
+                    padding: 15px;
+                    border-radius: 10px;
+                    color: var(--main-content);
+                    background-color: var(--red-dark);
+                    border: none;
+                }
+
+                .login_panel .login_panel_container .login_btn_cont button:hover {
+                    background-color: var(--red-hover);
+                    transition: 0.2s;
+                }
+
+                .login_panel .login_panel_container .login_btn_cont :not(button:hover) {
+                    background-color: var(--red-dark);
+                    transition: 0.2s;
+                }
+
+            .login_panel .login_panel_container .login_footer {
+                margin-top: 10%;
+                text-align: center;
+            }
+
+            .login_panel .login_panel_container .login_footer p {
+                font-size: 13px;
+                opacity: 0.7;
+            }
+
+    .login_graphic {
+        background-color: transparent;
+        padding: 40px;
+        min-width: 500px;
+        flex: 2.3 1 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .login_graphic .graphic_img {
+            height: 40%;
+        }
+
+        .login_graphic .graphic_img img {
+            width: 100%;
+            height: auto;
+            max-width: 650px;
+            object-fit: contain;
+        }
+        
+        .login_graphic .graphic_text {
+            text-align: center;
+            line-height: 2;
+        }
+
+        .login_graphic .graphic_text h2, .login_graphic .graphic_text p {
+            color: var(--main-content);
+        }
+
+
+/*Responsiveness*/
+@media (max-width: 1400px) {
+    .login_graphic {
+        padding: 40px;
+    }
+
+    .login_graphic .graphic_img {
+        height: 27%;
+    }
+
+    .login_graphic .graphic_img img {
+        max-width: 430px;
+    }
+
+    .login_panel {
+        min-width: 350px;
+        padding: 50px;
+        border-radius: 0 12px 12px 0;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    input#username, input#password {
+        font-size: 15px;
+        padding: 11px 11px 11px 40px;
+        border-radius: 5px !important;
+    }
+
+    label, a {
+        margin-top: 5px;
+        font-size: 14px !important;
+    }
+
+    .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
+        height: auto;
+        width: 18px;
+    }
+
+    .login_btn_cont button {
+        padding: 11px !important;
+        font-size: 15px;
+        border-radius: 5px !important;
+    }
+
+    .login_footer p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .login_graphic {
+        display: none;
+    }
+
+    .login_panel {
+        min-width: 350px;
+        padding: 50px;
+        border-radius: 0;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    label, a {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .login_panel .login_panel_container .login_input .input_container input[type="text"], .login_panel .login_panel_container .login_input .input_container input[type="password"] {
+        font-size: 14px;
+    }
+
+    .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
+        height: auto;
+        width: 18px;
+    }
+
+    button {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .login_panel {
+        justify-content: start;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    label, a {
+        font-size: 13px;
+        padding: 7px;
+    }
+
+    .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
+        height: auto;
+        width: 16px;
+    }
+
+    button {
+        padding: 7px;
+        font-size: 14px;
+    }
+}

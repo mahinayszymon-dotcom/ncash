@@ -1,0 +1,211 @@
+<div class="data_panel">
+                        <div class="data_panel_header">
+                            <h2>Recent Transactions</h2>
+                            <div class="icon_normal">
+                                <img src="../resources/img/icons/recent_tab.png" alt="recent_icon">
+                            </div>
+                        </div>   
+                        <div class="data_panel_subheader">
+                            <div class="data_panel_selection">
+                                <label for="branch">Sort by:</label>
+                                <form action="home.php" method="GET">
+                                    <select name="branch" id="branch" onchange="this.form.submit()">
+                                        <?php
+                                            $selected = $_GET['branch'] ?? 'all'; 
+
+                                            if ($role == 'admin') 
+                                            {
+                                                echo "
+                                                <option value='all' " . ($selected === 'all' ? 'selected' : '') . ">All Branch</option>
+                                                <option value='pasig' " . ($selected === 'pasig' ? 'selected' : '') . ">Pasig City Branch</option>
+                                                <option value='quezon' " . ($selected === 'quezon' ? 'selected' : '') . ">Quezon City Branch</option>
+                                                <option value='makati' " . ($selected === 'makati' ? 'selected' : '') . ">Makati City Branch</option>
+                                                ";
+                                            }
+                                            else if ($role == 'user')
+                                            {
+                                                echo "
+                                                <option value='all' " . ($selected === 'default' ? 'selected' : '') . ">Default Sorting</option>
+                                                ";
+                                            }
+                                        ?>
+                                        <option value="nameAZ" <?= $selected === 'nameAZ' ? 'selected' : '' ?>>Name (A-Z)</option>
+                                        <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
+                                        <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Price (Increasing)</option>
+                                        <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Price (Decreasing)</option>
+                                        <option value="active" <?= $selected === 'active' ? 'selected' : '' ?>>Active Items</option>
+                                        <option value="overdue" <?= $selected === 'overdue' ? 'selected' : '' ?>>Overdue Items</option>
+                                        <option value="redeemed" <?= $selected === 'redeemed' ? 'selected' : '' ?>>Redeemed Items</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <?php
+                                $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
+                                $where = [];
+                                $orderBy = '';
+
+                                switch ($sorting)
+                                {
+                                    case 'all':
+                                        $orderBy = " ORDER BY i.agreement_num DESC";
+                                        break;
+                                    case 'pasig':
+                                        $where[] = "b.branch_name = 'Marikina-Pasig'";
+                                        $orderBy = " ORDER BY i.agreement_num DESC";
+                                        break;
+                                    case 'quezon':
+                                        $where[] = "b.branch_name = 'Quezon City'";
+                                        $orderBy = " ORDER BY i.agreement_num DESC";
+                                        break;
+                                    case 'makati': 
+                                        $where[] = "b.branch_name = 'Makati'";
+                                        $orderBy = " ORDER BY i.agreement_num DESC";
+                                        break;
+                                    case 'nameAZ': 
+                                        $orderBy = " ORDER BY c.fullname ASC";
+                                        break;
+                                    case 'nameZA': 
+                                        $orderBy = " ORDER BY c.fullname DESC";
+                                        break;
+                                    case 'price_increasing': 
+                                        $orderBy = " ORDER BY i.principal ASC";
+                                        break;
+                                    case 'price_decreasing': 
+                                        $orderBy = " ORDER BY i.principal DESC";
+                                        break;
+                                    case 'default':
+                                        $orderBy = " ORDER BY i.agreement_num DESC";
+                                        break;
+                                    case 'active':
+                                        $where[] = "i.status = 'Active'";
+                                        break;
+                                    case 'overdue':
+                                        $where[] = "i.status = 'Overdue'";
+                                        break;
+                                    case 'redeemed':
+                                        $where[] = "i.status = 'Redeemed'";
+                                        break;
+                                    default:
+                                        $orderBy = '';
+                                        break;
+                                }
+
+                                $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, i.status, i.created_at
+                                        FROM inventory AS i
+                                        INNER JOIN clients AS c ON i.client_id = c.client_id
+                                        INNER JOIN branches AS b ON i.branch_id = b.branch_id";
+                                    
+                                if($role != 'admin')
+                                {
+                                    $where[] = "i.branch_id = ?"; //If not admin, only display items from that branch
+                                }
+
+                                if (!empty($where)) 
+                                {
+                                    $sql .= " WHERE " . implode(" AND ", $where);
+                                }
+                                
+                                $sql .= $orderBy;
+                                $sql .= " LIMIT 7"; // Ni-limit ko muna sa 7
+
+                                $stmt = $conn->prepare($sql);
+
+                                if($role != 'admin')
+                                {
+                                    $stmt->bind_param("i", $branch_id);
+                                }
+
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+                            ?>
+                            <div class="filter-info">
+                                <span>Showing <?php 
+                                    $option = $selected;
+
+                                    if ($option == "nameAZ") {
+                                        $option = "Name Alphabetical";
+                                    } else if ($option == "nameZA") {
+                                        $option = "Name Reverse Alphabetical";
+                                    } else {
+                                        $option = $selected;
+                                    }
+
+                                    echo ucwords(str_replace('_', ' ', $option));
+                                ?></span>
+                                <span>•</span>
+                                <span>
+                                <?php 
+                                    $total = $result->num_rows;
+                                    echo $total >= 2 ? $total . ' Records Found' : $total . ' Record Found'; 
+                                ?>
+                                </span>
+                            </div>       
+                        </div>
+                        <table border="1" cellspacing="0" cellpadding="8">
+                            <thead>
+                                <tr>
+                                <th>Agreement No.</th>
+                                <th>Client Name</th>
+                                <th>Item Name</th>
+                                <th>Amount</th>
+                                <?php
+                                    if($role == 'admin')
+                                    {
+                                        echo "<th>Branch</th>";
+                                    }
+                                ?>
+                                <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    if($result->num_rows > 0) 
+                                    {
+                                        while($row = $result->fetch_assoc())
+                                        {
+                                            $agreement_num = htmlspecialchars($row['agreement_num']);
+                                            $client_name = htmlspecialchars($row['fullname']);
+                                            $item = htmlspecialchars($row['item_name']);
+                                            $principal = htmlspecialchars($row['principal']);
+                                            $branch = htmlspecialchars($row['branch_name']);
+                                            $status = htmlspecialchars($row['status']);
+
+                                            echo 
+                                            "
+                                            <tr>
+                                                <td> $agreement_num </td>
+                                                <td> $client_name </td>
+                                                <td> $item </td>
+                                                <td> ₱$principal </td>
+                                            ";
+                                                if($role == 'admin')
+                                                {
+                                                    echo "<td> $branch </td>";
+                                                }
+                                            echo"
+                                                <td> $status </td>
+                                            </tr>
+                                            ";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        echo
+                                        "
+                                            <tr style='height: 60vh; border: none; cursor: auto;'>
+                                                <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                    <br>
+                                                    <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
+                                                    <h3 style='font-size: 18px;'>No Records Found</h3>
+                                                    <br>
+                                                    <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
+                                                    <br>
+                                                </td>
+                                            </tr>
+                                        ";
+                                    }
+                                ?>
+                            </tbody>
+                        </table>
+
+                    </div>
