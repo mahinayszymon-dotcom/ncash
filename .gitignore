@@ -1,9 +1,2 @@
-# Database Credentials
-DB_SERVERNAME=127.0.0.1:3308
-DB_USERNAME=developer_ncash
-DB_PASSWORD=devpass123
-DB_NAME=ncash_tracemo
-
-# Admin Credentials
-USER_USERNAME=admin
-USER_PASSWORD=admin1100
+# Database configuration (specific to each dev)
+db_conn.php
