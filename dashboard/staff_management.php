@@ -57,13 +57,13 @@ if ($role !== "admin") {
                                 switch ($sorting)
                                 {
                                     case 'pasig':
-                                        $where[] = "b.branch_name = 'Marikina-Pasig'";
+                                        $where[] = "b.branch_name = 'Marikina-Pasig' ORDER BY u.role";
                                         break;
                                     case 'quezon':
-                                        $where[] = "b.branch_name = 'Quezon City'";
+                                        $where[] = "b.branch_name = 'Quezon City' ORDER BY u.role";
                                         break;
                                     case 'makati': 
-                                        $where[] = "b.branch_name = 'Makati'";
+                                        $where[] = "b.branch_name = 'Makati' ORDER BY u.role";
                                         break;
                                     case 'nameAZ': 
                                         $orderBy = " ORDER BY u.fullname ASC"; 
@@ -85,7 +85,7 @@ if ($role !== "admin") {
                                         break;
                                     case 'default':
                                     default:
-                                        $orderBy = " ORDER BY u.user_id ASC"; // Changed due_date to user_id
+                                        $orderBy = " ORDER BY FIELD(u.user_id, 1) DESC, u.role ASC";
                                         break;
                                 } 
 
@@ -179,34 +179,71 @@ if ($role !== "admin") {
                                                 $privelage = 'user';
                                             }
 
-                                            echo
-                                            "
-                                            <tr>
-                                                <div class='user_card'>
-                                                    <div class='user_profile'>
-                                                        <div class='user_profile_icon'>
-                                                            <p>$profile_char</p>
-                                                            <span class='u_status $state'></span>
+                                            
+
+                                            if ($u_user_ID == 1) {
+                                                echo
+                                                "
+                                                <tr>
+                                                    <div class='user_card'>
+                                                        <div class='user_profile'>
+                                                            <div class='user_profile_icon'>
+                                                                <p>$profile_char</p>
+                                                                <span class='u_status $state'></span>
+                                                            </div>
+                                                            <div class='user_profile_name'>
+                                                                <p>$u_fullname</p>
+                                                                <p>$u_email</p>
+                                                            </div>
                                                         </div>
-                                                        <div class='user_profile_name'>
-                                                            <p>$u_fullname</p>
-                                                            <p>$u_email</p>
+                                                        <div class='user_info'>
+                                                            <div class='info $privelage'>
+                                                                " . ucwords($u_role) . "
+                                                            </div>
+                                                            <div class='info'>
+                                                                $u_branch
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class='user_info'>
-                                                        <div class='info $privelage'>
-                                                            " . ucwords($u_role) . "
+                                                        <div class='user_actions'>
+                                                            <a href='javascript:void(0)' title='You cannot view this account.' style='cursor: not-allowed;'>
+                                                                <button type='button' style='opacity: 0.5; pointer-events: none;'>
+                                                                    <img src='../resources/img/icons/open.png' alt='open'>
+                                                                </button>
+                                                            </a>
                                                         </div>
-                                                        <div class='info'>
-                                                            $u_branch
+                                                    <div>
+                                                </tr>
+                                                ";
+                                            } else {
+                                                echo
+                                                "
+                                                <tr>
+                                                    <div class='user_card'>
+                                                        <div class='user_profile'>
+                                                            <div class='user_profile_icon'>
+                                                                <p>$profile_char</p>
+                                                                <span class='u_status $state'></span>
+                                                            </div>
+                                                            <div class='user_profile_name'>
+                                                                <p>$u_fullname</p>
+                                                                <p>$u_email</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class='user_actions'>
-                                                        <a href=\"../dashboard/staff/info.php?id=" . $u_user_ID . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
-                                                    </div>
-                                                <div>
-                                            </tr>
-                                            ";
+                                                        <div class='user_info'>
+                                                            <div class='info $privelage'>
+                                                                " . ucwords($u_role) . "
+                                                            </div>
+                                                            <div class='info'>
+                                                                $u_branch
+                                                            </div>
+                                                        </div>
+                                                        <div class='user_actions'>
+                                                            <a href=\"../dashboard/staff/info.php?id=" . $u_user_ID . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
+                                                        </div>
+                                                    <div>
+                                                </tr>
+                                                ";
+                                            }
                                         }
                                     }
                                     else
@@ -214,7 +251,7 @@ if ($role !== "admin") {
                                         echo
                                         "
                                             <tr>
-                                                <td rowspan='5' colspan='7' style='text-align: center; vertical-align: middle; height: 150px; font-weight: 600;'> No records found </td>
+                                                <td rowspan='5' colspan='7' style='text-align: center; vertical-align: middle; height: 150px; font-weight: 500;'> No users found </td>
                                             </tr>
                                         ";
                                     }
@@ -287,11 +324,156 @@ if ($role !== "admin") {
                         </div>
                     </div>
                     <div class="data_controls_form">
-
+                        <form action="">
+                            <div class="fullwidth">
+                                <span class="message_info"><img src="../resources/img/icons/bulb.png" alt="info">Please ensure all fields marked with a red asterisk (*) are completed and that the employee information is unique to the system.</span>
+                            </div>
+                            <div class="fullwidth">       
+                                <p>Employee Information</p>
+                            </div>
+                            <div class="input_cont">
+                                <label for="emp_uname">Employee Username<i style="color:red;">*</i></label>
+                                <input type="text" name="emp_uname" id="emp_uname" required>
+                            </div>
+                            <div class="input_cont">
+                                <label for="emp_name">Employee Name<i style="color:red;">*</i></label>
+                                <input type="text" name="emp_name" id="emp_name" required>
+                            </div>
+                            <div class="input_cont">
+                                <label for="emp_email">Employee Email<i style="color:red;">*</i></label>
+                                <input type="email" name="emp_email" id="emp_email" required>
+                            </div>
+                            <div class="input_cont">
+                                <label for="branch_select">Branch<i style="color:red;">*</i></label>
+                                <select name="branch_select" id="branch_select" required">
+                                    <option value="1100">Marikina-Pasig Branch</option>
+                                    <option value="1101">Quezon City Branch</option>
+                                    <option value="1102">Makati Branch</option>
+                                </select>
+                            </div>
+                            <div class="fullwidth">       
+                                <p>Security</p>
+                            </div>
+                            <div class="input_cont">
+                                <label for="emp_pass">Password<i style="color:red;">*</i></label>
+                                <input type="password" name="emp_pass" id="emp_pass" required>
+                            </div>
+                            <div class="input_cont">
+                                <label for="emp_cpass">Confirm Password<i style="color:red;">*</i></label>
+                                <input type="password" name="emp_cpass" id="emp_cpass" required>
+                            </div>
+                            <div class="input_cont" style="opacity: 0.9;">
+                                <label for="choice_def_pass">Require user to change password</label>
+                            </div>
+                            <div class="input_cont rad">
+                                <div>
+                                    <input type="radio" name="choice_def_pass" id="yes_choice_def_pass">
+                                    <label for="yes_choice_def_pass">Yes</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="choice_def_pass" id="no_choice_def_pass">
+                                    <label for="no_choice_def_pass">No</label>
+                                </div>
+                            </div>
+                            <div class="fullwidth">       
+                                <p>Privelage Access</p>
+                            </div>
+                            <div class="input_cont">
+                                <label for="role_select">Role<i style="color:red;">*</i></label>
+                                <select name="role_select" id="role_select" required">
+                                    <option value="user">User</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="input_cont">
+                                <button type="submit"><img src="../resources/img/icons/add1.png" alt="add">Add User</button>
+                            </div>
+                        </form>
+                        <div id="admin-note" style="display: none; background-color: #e9e4e9; border-left: 5px solid var(--purple); padding: 10px; margin: 10px 0; color: var(--black-dark); font-size: 0.9rem; border-radius: 4px;">
+                            <i style="font-weight: 500;">Note:</i> By adding this user, they will be granted <strong style="font-weight: 500;">Administrator</strong> privileges in the system.
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </section>
+    <div class="result_cont_bar">
+        <?php
+            //$_SESSION['user_add_success_msg'] = 'Test';
+
+            if (isset($_SESSION['user_add_success_msg'])) {
+                echo "<span id=\"user_add_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['user_add_success_msg'] . "</span>";
+    
+                // 2. Add JavaScript immediately after the message to hide it after 3 seconds
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('user_add_success');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['user_add_success_msg']);
+            }
+
+            if (isset($_SESSION['user_add_error_msg'])) {
+                echo "<span id=\"user_add_error\" class=\"message_success_d\"><img src=\"../resources/img/icons/error_bright.png\" alt=\"error\">" . $_SESSION['user_add_error_msg'] . "</span>";
+    
+                // 2. Add JavaScript immediately after the message to hide it after 3 seconds
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('user_add_error');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['user_add_error_msg']);
+            }
+        ?>
+    </div>
 </body>
 </html>
+<script>
+    document.getElementById('role_select').addEventListener('change', function() {
+        const adminNote = document.getElementById('admin-note');
+        
+        if (this.value === 'admin') {
+            adminNote.style.display = 'block'; 
+        } else {
+            adminNote.style.display = 'none'; 
+        }
+    });
+</script>

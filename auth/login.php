@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = mysqli_real_escape_string($conn, $username);
     $password = mysqli_real_escape_string($conn, $password);
 
-    $sql = "SELECT * FROM users WHERE username = ? AND status = 'active' LIMIT 1";
+    $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -31,8 +31,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
+        if ($user['register_status'] == 0) {
+            header("Location: register.php");
+            exit();
+        }
+
         if (password_verify($password, $user['password'])) {
             // diko sure kung may kulang pa
+            session_regenerate_id(true);
+
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['fullname'] = $user['fullname'];
@@ -40,10 +47,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['branch_id'] = $user['branch_id'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['status'] = $user['status'];
+            $_SESSION['register_status'] = $user['register_status'];
             $_SESSION['created_at'] = $user['created_at'];
 
-            header("Location: ../dashboard/home.php");
-            exit();
+            if ($user['register_status'] == 1) {
+                header("Location: register.php");
+                exit();
+            } else if ($user['register_status'] == 0) {
+                header("Location: ../dashboard/home.php");
+                exit();
+            } else {
+                header("Location: ../auth/denied.php");
+                exit();
+            }
+
         } else {
             $error_message = "Invalid password. Try again.";
         }

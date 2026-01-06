@@ -24,6 +24,7 @@
     --red-gradient-nav: linear-gradient(#612626, #8c3a3a, #8c3a3a, #8c3a3a, #5c2424);
 
   /* Additional Colors */
+    --purple-gradient: linear-gradient(135deg, #2c2830, #2c2830, #4a3b4a, #2c2830);
     --reports-gradient-sub: linear-gradient(to right, #e67e73, #f2a49e);
     --reports-gradient: linear-gradient(to right, #4a3b4a, #2c2830);
     --reports-gradient2: linear-gradient(135deg, #4a3b4a, #2c2830, #332e37);

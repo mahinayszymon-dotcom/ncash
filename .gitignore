@@ -1,2 +1,2 @@
 # Database configuration (specific to each dev)
-db_conn.php
+config/db_conn.php

@@ -12,13 +12,13 @@ button:not(:disabled):focus {
 
 .data_actions .delete {
     border: none;
-    padding: 10px;
+    padding: .63rem;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 15px;
+    gap: .63rem;
+    font-size: .94rem;
     background-color: var(--red-dark);
-    border-radius: 5px;
+    border-radius: .31rem;
     transition: background-color 0.1s ease;
 }
 
@@ -44,13 +44,13 @@ button:not(:disabled):focus {
 
 .data_actions .request {
     border: none;
-    padding: 10px;
+    padding: .63rem;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 15px;
+    gap: .63rem;
+    font-size: .94rem;
     background-color: var(--request-light);
-    border-radius: 5px;
+    border-radius: .31rem;
     transition: background-color 0.1s ease;
 }
 
@@ -76,35 +76,35 @@ button:not(:disabled):focus {
 }
 
 .data_panel_subheaderC {
-    height: 40px;
+    height: 2.5rem;
     width: 100%;
 }
 
 .archive_nav_links {
     display: flex;
     height: 100%;
-    /* border-bottom: 2px solid var(--red-dark); */
-    padding: 5px 0;
+    /* border-bottom: .13rem solid var(--red-dark); */
+    padding: .31rem 0;
     /* background: linear-gradient(to right, var(--main-background), var(--main-content)); */
-    border-radius: 8px;
-    margin-bottom: 15px;
+    border-radius: .5rem;
+    margin-bottom: .94rem;
 }
 
 .archive_nav_links a {
-    font-size: 16px;
-    width: 130px;
+    font-size: 1rem;
+    width: 8.13rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 10px;
+    padding: .31rem .63rem;
     color: var(--black-dark);
     font-weight: 500;
     background-color: var(--main-background-data);
-    border-radius: 5px;
+    border-radius: .31rem;
     transition: border-bottom 0.1s ease;
-    margin: 0 15px 0 0;
+    margin: 0 .94rem 0 0;
     opacity: 0.75;
-    /* border-bottom: 0px solid var(--red-dark); */
+    /* border-bottom: 0rem solid var(--red-dark); */
     transition: 
         opacity 0.1s ease, 
         background-color 0.1s ease, 
@@ -112,12 +112,12 @@ button:not(:disabled):focus {
 }
 
 .archive_nav_links a:hover {
-    border-radius: 10px 10px 0 0;
-    /* border-bottom: 2px solid var(--red-dark); */
+    border-radius: .63rem .63rem 0 0;
+    /* border-bottom: .13rem solid var(--red-dark); */
     background-color: var(--main-background-data);
     opacity: 1;
 }
 
 /* .archive_nav_links a:hover {
-    border-bottom: 2px solid var(--red-dark);
+    border-bottom: .13rem solid var(--red-dark);
 } */

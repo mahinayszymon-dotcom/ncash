@@ -2,7 +2,7 @@
 @keyframes fadeInAnimation {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(.63rem);
     }
     to {
         opacity: 1;
@@ -39,16 +39,16 @@ body {
 
 button#return {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: .94rem;
+    right: .94rem;
     outline: none;
-    padding: 8px 12px 8px 8px;
+    padding: .5rem .75rem .5rem .5rem;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: .5rem;
+    font-size: 1rem;
     font-weight: 400;
     display: flex;
-    gap: 10px;
+    gap: .63rem;
     justify-content: center;
     align-items: center;
     background-color: var(--main-background-data);
@@ -68,24 +68,24 @@ button#return:hover {
     display: flex;
     flex-wrap: wrap;
     height: 100vh;
-    background: var(--red-gradient-reversed);
+    background: var(--reports-gradient2);
     overflow: hidden;
 }
 
 .forget_pass_panel {
     background-color: var(--main-background-login);
-    min-width: 500px;
-    flex: 1 1 500px;
+    min-width: 31.25rem;
+    flex: 1 1 31.25rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 30px 0 0 30px;
+    border-radius: 1.88rem 0 0 1.88rem;
 }
 
     .forget_pass_panel_container {
-        padding: 20px;
-        max-width: 650px;
+        padding: 1.25rem;
+        max-width: 40.63rem;
     }
 
         .forget_pass_panel .forget_pass_panel_container .logo img {
@@ -93,7 +93,7 @@ button#return:hover {
         }
 
         .forget_pass_panel .forget_pass_panel_container  .login_header {
-            padding: 0 0 20px;
+            padding: 0 0 1.25rem;
 
         }
 
@@ -102,11 +102,11 @@ button#return:hover {
             }
 
                 .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="email"], .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="text"] {
-                    margin: 10px 0;
-                    padding: 14px 14px 14px 50px;
-                    font-size: 16px;
-                    border-radius: 10px;
-                    border: 1px solid var(--text-outline-light);
+                    margin: .63rem 0;
+                    padding: .88rem .88rem .88rem 3.13rem;
+                    font-size: 1rem;
+                    border-radius: .63rem;
+                    border: .06rem solid var(--text-outline-light);
                     width: 100%;
                     outline: none;
                 }
@@ -114,9 +114,9 @@ button#return:hover {
                 .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon1, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon2, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon3, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .left_icon4  {
                     position: absolute;
                     top: 50%;
-                    left: 15px;
-                    width: 24px;
-                    height: 24px;
+                    left: .94rem;
+                    width: 1.5rem;
+                    height: 1.5rem;
                     transform: translateY(-50%);
                     opacity: 0.6;
                     z-index: 99;
@@ -159,9 +159,9 @@ button#return:hover {
                 .forget_pass_panel .forget_pass_panel_container .email_input .input_container .visibility_icon, .forget_pass_panel .forget_pass_panel_container .email_input .input_container .visibility_icon2 {
                     position: absolute;
                     top: 50%;
-                    right: 15px;
-                    width: 22px;
-                    height: 22px;
+                    right: .94rem;
+                    width: 1.38rem;
+                    height: 1.38rem;
                     transform: translateY(-50%);
                     opacity: 0.6;
                     cursor: pointer;
@@ -177,11 +177,11 @@ button#return:hover {
                 }
 
                 .forget_pass_panel .forget_pass_panel_container .email_input .input_container input[type="password"] {
-                    margin: 10px 0;
-                    padding: 14px 14px 14px 50px;
-                    font-size: 16px;
-                    border-radius: 10px;
-                    border: 1px solid var(--text-outline-light);
+                    margin: .63rem 0;
+                    padding: .88rem .88rem .88rem 3.13rem;
+                    font-size: 1rem;
+                    border-radius: .63rem;
+                    border: .06rem solid var(--text-outline-light);
                     width: 100%;
                     outline: none;
                 }
@@ -193,7 +193,7 @@ button#return:hover {
                 .forget_pass_panel .forget_pass_panel_container .email_input input[type="checkbox"] {
                     accent-color: var(--red-dark);
                     cursor: pointer;
-                    margin-right: 10px;
+                    margin-right: .63rem;
                 }
 
                 .forget_pass_panel .forget_pass_panel_container .email_input label {
@@ -222,21 +222,21 @@ button#return:hover {
                 }
 
         .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont {
-            margin: 30px 0 30px;
+            margin: 1.88rem 0 1.88rem;
         }
 
             .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont button {
                 width: 100%;
-                padding: 15px;
-                border-radius: 10px;
+                padding: .94rem;
+                border-radius: .63rem;
                 color: var(--main-content);
                 background-color: var(--red-light);
             }
 
             .forget_pass_panel .forget_pass_panel_container .send_otp_btn_cont button {
                 width: 100%;
-                padding: 15px;
-                border-radius: 10px;
+                padding: .94rem;
+                border-radius: .63rem;
                 color: var(--main-content);
                 background-color: var(--red-dark);
                 border: none;
@@ -258,15 +258,15 @@ button#return:hover {
         }
 
         .forget_pass_panel .forget_pass_panel_container .forget_pass_footer p {
-            font-size: 13px;
+            font-size: .81rem;
             opacity: 0.7;
         }
 
 .forget_pass_graphic {
     background-color: transparent;
-    padding: 40px;
-    min-width: 500px;
-    flex: 2.3 1 500px;
+    padding: 2.5rem;
+    min-width: 31.25rem;
+    flex: 2.3 1 31.25rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -280,7 +280,7 @@ button#return:hover {
 .forget_pass_graphic .graphic_img img {
     width: 100%;
     height: auto;
-    max-width: 650px;
+    max-width: 40.63rem;
     object-fit: contain;
 }
 

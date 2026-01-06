@@ -8,17 +8,17 @@
 
     .login_panel {
         background-color: var(--main-background-login);
-        min-width: 500px;
-        flex: 1 1 500px;
+        min-width: 31.25rem;
+        flex: 1 1 31.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        border-radius: 0 30px 30px 0;
+        border-radius: 0 1.88rem 1.88rem 0;
     }
 
         .login_panel_container {
-            padding: 20px;
+            padding: 1.25rem;
         }
 
             .login_panel .login_panel_container .logo img {
@@ -26,7 +26,7 @@
             }
 
             .login_panel .login_panel_container  .login_header {
-                padding: 0 0 20px;
+                padding: 0 0 1.25rem;
 
             }
 
@@ -35,11 +35,11 @@
                 }
 
                     .login_panel .login_panel_container .login_input .input_container input[type="text"] {
-                        margin: 10px 0;
-                        padding: 14px 14px 14px 50px;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        border: 1px solid var(--text-outline-light);
+                        margin: .63rem 0;
+                        padding: .88rem .88rem .88rem 3.13rem;
+                        font-size: 1rem;
+                        border-radius: .63rem;
+                        border: .06rem solid var(--text-outline-light);
                         width: 100%;
                         outline: none;
                     }
@@ -47,9 +47,9 @@
                     .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4  {
                         position: absolute;
                         top: 50%;
-                        left: 15px;
-                        width: 24px;
-                        height: 24px;
+                        left: .94rem;
+                        width: 1.5rem;
+                        height: 1.5rem;
                         transform: translateY(-50%);
                         opacity: 0.6;
                         z-index: 99;
@@ -92,9 +92,9 @@
                     .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
                         position: absolute;
                         top: 50%;
-                        right: 15px;
-                        width: 22px;
-                        height: 22px;
+                        right: .94rem;
+                        width: 1.38rem;
+                        height: 1.38rem;
                         transform: translateY(-50%);
                         opacity: 0.6;
                         cursor: pointer;
@@ -110,11 +110,11 @@
                     }
 
                     .login_panel .login_panel_container .login_input .input_container input[type="password"] {
-                        margin: 10px 0;
-                        padding: 14px 14px 14px 50px;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        border: 1px solid var(--text-outline-light);
+                        margin: .63rem 0;
+                        padding: .88rem .88rem .88rem 3.13rem;
+                        font-size: 1rem;
+                        border-radius: .63rem;
+                        border: .06rem solid var(--text-outline-light);
                         width: 100%;
                         outline: none;
                     }
@@ -126,7 +126,7 @@
                     .login_panel .login_panel_container .login_input input[type="checkbox"] {
                         accent-color: var(--red-dark);
                         cursor: pointer;
-                        margin-right: 10px;
+                        margin-right: .63rem;
                     }
 
                     .login_panel .login_panel_container .login_input label {
@@ -155,21 +155,21 @@
                     }
 
             .login_panel .login_panel_container .login_btn_cont {
-                margin: 30px 0 30px;
+                margin: 1.88rem 0 1.88rem;
             }
 
                 .login_panel .login_panel_container .login_btn_cont button {
                     width: 100%;
-                    padding: 15px;
-                    border-radius: 10px;
+                    padding: .94rem;
+                    border-radius: .63rem;
                     color: var(--main-content);
                     background-color: var(--red-light);
                 }
 
                 .login_panel .login_panel_container .login_btn_cont button {
                     width: 100%;
-                    padding: 15px;
-                    border-radius: 10px;
+                    padding: .94rem;
+                    border-radius: .63rem;
                     color: var(--main-content);
                     background-color: var(--red-dark);
                     border: none;
@@ -191,15 +191,15 @@
             }
 
             .login_panel .login_panel_container .login_footer p {
-                font-size: 13px;
+                font-size: .81rem;
                 opacity: 0.7;
             }
 
     .login_graphic {
         background-color: transparent;
-        padding: 40px;
-        min-width: 500px;
-        flex: 2.3 1 500px;
+        padding: 2.5rem;
+        min-width: 31.25rem;
+        flex: 2.3 1 31.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -213,7 +213,7 @@
         .login_graphic .graphic_img img {
             width: 100%;
             height: auto;
-            max-width: 650px;
+            max-width: 40.63rem;
             object-fit: contain;
         }
         
@@ -228,9 +228,9 @@
 
 
 /*Responsiveness*/
-@media (max-width: 1400px) {
+@media (max-width: 87.5rem) {
     .login_graphic {
-        padding: 40px;
+        padding: 2.5rem;
     }
 
     .login_graphic .graphic_img {
@@ -238,122 +238,122 @@
     }
 
     .login_graphic .graphic_img img {
-        max-width: 430px;
+        max-width: 26.88rem;
     }
 
     .login_panel {
-        min-width: 350px;
-        padding: 50px;
-        border-radius: 0 12px 12px 0;
+        min-width: 21.88rem;
+        padding: 3.13rem;
+        border-radius: 0 .75rem .75rem 0;
     }
 
     h1 {
-        font-size: 28px;
+        font-size: 1.75rem;
     }
 
     h2 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     p {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     input#username, input#password {
-        font-size: 15px;
-        padding: 11px 11px 11px 40px;
-        border-radius: 5px !important;
+        font-size: .94rem;
+        padding: .69rem .69rem .69rem 2.5rem;
+        border-radius: .31rem !important;
     }
 
     label, a {
-        margin-top: 5px;
-        font-size: 14px !important;
+        margin-top: .31rem;
+        font-size: .88rem !important;
     }
 
     .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
         height: auto;
-        width: 18px;
+        width: 1.13rem;
     }
 
     .login_btn_cont button {
-        padding: 11px !important;
-        font-size: 15px;
-        border-radius: 5px !important;
+        padding: .69rem !important;
+        font-size: .94rem;
+        border-radius: .31rem !important;
     }
 
     .login_footer p {
-        font-size: 13px;
+        font-size: .81rem;
     }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 64rem) {
     .login_graphic {
         display: none;
     }
 
     .login_panel {
-        min-width: 350px;
-        padding: 50px;
+        min-width: 21.88rem;
+        padding: 3.13rem;
         border-radius: 0;
     }
 
     h1 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     h2 {
-        font-size: 18px;
+        font-size: 1.13rem;
     }
 
     p {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     label, a {
-        font-size: 14px;
-        padding: 10px;
+        font-size: .88rem;
+        padding: .63rem;
     }
 
     .login_panel .login_panel_container .login_input .input_container input[type="text"], .login_panel .login_panel_container .login_input .input_container input[type="password"] {
-        font-size: 14px;
+        font-size: .88rem;
     }
 
     .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
         height: auto;
-        width: 18px;
+        width: 1.13rem;
     }
 
     button {
-        padding: 10px;
+        padding: .63rem;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
     .login_panel {
         justify-content: start;
-        padding: 20px;
+        padding: 1.25rem;
     }
 
     h1 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     p {
-        font-size: 15px;
+        font-size: .94rem;
     }
 
     label, a {
-        font-size: 13px;
-        padding: 7px;
+        font-size: .81rem;
+        padding: .44rem;
     }
 
     .login_panel .login_panel_container .login_input .input_container .left_icon1, .login_panel .login_panel_container .login_input .input_container .left_icon2, .login_panel .login_panel_container .login_input .input_container .left_icon3, .login_panel .login_panel_container .login_input .input_container .left_icon4, .login_panel .login_panel_container .login_input .input_container .visibility_icon, .login_panel .login_panel_container .login_input .input_container .visibility_icon2 {
         height: auto;
-        width: 16px;
+        width: 1rem;
     }
 
     button {
-        padding: 7px;
-        font-size: 14px;
+        padding: .44rem;
+        font-size: .88rem;
     }
 }

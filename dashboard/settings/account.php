@@ -119,10 +119,18 @@ include("../../config/db_conn.php");
                                         <label for="name">Email</label>
                                         <input type="email" name="email" id="email" class="profile_tags" value="<?php echo $email; ?>" disabled>
                                     </div>
-                                    <div class="account_info_detail_btn">
-                                        <button type="button">Edit</button>
-                                        <button type="submit" name="submit" disabled>Save Changes</button>
-                                    </div>
+                                    <?php
+                                        if ($user_id == 1) {
+                                            echo '<div class="account_info_detail_btn">
+                                                <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">The Primary Admin account is protected by system integrity rules. Credentials for this root user are permanent and cannot be modified within the management module.</span>
+                                            </div>';
+                                        } else {
+                                            echo '<div class="account_info_detail_btn">
+                                                    <button type="button">Edit</button>
+                                                    <button type="submit" name="submit" disabled>Save Changes</button>
+                                                </div>';
+                                        }
+                                    ?>
                                 </form>
                                 <div class="result_cont">
                                     <?php

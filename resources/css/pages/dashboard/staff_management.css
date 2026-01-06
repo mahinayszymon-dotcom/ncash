@@ -12,25 +12,25 @@
 .data_tableB {
     grid-area: left;
     background-color: var(--main-content);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(115, 42, 42, 0.04);
-    padding: 20px;
+    border-radius: .63rem;
+    box-shadow: 0 .25rem .5rem rgba(115, 42, 42, 0.04);
+    padding: 1.25rem;
 }
 
 .data_panel_header, .data_panel_subheader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px; 
-    margin-bottom: 10px;
+    gap: .63rem; 
+    margin-bottom: .63rem;
 }
 
 .sort {
-    padding: 13px 13px 13px 45px;
+    padding: .81rem .81rem .81rem 2.81rem;
     background-color: var(--main-background);
     border: none;
-    width: 220px;
-    border-radius: 10px;
+    width: 13.75rem;
+    border-radius: .63rem;
     color: var(--search);
     text-align: left;
     -webkit-appearance: none;
@@ -51,15 +51,15 @@
     width: 60%;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: .94rem;
 }
 
 .data_panel_buttons {
-    min-width: 300px;
+    min-width: 18.75rem;
     display: flex;
     justify-content: end;
     align-items: center;
-    gap: 15px;
+    gap: .94rem;
 }
 
 .data_panel_buttonsC {
@@ -67,20 +67,20 @@
     display: flex;
     justify-content: end;
     align-items: center;
-    gap: 15px;
+    gap: .94rem;
 }
 
 .data_panel_buttons button, .data_panel_buttonsC button {
-    font-size: 15px;
+    font-size: .94rem;
     font-weight: 400;
-    padding: 10px 13px 10px 10px;
+    padding: .63rem .81rem .63rem .63rem;
     height: 100%;
     border: none;
-    border-radius: 10px;
+    border-radius: .63rem;
     color: var(--main-content);
     background-color: var(--red-dark);
     display: flex;
-    gap: 8px;
+    gap: .5rem;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease;
@@ -92,7 +92,7 @@
 
 .data_panel_buttons button img {
     padding: none;
-    width: 20px;
+    width: 1.25rem;
     height: auto;
 }
 
@@ -105,19 +105,19 @@
 
     .custom-arrow {
         position: absolute;
-        top: 8px;
-        right: 18px; 
-        width: 16px;
-        height: 16px;
+        top: .5rem;
+        right: 1.13rem; 
+        width: 1rem;
+        height: 1rem;
         cursor: pointer;
     }
 
     .custom-arrow-sort {
         position: absolute;
-        top: 8px;
-        left: 10px; 
-        width: 16px;
-        height: 16px;
+        top: .5rem;
+        left: .63rem; 
+        width: 1rem;
+        height: 1rem;
         cursor: pointer;
     }
 
@@ -130,31 +130,31 @@
     align-items: center;
     justify-content: space-between; /* Pushes profile and info to left, button to right */
     background: var(--main-content);
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    border: 2px solid var(--main-background-data);
+    padding: .75rem 1.25rem;
+    border-radius: .63rem;
+    margin-bottom: .63rem;
+    border: .13rem solid var(--main-background-data);
     transition: transform 0.2s;
     cursor: pointer;
 }
 
 .user_card:hover {
     background-color: var(--main-background-data);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 .25rem .75rem rgba(0,0,0,0.05);
 }
 
 /* --- Profile Section --- */
 .user_profile {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: .94rem;
     flex: 1;
-    width: 55%;
+    width: 50%;
 }
 
 .user_profile_icon {
-    width: 35px;
-    height: 35px;
+    width: 2.19rem;
+    height: 2.19rem;
     background-color: var(--purple-dark);
     border-radius: 50%;
     display: flex;
@@ -168,9 +168,9 @@
     position: absolute;
     bottom: -2;
     right: -2;
-    padding: 5px;
+    padding: .31rem;
     border-radius: 50%;
-    border: 1px solid var(--main-content);
+    border: .06rem solid var(--main-content);
 }
 
 .active {
@@ -184,7 +184,7 @@
 .user_profile_icon p {
     color: var(--main-content);
     font-weight: 400;
-    font-size: 15px;
+    font-size: .94rem;
 }
 
 .user_profile_name p {
@@ -192,48 +192,48 @@
 }
 
 .user_profile_name p:first-child {
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 500;
     color: #333;
 }
 
 .user_profile_name p:last-child {
-    font-size: 13px;
+    font-size: .81rem;
     color: #888;
 }
 
 /* --- Info Badges Section --- */
 .user_info {
     display: flex;
-    gap: 10px;
+    gap: .63rem;
     justify-content: start;
-    width: 40% !important;
+    width: 45% !important;
 }
 
 .user_info .info:first-child {
-    font-size: 13px;
-    padding: 4px 12px;
+    font-size: .81rem;
+    padding: .25rem .75rem;
     background: #e9e4e9;
-    border-radius: 5px;
+    border-radius: .31rem;
     color: #645464;
     font-weight: 500;
-    min-width: 90px;
+    min-width: 6.63rem;
     text-align: center;
 }
 
 .user_info .info:last-child {
-    font-size: 13px;
-    padding: 4px 12px;
+    font-size: .81rem;
+    padding: .25rem .75rem;
     background: #e9e4e9;
-    border-radius: 5px;
+    border-radius: .31rem;
     color: #645464;
     font-weight: 500;
-    min-width: 140px;
+    min-width: 8.75rem;
     text-align: center;
 }
 
 .admin {
-    background-color: var(--purple) !important;
+    background-color: var(--red-dark) !important;
     color: var(--main-background-data) !important;
 }
 
@@ -245,13 +245,112 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 5px;
+    padding: .5rem;
+    border-radius: .31rem;
     transition: background 0.2s;
 }
 
 .user_actions img {
-    width: 18px;
-    height: 18px;
+    width: 1.13rem;
+    height: 1.13rem;
     opacity: 0.65;
+}
+
+/* .data_controls_form {
+    margin-top: .94rem;
+} */
+
+.data_controls_form form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    align-items: center;
+    gap: .44rem;
+}
+
+.data_controls_form form .fullwidth {
+    grid-column: 1 / -1;
+}
+
+.data_controls_form form hr.fullwidth {
+    grid-column: 1 / -1;
+    margin: 16px 0;
+}
+
+.data_controls_form form .fullwidth p {
+    margin: .63rem 0;
+    font-weight: 400;
+    font-size: 1.13rem;
+}
+
+.data_controls_form form .input_cont input {
+    background-color: var(--main-content) !important;
+    border: .06rem solid var(--main-background-data);
+    font-weight: 500;
+}
+
+
+.input_cont button {
+    padding: .5rem !important;
+    border-radius: .31rem !important;
+}
+
+.input_cont label {
+    color: var(--black-dark);
+}
+
+
+input#emp_uname, 
+input#emp_name, 
+input#emp_email, 
+select#branch_select, 
+input#emp_pass, 
+input#emp_cpass, 
+select#ubranch_select,
+select#role_select
+{
+    border: .06rem solid var(--input-border);
+    background-color: var(--main-content);
+    padding: .63rem;
+    border-radius: .31rem;
+    outline: none;
+    width: 100%;
+    margin: .44rem 0;
+    /* font-size: .90rem; */
+}
+
+select#ubranch_select,
+select#role_select {
+    font-size: .90rem;
+}
+
+.input_cont input[type="radio"] {
+    accent-color: var(--purple);
+}
+
+.rad {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.input_cont button[type="submit"] {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: .75rem 1.25rem;
+    font-size: 1rem;
+    background-color: var(--purple);
+    color: var(--main-content);
+    border: 0.06rem solid var(--purple);
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .63rem;
+}
+
+.input_cont button[type="submit"]:hover {
+    background-color: var(--purple-dark);
 }

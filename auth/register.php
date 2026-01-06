@@ -6,7 +6,7 @@
     {
         header("Location: ../dashboard/");
         exit();
-    } else if (is_null($_SESSION['temp_email']) && is_null($_SESSION['temp_verify']))
+    } else if (isset($_SESSION['register_status']) == 1)
     {
         header("Location: ../auth/denied.php");
         exit();
@@ -30,14 +30,15 @@
     <!-- <link rel="stylesheet" href="../resources/css/pages/auth/login.css"> -->
 </head>
 <body>
+    <button onclick="window.location.href='login.php'" id="return"><img src="../resources/img/icons/arrow_circle_left.png" alt="return">Return</button>
     <section class="main2">
         <div class="forget_pass_graphic">
             <div class="graphic_img">
                 <img src="../resources/img/icons/sample.png" alt="sample">
             </div>
             <div class="graphic_text">
-                <h2>Track, Manage, and Notify with TraceMo</h2>
-                <p>Everything your business needs for accurate records and timely client updates.</p>
+                <h2>Welcome to TraceMo</h2>
+                <p>Let's finalize your account first.</p>
             </div>
         </div>
         <div class="forget_pass_panel">
@@ -46,8 +47,8 @@
                     <img src="../resources/img/ncash_logo_login.png" alt="N-Cash Logo">
                 </div>
                 <div class="login_header">
-                    <h1>Change Password</h1>
-                    <p>Finalize your account recovery by setting a new secure password.</p>
+                    <h1>Register Account</h1>
+                    <p>Finalize your account by setting a new secure password.</p>
                 </div>
                 <form action="" method="POST">
                     <div class="email_input"> 

@@ -51,7 +51,11 @@ $stmt->execute();
                 <div class="quick_cont">
                     <a href="../dashboard/inventory/add.php"><span class="img_glass"><img src="../resources/img/icons/add_box2.png" alt="add"></span>Add Item</a>
                     <a href="../dashboard/transactions/add.php"><span class="img_glass"><img src="../resources/img/icons/payment.png" alt="pay"></span>Add Transaction</a>
-                    <a href="reports.php"><span class="img_glass"><img src="../resources/img/icons/reports2.png" alt="report"></span>View Reports</a>
+                    <?php
+                        if($role !== 'admin') {
+                            echo '<a href="reports.php"><span class="img_glass"><img src="../resources/img/icons/reports2.png" alt="report"></span>View Reports</a>';
+                        }
+                    ?>
                     <a href="../archives/archived_items.php"><span class="img_glass"><img src="../resources/img/icons/archives.png" alt="archive"></span>View Archives</a>
                     <a href="userhelp.php"><span class="img_glass"><img src="../resources/img/icons/help2.png" alt="help"></span>Help Center</a>
                 </div>

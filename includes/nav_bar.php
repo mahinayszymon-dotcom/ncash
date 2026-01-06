@@ -2,7 +2,7 @@
     $current_page = $_SERVER['PHP_SELF'];
     // echo '<h1 style="position:absolute; top: 0; left: 0;">' . $current_page. '</h1>';
 
-    if ($current_page === "/ncash-tracemo/dashboard/transactions/transaction_details.php" || $current_page === "/ncash-tracemo/dashboard/transactions/add.php" || $current_page === "/ncash-tracemo/dashboard/inventory/add.php" || $current_page === "/ncash-tracemo/dashboard/inventory/item_details.php" || $current_page === "/ncash-tracemo/dashboard/settings/account.php" || $current_page === "/ncash-tracemo/dashboard/settings/activity_logs.php" || $current_page === "/ncash-tracemo/dashboard/settings/preferences.php" || $current_page === "/ncash-tracemo/dashboard/settings/security.php" || $current_page === "/ncash-tracemo/dashboard/settings/system.php") {
+    if ($current_page === "/ncash-tracemo/dashboard/staff/info.php" || $current_page === "/ncash-tracemo/dashboard/transactions/transaction_details.php" || $current_page === "/ncash-tracemo/dashboard/transactions/add.php" || $current_page === "/ncash-tracemo/dashboard/inventory/add.php" || $current_page === "/ncash-tracemo/dashboard/inventory/item_details.php" || $current_page === "/ncash-tracemo/dashboard/settings/account.php" || $current_page === "/ncash-tracemo/dashboard/settings/activity_logs.php" || $current_page === "/ncash-tracemo/dashboard/settings/preferences.php" || $current_page === "/ncash-tracemo/dashboard/settings/security.php" || $current_page === "/ncash-tracemo/dashboard/settings/system.php") {
         echo '<div class="nav_logo">
             <a href="../../dashboard/"><img src="../../resources/img/ncash_logo_main.png" alt="NCash"></a>
         </div>
