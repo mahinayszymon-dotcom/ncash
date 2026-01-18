@@ -71,98 +71,128 @@
         <div class="info"><span class="circle_purple"></span>Total Pawns</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS active_count_mp FROM inventory WHERE status = 'Active' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $active_count_mp = $row['active_count_mp'];
+                $total_pawn = $row['total_pawn'];
+                $pawn_decimal = number_format($total_pawn, 2);
                 
-                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\"> -- </p>";
+                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\">₱ $pawn_decimal </p>";
             ?>
         </div>
 
         <div class="info"><span class="circle_purple"></span>Total Redemptions</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS redeem_count_mp FROM inventory WHERE status = 'Redeemed' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT SUM(amount) AS total_redeem FROM transactions 
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_pay = 'Principal'
+                        AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $redeem_count_mp = $row['redeem_count_mp'];
+                $total_redeem = $row['total_redeem'];
+                $redeem_decimal = number_format($total_redeem, 2);
                 
-                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\"> -- </p>";
+                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\">₱ $redeem_decimal </p>";
             ?>
         </div>
 
-        <div class="info"><span class="circle_purple"></span>Total Renewed</div>
+        <div class="info"><span class="circle_purple"></span>Total Interest</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS overdue_count_mp FROM inventory WHERE status = 'Overdue' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT SUM(amount) AS total_int FROM transactions 
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_pay = 'Interest'
+                        AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $overdue_count_mp = $row['overdue_count_mp'];
+                $total_int = $row['total_int'];
+                $int_decimal = number_format($total_int, 2);
                 
-                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\"> -- </p>";
+                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\">₱ $int_decimal </p>";
             ?>
         </div>
     </div>
     <div class="debit_credit_cont">
         <div class="val">
             <p>DEBIT</p>
-            <p>₱ 0.00</p>
+            <?php
+                $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
+                        INNER JOIN transactions AS t ON i.item_id = t.item_id
+                        WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND t.type_of_pay = 'Interest'
+                        AND t.branch_id = ?";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $branch_id);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $total_renew = $row['total_renew'];
+                
+                $sql = "SELECT SUM(amount) AS debit_transacs FROM transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND method != 'Cash'
+                        AND branch_id = ?";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $branch_id);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $debit_transacs = $row['debit_transacs'];
+
+                $total_debit = $total_pawn + $total_renew + $debit_transacs; //+ $total_debit_misc
+                $debit_decimal = number_format($total_debit, 2);
+
+                echo "<p>₱ $debit_decimal </p>";
+            ?>
         </div>
         <div class="val">
             <p>CREDIT</p>
-            <p>₱ 0.00</p>
+            <?php 
+                $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND branch_id = ?";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $branch_id);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $adv_int = $row['adv_int'];
+
+                $total_credit = $total_redeem + $total_renew + $adv_int + $total_int; //+ $total_credit_misc
+                $credit_decimal = number_format($total_credit, 2);
+
+                echo "<p>₱ $credit_decimal </p>";
+            ?>
         </div>
     </div>
     <div class="debit_credit_cont">
@@ -186,138 +216,78 @@
         <div class="info"><span class="circle_green"></span>Active Items</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS active_count_mp FROM inventory WHERE status = 'Active' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT COUNT(*) AS active_count FROM inventory WHERE status = 'Active' AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $active_count_mp = $row['active_count_mp'];
+                $active_count = $row['active_count'];
                 
-                echo "<p style=\"background-color: #d9e7ddff !important; color: #547f57ff !important;\"> $active_count_mp </p>";
+                echo "<p style=\"background-color: #d9e7ddff !important; color: #547f57ff !important;\"> $active_count </p>";
             ?>
         </div>
 
         <div class="info"><span class="circle_blue"></span>Redeemed Items</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS redeem_count_mp FROM inventory WHERE status = 'Redeemed' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT COUNT(*) AS redeem_count FROM inventory WHERE status = 'Redeemed' AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $redeem_count_mp = $row['redeem_count_mp'];
+                $redeem_count = $row['redeem_count'];
                 
-                echo "<p style=\"background-color: #d5dae4ff !important; color: #5864a0ff !important;\"> $redeem_count_mp </p>";
+                echo "<p style=\"background-color: #d5dae4ff !important; color: #5864a0ff !important;\"> $redeem_count </p>";
             ?>
         </div>
 
         <div class="info"><span class="circle_red"></span>Overdue Items</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS overdue_count_mp FROM inventory WHERE status = 'Overdue' AND branch_id = 1100";
-
-                if($role != 'admin')
-                {
-                    $sql .= " AND branch_id = ?";
-                }
+                $sql = "SELECT COUNT(*) AS overdue_count FROM inventory WHERE status = 'Overdue' AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);                
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $overdue_count_mp = $row['overdue_count_mp'];
+                $overdue_count = $row['overdue_count'];
                 
-                echo "<p style=\"background-color: #edd9d9 !important; color: #985d5dff !important;\"> $overdue_count_mp </p>";
+                echo "<p style=\"background-color: #edd9d9 !important; color: #985d5dff !important;\"> $overdue_count </p>";
             ?>
         </div>
 
         <div class="info"><span class="circle_purple"></span>Transactions Recorded</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(*) AS transact_count_mp FROM transactions";
-
-                if($role != 'admin')
-                {
-                    $sql .= " WHERE branch_id = ?";
-                }
-
+                $sql = "SELECT COUNT(*) AS transact_count FROM transactions WHERE branch_id = ?";
+                
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
                 $row = $result->fetch_assoc();
-                $transact_count_mp = $row['transact_count_mp'];
+                $transact_count = $row['transact_count'];
                 
-                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\"> $transact_count_mp </p>";
+                echo "<p style=\"background-color: #dcd6e4ff !important; color: #7c5989ff !important;\"> $transact_count </p>";
             ?>
         </div>
 
         <div class="info"><span class="circle_purple"></span>Clients</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(DISTINCT client_id) AS total_clients FROM inventory";
-
-                if($role != 'admin')
-                {
-                    $sql .= " WHERE branch_id = ?";
-                }
+                $sql = "SELECT COUNT(DISTINCT client_id) AS total_clients FROM inventory WHERE branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 
@@ -330,22 +300,10 @@
         <div class="info"><span class="circle_purple"></span>Notifications Sent</div>
         <div class="value">
             <?php
-                $role = $_SESSION['role'];
-
-                $sql = "SELECT COUNT(DISTINCT client_id) AS total_clients_notified FROM notifs";
-
-                if($role != 'admin')
-                {
-                    $sql .= " WHERE status = 'Sent' AND branch_id = ?";
-                }
+                $sql = "SELECT COUNT(DISTINCT client_id) AS total_clients_notified FROM notifs WHERE status = 'Sent' AND branch_id = ?";
 
                 $stmt = $conn->prepare($sql);
-
-                if($role != 'admin')
-                {
-                    $stmt->bind_param("i", $branch_id);
-                }
-
+                $stmt->bind_param("i", $branch_id);
                 $stmt->execute();    
                 $result = $stmt->get_result();
 

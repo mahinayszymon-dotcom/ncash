@@ -32,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc();
 
         if ($user['register_status'] == 0) {
+            $_SESSION['register_id'] = $user['user_id'];
             header("Location: register.php");
             exit();
         }
@@ -165,6 +166,44 @@ $conn->close();
                 </div>
             </div>
         </section>
+        <div class="result_cont_bar">
+            <?php
+                //$_SESSION['archive_success_msg'] = 'Test';
+
+                if (isset($_SESSION['register_success_msg'])) {
+                    echo "<span id=\"login_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['register_success_msg'] . "</span>";
+        
+                    echo "
+                    <script>
+                        // Function to hide the element
+                        function hideMessage() {
+                            var element = document.getElementById('archive_success');
+                            if (element) {
+                                // Use CSS opacity/transition for a smooth fade out (optional)
+                                element.style.transition = 'opacity 0.5s ease-out';
+                                element.style.opacity = '0';
+
+                                // Remove the element completely after the fade out is complete
+                                setTimeout(function() {
+                                    element.style.display = 'none';
+                                    // Or remove it from the DOM entirely:
+                                    // element.parentNode.removeChild(element);
+                                }, 500); // 500ms should match your CSS transition time if you add one
+                            }
+                        }
+
+                        // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                        setTimeout(hideMessage, 3000);
+                    </script>
+                    ";
+
+                    unset($_SESSION['register_success_msg']);
+                }
+                else {
+                    unset($_SESSION['register_success_msg']);
+                }
+            ?>
+        </div>
     </body>
 </html>
 <script>

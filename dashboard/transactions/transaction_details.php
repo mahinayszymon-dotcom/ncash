@@ -21,7 +21,7 @@ include("../../db/branch_fetch.php");
             exit();
         }
 
-        $sql = "SELECT t.agreement_num, c.fullname, i.item_name, b.branch_name, t.amount, t.type_of_pay, t.method, t.created_at, u.fullname AS creator, i.status
+        $sql = "SELECT t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method, t.created_at, u.fullname AS creator, i.status
                 FROM transactions AS t
                 INNER JOIN clients AS c ON t.client_id = c.client_id
                 INNER JOIN inventory AS i ON t.item_id = i.item_id
@@ -39,6 +39,7 @@ include("../../db/branch_fetch.php");
             $agreement_num = htmlspecialchars($row['agreement_num']);
             $client_name = htmlspecialchars($row['fullname']);
             $item_name = htmlspecialchars($row['item_name']);
+            $item_principal = htmlspecialchars($row['principal']);
             $transac_branch = htmlspecialchars($row['branch_name']);
             $transac_amount = htmlspecialchars($row['amount']);
             $transac_type = htmlspecialchars($row['type_of_pay']);
@@ -50,6 +51,7 @@ include("../../db/branch_fetch.php");
 
         $createDate = new DateTime($transac_date);
         $transac_created = $createDate->format("F j, Y");
+        $principal_decimal = number_format($item_principal, 2);
 
         switch ($transac_branch)
         {
@@ -199,6 +201,10 @@ include("../../db/branch_fetch.php");
                                 <div class="item_info_detail_row">
                                     <label for="principal">Amount Paid</label>
                                     <input type="text" name="principal" id="principal" class="item_tags" value="<?php echo $transac_amount; ?>" disabled>
+                                </div>
+                                <div class="item_info_detail_row">
+                                    <label for="principal"> Item Principal</label>
+                                    <input type="text" name="principal" id="principal" class="item_tags" value="<?php echo $principal_decimal; ?>" disabled>
                                 </div>
                             </form>
                             <div class="result_cont">

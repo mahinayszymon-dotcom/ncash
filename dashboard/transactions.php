@@ -163,7 +163,7 @@ include("../db/branch_fetch.php");
                                     $limit = 12;
                                     $offset = ($page - 1) * $limit;
 
-                                    $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, b.branch_name, t.amount, t.type_of_pay, t.method
+                                    $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method
                                         FROM transactions AS t
                                         INNER JOIN clients AS c ON t.client_id = c.client_id
                                         INNER JOIN inventory AS i ON t.item_id = i.item_id
@@ -207,6 +207,7 @@ include("../db/branch_fetch.php");
                                         <th>AN Code</th>
                                         <th>Client Name</th>
                                         <th>Item Name</th>
+                                        <th>Principal</th>
                                         <th>Amount</th>
                                         <th>Type</th>
                                         <th>Method</th>
@@ -225,11 +226,13 @@ include("../db/branch_fetch.php");
                                             $agreement_num = htmlspecialchars($row['agreement_num']);
                                             $client_name = htmlspecialchars($row['fullname']);
                                             $item = htmlspecialchars($row['item_name']);
+                                            $item_principal = htmlspecialchars($row['principal']);
                                             $branch = htmlspecialchars($row['branch_name']);
                                             $amount = htmlspecialchars($row['amount']);
                                             $pay_type = htmlspecialchars($row['type_of_pay']);
                                             $method = htmlspecialchars($row['method']);
 
+                                            $principal_decimal = number_format($item_principal, 2);
                                             $amount_decimal = number_format($amount, 2);
             
                                             if ($branch === "Marikina-Pasig") {
@@ -249,6 +252,7 @@ include("../db/branch_fetch.php");
                                                 <td> $final_agreement_num </td>
                                                 <td> $client_name </td>
                                                 <td> $item </td>
+                                                <td>₱ $principal_decimal</td>
                                                 <td>₱ $amount_decimal</td>
                                                 <td> $pay_type </td>
                                                 <td> $method </td>

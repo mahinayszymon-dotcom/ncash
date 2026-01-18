@@ -178,6 +178,7 @@ date_default_timezone_set('Asia/Manila');
                                                     
                                                     $inputDate = new DateTime($inp_date);
                                                     $curDate = new DateTime();
+                                                    $curDate->setTime(0, 0);
                                                     if($inputDate < $curDate)
                                                     {
                                                         $status = "Overdue";

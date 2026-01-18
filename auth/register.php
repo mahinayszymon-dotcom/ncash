@@ -15,6 +15,39 @@
     }
 
 
+    if(isset($_POST['send']))
+    {
+        $new_pass = htmlspecialchars($_POST['new_password']);
+        $confirm_pass = htmlspecialchars($_POST['confirm_new_password']);
+
+        if($new_pass === $confirm_pass)
+        {
+            $register_id = $_SESSION['register_id'];
+            $hashedNewPass = password_hash($new_pass, PASSWORD_DEFAULT);
+            $register_status = 1;
+
+            $sql = "UPDATE users
+                    SET password = ?, register_status = ?
+                    WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sii", $hashedNewPass, $register_status, $register_id);
+            if($stmt->execute())
+            {
+                $_SESSION['register_success_msg'] = "Registration Successful!";
+
+                header("Location: ../auth/login.php");
+                exit();
+                unset($_SESSION['register_id']);
+            }
+        }
+        else 
+        {
+            $error_message = "Password and Confirm Password doesn't match.";
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,7 +93,7 @@
                             <label for="new_password">New Password</label>
                         </div>  
                         <div class="input_container">
-                            <input type="password" name="new_password" id="new_password" autocomplete="off" required>
+                            <input type="password" name="new_password" id="new_password" autocomplete="off" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,}" required>
                             <img src="../resources/img/icons/password.png" alt="pin" class="left_icon1">
                             <img src="../resources/img/icons/password_c.png" alt="pin" class="left_icon2">
                         </div>
@@ -68,7 +101,7 @@
                             <label for="confirm_new_password">Confirm New Password</label>
                         </div>  
                         <div class="input_container">
-                            <input type="password" name="confirm_new_password" id="confirm_new_password" autocomplete="off" required>
+                            <input type="password" name="confirm_new_password" id="confirm_new_password" autocomplete="off" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,}" required>
                             <img src="../resources/img/icons/password.png" alt="pin" class="left_icon1">
                             <img src="../resources/img/icons/password_c.png" alt="pin" class="left_icon2">
                         </div>
@@ -87,6 +120,9 @@
                         <button type="submit" name="send">Change Password</button>
                     </div>
                 </form>
+                <?php 
+                    
+                ?>
                 <div class="forget_pass_footer">
                     <p>© 2026 TraceMo · N-Cash Luxury Pawnshop | Developed by C&C</p>
                 </div>

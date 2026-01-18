@@ -114,7 +114,7 @@
     <form action="" method="POST">
         <div class="change_pass_cont">
             <div class="top_content">
-                <span class="message_info"><img src="../../resources/img/icons/bulb.png" alt="info">Password should be at least 12 to 16 characters long, and include a mix of uppercase and lowercase letters, numbers, and symbols.</span>
+                <span class="message_info"><img src="../../resources/img/icons/bulb.png" alt="info">Password should be at least 12 characters long, and include a mix of uppercase and lowercase letters, numbers, and symbols.</span>
             </div>
             <div class="input_container">
                 <label for="current_password">Current Password</label>
@@ -123,12 +123,12 @@
             </div>
             <div class="input_container">
                 <label for="current_password">New Password</label>
-                <input type="password" class="password" name="newpass" id="newpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,16}" required>
+                <input type="password" class="password" name="newpass" id="newpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,}" required>
                 <!-- <img src="../../resources/img/icons/visibility_off.png" alt="password" class="visibility_icon"> -->
             </div>
             <div class="input_container">
                 <label for="current_password">Re-enter New Password</label>
-                <input type="password" class="password" name="conpass" id="conpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,16}" required>
+                <input type="password" class="password" name="conpass" id="conpass" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{12,}" required>
                 <!-- <img src="../../resources/img/icons/visibility_off.png" alt="password" class="visibility_icon"> -->
             </div>                                                 
             <div class="login_btn_cont">

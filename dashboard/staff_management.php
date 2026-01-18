@@ -7,6 +7,87 @@ if ($role !== "admin") {
     header("Location: ../../auth/denied.php");
     exit();
 }
+
+ if(isset($_POST['add']))
+{
+    $emp_uName = htmlspecialchars($_POST['emp_uname']);
+    $emp_email = htmlspecialchars($_POST['emp_email']);
+    //check if username already exists
+    $sql = "SELECT * FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $emp_uName);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0)
+    {
+        $_SESSION['user_add_error_msg'] = "Username already taken. Please enter a unique one.";
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+    else
+    {
+        //check si email
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $emp_email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if($result->num_rows > 0)
+        {
+            $_SESSION['user_add_error_msg'] = "Email already taken. Please enter a unique one.";
+
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        }
+        else
+        {
+            //check if passwords match
+            $emp_pass = htmlspecialchars($_POST['emp_pass']);
+            $emp_cpass = htmlspecialchars($_POST['emp_cpass']);
+
+            if($emp_pass === $emp_cpass)
+            {
+                $hashedEmpPass = password_hash($emp_pass, PASSWORD_DEFAULT);
+                $emp_name = htmlspecialchars($_POST['emp_name']);
+                $emp_branch = htmlspecialchars($_POST['branch_select']);
+                $c_def_pass = htmlspecialchars($_POST['choice_def_pass']);
+                $emp_role = htmlspecialchars($_POST['role_select']);
+                $emp_status = "active";
+
+                if($c_def_pass === "yes")
+                {
+                    $register_status = 0;
+                }
+                else if($c_def_pass === "no")
+                {
+                    $register_status = 1;
+                }
+
+
+                $sql = "INSERT INTO users (username, fullname, password, email, role, branch_id, status, register_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("sssssisi", $emp_uName, $emp_name, $hashedEmpPass, $emp_email, $emp_role, $emp_branch, $emp_status, $register_status);
+                if($stmt->execute())
+                {
+                    $_SESSION['user_add_success_msg'] = "Successfully Added New User!";
+
+                        header("Location: " . $_SERVER['PHP_SELF']);
+                        exit();
+                    }
+                }
+                else 
+                {
+                    $_SESSION['user_add_error_msg'] = "Password and Confirm Password doesn't match.";
+
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit();
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -324,7 +405,7 @@ if ($role !== "admin") {
                         </div>
                     </div>
                     <div class="data_controls_form">
-                        <form action="">
+                        <form action="" method="POST">
                             <div class="fullwidth">
                                 <span class="message_info"><img src="../resources/img/icons/bulb.png" alt="info">Please ensure all fields marked with a red asterisk (*) are completed and that the employee information is unique to the system.</span>
                             </div>
@@ -367,11 +448,11 @@ if ($role !== "admin") {
                             </div>
                             <div class="input_cont rad">
                                 <div>
-                                    <input type="radio" name="choice_def_pass" id="yes_choice_def_pass">
+                                    <input type="radio" name="choice_def_pass" id="yes_choice_def_pass" value="yes">
                                     <label for="yes_choice_def_pass">Yes</label>
                                 </div>
                                 <div>
-                                    <input type="radio" name="choice_def_pass" id="no_choice_def_pass">
+                                    <input type="radio" name="choice_def_pass" id="no_choice_def_pass" value="no">
                                     <label for="no_choice_def_pass">No</label>
                                 </div>
                             </div>
@@ -386,7 +467,7 @@ if ($role !== "admin") {
                                 </select>
                             </div>
                             <div class="input_cont">
-                                <button type="submit"><img src="../resources/img/icons/add1.png" alt="add">Add User</button>
+                                <button type="submit" name="add"><img src="../resources/img/icons/add1.png" alt="add">Add User</button>
                             </div>
                         </form>
                         <div id="admin-note" style="display: none; background-color: #e9e4e9; border-left: 5px solid var(--purple); padding: 10px; margin: 10px 0; color: var(--black-dark); font-size: 0.9rem; border-radius: 4px;">

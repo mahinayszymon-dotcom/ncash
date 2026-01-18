@@ -6,7 +6,7 @@ include("../db/branch_fetch.php");
 
 date_default_timezone_set('Asia/Manila');
 $curDate = new DateTime();
-$current = $curDate->format('Y-m-d H:i:s');
+$current = $curDate->format('Y-m-d');
 
 $sql = "UPDATE inventory
         SET status = 'Overdue'

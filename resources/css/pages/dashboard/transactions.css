@@ -262,13 +262,13 @@ th:nth-child(8), td:nth-child(8) {
     text-align: center;
 }
 
-    td:nth-child(8) button {
+    td:nth-child(9) button {
         background-color: transparent;
         border: none;
         margin: 0 .13rem;
     }
 
-    td:nth-child(8) img {
+    td:nth-child(9) img {
         width: 80%;
         opacity: 0.6;
     }

@@ -82,10 +82,10 @@ include("../config/db_conn.php");
                             </div>
                             <?php
                                 if ($role === "admin") {
-                                    echo '<h2>All Branch Analytics</h2>'; 
+                                    echo '<h2>All Branch Analytics (Weekly)</h2>'; 
                                 } else {
                                     if ($branch === 1100 || $branch === 1101 || $branch === 1102) {
-                                        echo '<h2>Report Analytics Data</h2>';
+                                        echo '<h2>Report Analytics Data (Weekly)</h2>';
                                     } else {
                                         $_SESSION['report_error_msg'] = 'Error: Cannot retrieve branch ID.';
                                         $style = 'style="display: none;"';

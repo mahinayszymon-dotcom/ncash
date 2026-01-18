@@ -5,7 +5,7 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
 
 date_default_timezone_set('Asia/Manila');
 $curDate = new DateTime();
-$current = $curDate->format('Y-m-d H:i:s');
+$current = $curDate->format('Y-m-d');
 
 $sql = "UPDATE inventory
         SET status = 'Overdue'
@@ -392,8 +392,8 @@ $stmt->execute();
                                     }
 
                                     $where[] = "i.status = 'Active'"; 
-                                    $where[] = "i.due_date >= NOW()";
-                                    $where[] = "i.due_date <= NOW() + INTERVAL 7 DAY"; 
+                                    $where[] = "i.due_date >= CURDATE()";
+                                    $where[] = "i.due_date < DATE_ADD(CURDATE(), INTERVAL 8 DAY)"; //This
 
                                     if (!empty($where)) 
                                     {
