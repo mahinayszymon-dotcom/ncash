@@ -393,6 +393,7 @@ input[type="checkbox"] {
               border: none;
             }
 
+        /*For staff management*/
         .central_panel {
           grid-area: center;
           padding: .31rem;
@@ -405,6 +406,7 @@ input[type="checkbox"] {
           overflow: hidden;
         }
 
+        /*For inventory*/
         .central_panelB {
           grid-area: center;
           display: grid;
@@ -417,6 +419,8 @@ input[type="checkbox"] {
           height: 100%;
         }
 
+        /*For transactions*/
+        /*For message logs*/
         .central_panelC {
           grid-area: center;
           display: grid;
@@ -429,6 +433,7 @@ input[type="checkbox"] {
           height: 100%;
         }
 
+        /*For reports*/
         .central_panelD {
           grid-area: center;
           display: grid;
@@ -441,6 +446,7 @@ input[type="checkbox"] {
           height: 100%;
         }
 
+        /*For home*/
         .central_panelE {
           grid-area: center;
           display: grid;
@@ -453,6 +459,7 @@ input[type="checkbox"] {
           height: 100%;
         }
 
+        /*For details*/
         .central_panelF {
           grid-area: center;
           display: grid;
@@ -463,6 +470,18 @@ input[type="checkbox"] {
           padding: .31rem;
           overflow: hidden;
           height: auto;
+        }
+
+        .central_panelG {
+          grid-area: center;
+          padding: .31rem;
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          grid-template-rows: 1fr;
+          grid-template-areas: "left right";
+          gap: 1.25rem;
+          height: 100%;
+          overflow: hidden;
         }
 
         .hero_panel {
@@ -747,7 +766,7 @@ input[type="checkbox"] {
 
         .table_cont {
           flex: 1;
-          overflow-y: auto;
+          width:100%;
           overflow-x: auto;
           min-height: 0;
           position: relative;
@@ -837,37 +856,37 @@ input[type="checkbox"] {
           .icon_table {
             background-color: #bbdac1;
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
           .icon_normal {
             background-color: var(--purple);
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
           .icon_principal {
             background-color: var(--purple);
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
           .icon_overdue {
             background-color: var(--purple);
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
           .icon_redeemed {
             background-color: var(--purple);
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
           .icon_active {
             background-color: var(--purple);
             padding: .5rem;
-            border-radius: .63rem;
+            border-radius: .31rem;
           }
 
 .result_cont {

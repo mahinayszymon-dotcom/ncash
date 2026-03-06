@@ -101,7 +101,9 @@ $conn->close();
             <div class="login_panel">
                 <div class="login_panel_container">
                     <div class="logo">
-                        <img src="../resources/img/ncash_logo_login.png" alt="N-Cash Logo">
+                        <img src="../resources/img/ncash_logo_login2.png" alt="N-Cash Logo">
+                        <span><strong>X</strong></span>
+                        <img src="../resources/img/tracemo_logo.png" alt="Tracemo Logo">
                     </div>
                     <div class="login_header">
                         <h1>Log in to your Account</h1>

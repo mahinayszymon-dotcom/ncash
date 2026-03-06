@@ -22,7 +22,7 @@
     gap: .44rem;
 }
 
-input, label {
+input, label, textarea {
     font-size: 1rem;
 }
 
@@ -37,6 +37,60 @@ input, label {
     color: var(--black-dark);
     transition: all 0.2s ease;
 }
+
+.item_info_detail_row textarea {
+    border: .06rem solid var(--input-border);
+    background-color: var(--main-content);
+    padding: .63rem;
+    border-radius: .31rem;
+    outline: none;
+    width: 100%;
+    margin: 0;
+    color: var(--black-dark);
+    transition: all 0.2s ease;
+    resize: none;
+    min-height: 10rem;
+    text-align: left;
+}
+
+.email-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    /* 2. The Header: Gray background for metadata */
+    .email-header {
+        background-color: #f9f9f9;
+        padding: .63rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-row {
+        margin-bottom: 8px;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .label {
+        color: var(--loading-dark);
+        font-weight: 400;
+        font-size: 1rem;
+        width: 80px;
+        display: inline-block; /* Aligns labels nicely */
+    }
+
+    /* 3. The Body: Preserves spacing from your database */
+    .email-body {
+        padding: .31rem 0 1.25rem;
+        color: #1a1a1a;
+        line-height: 1.6;
+        font-size: 15px;
+        white-space: pre-wrap; /* CRITICAL: This keeps line breaks from the database */
+    }
+
 .item_info_detail_row select#category, .item_info_detail_row select#branch_select {
     border: .06rem solid var(--input-border) !important;
     background-color: var(--main-content) !important;
@@ -127,14 +181,14 @@ input, label {
     font-size: 1rem;
 }
 
-.archive_btn_cont {
+.archive_btn_cont, .liquidate_btn_cont {
     display: flex;
     flex-direction: column;
     gap: .94rem;
     margin-top: 1.25rem;
 }
 
-.archive_btn_cont button {
+.archive_btn_cont #archive_button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -149,8 +203,27 @@ input, label {
     transition: background-color 0.2s ease;
 }
 
-.archive_btn_cont button:hover {
+.archive_btn_cont #archive_button:hover {
     background-color: var(--request-dark);
+}
+
+.liquidate_btn_cont #liquidate_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .94rem;
+    padding: .63rem;
+    border-radius: .44rem;
+    border: none;
+    background-color: var(--purple);
+    color: var(--main-content);
+    font-size: 1rem;
+    font-weight: 400;
+    transition: background-color 0.2s ease;
+}
+
+.liquidate_btn_cont #liquidate_button:hover {
+    background-color: var(--purple-dark);
 }
 
 .disable_btn_cont {
@@ -177,6 +250,25 @@ input, label {
 
 .disable_btn_cont button:hover {
     background-color: var(--red-vdark);
+}
+
+.archive_btn_cont button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .94rem;
+    padding: .63rem;
+    border-radius: .44rem;
+    border: none;
+    background-color: var(--request-light);
+    color: var(--main-content);
+    font-size: 1rem;
+    font-weight: 400;
+    transition: background-color 0.2s ease;
+}
+
+.archive_btn_cont button:hover {
+    background-color: var(--request-dark);
 }
 
 .enable_btn_cont {

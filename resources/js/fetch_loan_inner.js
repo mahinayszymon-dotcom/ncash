@@ -91,5 +91,14 @@ function updateTotals() {
     principalDisp.value = `₱ ${newPrincipal.toFixed(0)}`
 }
 
-document.getElementById('penalty').addEventListener('input', updateTotals);
-document.getElementById('discount').addEventListener('input', updateTotals);
+document.addEventListener('DOMContentLoaded', () => {
+    const penaltyInp = document.getElementById('penalty');
+    const discountInp = document.getElementById('discount');
+
+    if (penaltyInp) {
+        penaltyInp.addEventListener('input', updateTotals);
+    }
+    if (discountInp) {
+        discountInp.addEventListener('input', updateTotals);
+    }
+});

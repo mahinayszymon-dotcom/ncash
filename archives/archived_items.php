@@ -61,6 +61,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 <a href="archived_transactions.php">Transactions</a>
                                 <a href="archived_items.php">Items</a>
                                 <a href="archived_clients.php">Clients</a>
+                                <a href="liquidated_items.php">Liquidated</a>
                             </div>
                         </div>
                         <br>

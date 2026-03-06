@@ -178,9 +178,7 @@ include("../db/branch_fetch.php");
                             ?>
                         </div>
                         <div class="account_cont_actions"> 
-                            <form id="notif-form" action="" method="GET">
-                                <button type="submit"><img src="../resources/img/icons/notif.png" alt="notifications"></button>
-                            </form>        
+                            <button onclick="window.location.href='../dashboard/notifications.php';"><img src="../resources/img/icons/notif.png" alt="notifications"></button>       
                             <form id="logout-form" action="../auth/logout.php" method="POST">
                                 <button type="submit"><img src="../resources/img/icons/logout.png" alt="logout"></button>
                             </form>

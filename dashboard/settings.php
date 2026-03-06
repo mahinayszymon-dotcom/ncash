@@ -52,7 +52,6 @@ include("../config/db_conn.php");
                                 <a href="../dashboard/settings/account.php"><li><img src="../resources/img/icons/user.png" alt="account">Account</li></a>
                                 <a href="../dashboard/settings/security.php"><li><img src="../resources/img/icons/security.png" alt="security">Security</li></a>
                                 <a href="../dashboard/settings/activity_logs.php"><li><img src="../resources/img/icons/logs.png" alt="activity_logs">Activity Logs</li></a>
-                                <a href="../dashboard/settings/preferences.php"><li><img src="../resources/img/icons/preferences.png" alt="preferences">Preferences</li></a>
                                 <?php 
                                     if ($role == "admin") {
                                         echo "<a href=\"../dashboard/settings/system.php\"><li><img src=\"../resources/img/icons/website.png\" alt=\"system\">System</li></a>";
@@ -86,7 +85,7 @@ include("../config/db_conn.php");
                                     </div>
                                 </div>
                             </div>
-                            <div class="card_general" style="cursor: pointer;" onclick="window.location.href='../dashboard/userhelp.php'">
+                            <!-- <div class="card_general" style="cursor: pointer;" onclick="window.location.href='../dashboard/userhelp.php'">
                                 <div class="card_general_profile">
                                     <div class="profile_text">
                                         <p>Help Center</p>
@@ -96,8 +95,8 @@ include("../config/db_conn.php");
                                         <button onclick="window.location.href='../dashboard/userhelp.php'"><img src="../resources/img/icons/chevron_right.png" alt="chevron_right"></button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card_general" style="cursor: pointer;" onclick="window.location.href='../archives/archived_items.php'">
+                            </div> -->
+                            <!-- <div class="card_general" style="cursor: pointer;" onclick="window.location.href='../archives/archived_items.php'">
                                 <div class="card_general_profile">
                                     <div class="profile_text">
                                         <p>Visit Archive</p>
@@ -107,8 +106,8 @@ include("../config/db_conn.php");
                                         <button onclick="window.location.href='../dashboard/userhelp.php'"><img src="../resources/img/icons/chevron_right.png" alt="chevron_right"></button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="card_general" style="cursor: pointer;" onclick="window.open('../resources/files/Manual(Test).pdf')">
+                            </div> -->
+                            <!-- <div class="card_general" style="cursor: pointer;" onclick="window.open('../resources/files/Manual(Test).pdf')">
                                 <div class="card_general_profile">
                                     <div class="profile_text">
                                         <p>User Guide</p>
@@ -118,7 +117,7 @@ include("../config/db_conn.php");
                                         <button onclick="window.open('../resources/files/Manual(Test).pdf')"><img src="../resources/img/icons/download.png" alt="download"></button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

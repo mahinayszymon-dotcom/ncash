@@ -49,9 +49,7 @@ include("../../config/db_conn.php");
                             ?>
                         </div>
                         <div class="account_cont_actions"> 
-                            <form id="notif-form" action="" method="GET">
-                                <button type="submit"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>
-                            </form>        
+                            <button onclick="window.location.href='../../dashboard/notifications.php';"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>    
                             <form id="logout-form" action="../../auth/logout.php" method="POST">
                                 <button type="submit"><img src="../../resources/img/icons/logout.png" alt="logout"></button>
                             </form>
@@ -81,7 +79,6 @@ include("../../config/db_conn.php");
                                 <a href="../../dashboard/settings/account.php"><li><img src="../../resources/img/icons/user.png" alt="account">Account</li></a>
                                 <a href="../../dashboard/settings/security.php"><li><img src="../../resources/img/icons/security.png" alt="security">Security</li></a>
                                 <a href="../../dashboard/settings/activity_logs.php"><li><img src="../../resources/img/icons/logs.png" alt="activity_logs">Activity Logs</li></a>
-                                <a href="../../dashboard/settings/preferences.php"><li><img src="../../resources/img/icons/preferences.png" alt="preferences">Preferences</li></a>
                                 <?php 
                                     if ($role == "admin") {
                                         echo "<a href=\"../../dashboard/settings/system.php\"><li><img src=\"../../resources/img/icons/website.png\" alt=\"system\">System</li></a>";
@@ -93,48 +90,23 @@ include("../../config/db_conn.php");
                     <div class="settings_main">
                         <div class="settings_main_top_panel">
                             <h1>Activity Logs</h1>
-                            <p>Track your recent activity and system actions for transparency and auditing.</p>
+                            <p>Track recent activity and system actions for transparency and auditing.</p>
                         </div>
                         <hr>
                         <div class="settings_main_central_panel">
                             <div class="card_general">
                                 <div class="card_general_profile" class="card_main">
                                     <div class="profile_text">             
-                                        <p>Login History</p>
-                                        <p class="p_settings">View recent logins and access times for your account.</p>
+                                        <p>Audit Trail</p>
+                                        <p class="p_settings">Track business records.</p>
                                     </div>          
                                     <div class="profile_more">
-                                        <button onclick="this.closest('.card_general').querySelector('.dropdown_content').classList.toggle('show'); this.classList.toggle('rotate')"><img src="../../resources/img/icons/chevron_down.png" alt="chevron_down"></button>
+                                        <button onclick="window.location.href='../../dashboard/logs/audit_trail.php'"><img src="../../resources/img/icons/chevron_right.png" alt="chevron_right"></button>
                                     </div>
                                 </div>
                                 <div class="dropdown_content">
                                     <p>To be implemented soon.</p>
                                 </div> 
-                            </div>
-                            <div class="card_general">
-                                <div class="card_general_profile" class="card_main">
-                                    <div class="profile_text">             
-                                        <p>Actions History</p>
-                                        <p class="p_settings">Track actions performed in the system</p>
-                                    </div>          
-                                    <div class="profile_more">
-                                        <button onclick="this.closest('.card_general').querySelector('.dropdown_content').classList.toggle('show'); this.classList.toggle('rotate')"><img src="../../resources/img/icons/chevron_down.png" alt="chevron_down"></button>
-                                    </div>
-                                </div>
-                                <div class="dropdown_content">
-                                    <p>To be implemented soon.</p>
-                                </div> 
-                            </div>
-                            <div class="card_general">
-                                <div class="card_general_profile">
-                                    <div class="profile_text">
-                                        <p>Export Logs</p>
-                                        <p class="p_settings">Download activity logs for record-keeping or auditing.</p>
-                                    </div>
-                                    <div class="profile_more">
-                                        <button onclick="window.open('../../resources/files/Manual(Test).pdf')"><img src="../../resources/img/icons/download.png" alt="download"></button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

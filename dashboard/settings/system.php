@@ -54,9 +54,7 @@ if ($role !== "admin") {
                             ?>
                         </div>
                         <div class="account_cont_actions"> 
-                            <form id="notif-form" action="" method="GET">
-                                <button type="submit"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>
-                            </form>        
+                            <button onclick="window.location.href='../../dashboard/notifications.php';"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>       
                             <form id="logout-form" action="../../auth/logout.php" method="POST">
                                 <button type="submit"><img src="../../resources/img/icons/logout.png" alt="logout"></button>
                             </form>
@@ -86,7 +84,6 @@ if ($role !== "admin") {
                                 <a href="../../dashboard/settings/account.php"><li><img src="../../resources/img/icons/user.png" alt="account">Account</li></a>
                                 <a href="../../dashboard/settings/security.php"><li><img src="../../resources/img/icons/security.png" alt="security">Security</li></a>
                                 <a href="../../dashboard/settings/activity_logs.php"><li><img src="../../resources/img/icons/logs.png" alt="activity_logs">Activity Logs</li></a>
-                                <a href="../../dashboard/settings/preferences.php"><li><img src="../../resources/img/icons/preferences.png" alt="preferences">Preferences</li></a>
                                 <?php 
                                     if ($role == "admin") {
                                         echo "<a href=\"../../dashboard/settings/system.php\"><li><img src=\"../../resources/img/icons/website.png\" alt=\"system\">System</li></a>";

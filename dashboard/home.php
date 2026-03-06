@@ -57,7 +57,8 @@ $stmt->execute();
                         }
                     ?>
                     <a href="../archives/archived_items.php"><span class="img_glass"><img src="../resources/img/icons/archives.png" alt="archive"></span>View Archives</a>
-                    <a href="userhelp.php"><span class="img_glass"><img src="../resources/img/icons/help2.png" alt="help"></span>Help Center</a>
+                    <a href="../dashboard/inventory/pending_disposition.php"><span class="img_glass"><img src="../resources/img/icons/list.png" alt="hold"></span>Item Hold List</a>
+                    <!-- <a href="userhelp.php"><span class="img_glass"><img src="../resources/img/icons/help2.png" alt="help"></span>Help Center</a> -->
                 </div>
                 <div class="main_home">
                     <div class="top_section">
@@ -549,8 +550,8 @@ $stmt->execute();
                                         {
                                             echo
                                             "
-                                                <tr style='height: 35vh; border: none; cursor: auto;'>
-                                                    <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                <tr style='height: auto; border: none; cursor: auto;'>
+                                                    <td rowspan='5' colspan='8' class='no_records_found'> 
                                                         <br>
                                                         <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                         <h3 style='font-size: 18px;'>No Upcoming Renewals</h3>

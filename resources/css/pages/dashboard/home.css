@@ -14,15 +14,42 @@
         .quick_cont {
           grid-area: quick;
           padding: .63rem .63rem .75rem;
-          background: var(--reports-gradient2);
           border-radius: .63rem;
           box-shadow: 0 .25rem .5rem rgba(115, 42, 42, 0.04);
-          position: relative;
+          position: relative; 
+          overflow: hidden; 
+          
           display: flex;
           justify-content: center;
           align-items: center;
           gap: 1.88rem;
-        }
+          
+          z-index: 1; 
+      }
+
+      .quick_cont::before {
+          content: "";
+          position: absolute;
+          top: -10%;    
+          left: -10%;
+          right: -10%;
+          bottom: -10%;
+          z-index: -1; 
+          background: url('../../../img/graphics/hero_gradient3.png') no-repeat;
+          background-size: cover;
+          background-position: center;
+          
+          /* Effect & Animation */
+          filter: blur(15px); 
+          filter: brightness(90%);
+          /* animation: moveGradient 5s ease-in-out infinite alternate; */
+      }
+
+      /* 3. The Movement Logic */
+      @keyframes moveGradient {
+          0% { transform: scale(1) translate(0, 0); }
+          100% { transform: scale(1.1) translate(2%, 2%); }
+      }
 
         .quick_cont a {
           display: flex;

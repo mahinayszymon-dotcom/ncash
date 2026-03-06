@@ -146,9 +146,7 @@ include("../../db/branch_fetch.php");
                             ?>
                         </div>
                         <div class="account_cont_actions"> 
-                            <form id="notif-form" action="" method="GET">
-                                <button type="submit"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>
-                            </form>        
+                            <button onclick="window.location.href='../../dashboard/notifications.php';"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>       
                             <form id="logout-form" action="../../auth/logout.php" method="POST">
                                 <button type="submit"><img src="../../resources/img/icons/logout.png" alt="logout"></button>
                             </form>
@@ -205,8 +203,13 @@ include("../../db/branch_fetch.php");
                                 </div>
                             </div>
                             <hr>
+                            <div class="liquidate_btn_cont">
+                                <button type="submit" name="submit" id="liquidate_button"><img src="../../resources/img/icons/archive_w.png" alt="archive">Hold Item for Liquidation</button>
+                            </div>
+                            <br>
+                            <hr>
                             <div class="archive_btn_cont">
-                                <button type="submit" name="submit"><img src="../../resources/img/icons/archive_w.png" alt="archive">Archive this item</button>
+                                <button type="submit" name="submit" id="archive_button"><img src="../../resources/img/icons/archive_w.png" alt="archive">Archive this item</button>
                                 <div class="archive_text">
                                     <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Archiving this item will move it to a separate list and hide it from active view in this module.</span>
                                 </div>
@@ -531,6 +534,7 @@ include("../../db/branch_fetch.php");
         </section>
     </main>
     <div id="overlay" class="overlay_hidden"></div>
+    
     <div id="popup" class="popup_hidden">
         <div class="popup_content">
             <div class="popup_top">

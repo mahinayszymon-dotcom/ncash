@@ -12,7 +12,7 @@ function updateAgreement()
         fetch('../../db/agreement_fetch.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: 'branch_id=' + encodeURIComponent(branchId)
         })

@@ -1,46 +1,99 @@
 <?php
-ob_start();
-include("../config/session_check.php");
-include("../config/db_conn.php");
-include("../db/branch_fetch.php");
+include("../../config/session_check.php");  // pang check ng session
+include("../../config/db_conn.php");   // pang connect sa db
+include("../../db/branch_fetch.php"); // para kunin ung related sa branch
+
+$_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transactions</title>
-    <link rel="icon" type="image/png" href="../resources/img/favicon.png">
-    <link rel="stylesheet" href="../resources/css/base.css">
-    <link rel="stylesheet" href="../resources/css/colors.css">
-    <link rel="stylesheet" href="../resources/css/fonts.css">
-    <link rel="stylesheet" href="../resources/css/pages/dashboard/transactions.css">
+    <title>Archived Transactions</title>
+    <link rel="icon" type="image/png" href="../../resources/img/favicon.png">
+    <link rel="stylesheet" href="../../resources/css/base.css">
+    <link rel="stylesheet" href="../../resources/css/colors.css">
+    <link rel="stylesheet" href="../../resources/css/fonts.css">
+    <link rel="stylesheet" href="../../resources/css/pages/dashboard/inventory.css">
+    <link rel="stylesheet" href="../../resources/css/pages/archives/archive.css">
+    <style>
+        .nav_links ul li:nth-child(3) {
+            background-color: transparent;
+            opacity: 0.8;
+        }
+
+        .nav_links ul li:nth-child(3) img {
+            opacity: 0.8;
+        }
+
+        .archive_nav_links a:nth-child(4) {
+            background-color: var(--blue) !important;
+            color: var(--main-content) !important;
+            opacity: 1;
+        }
+
+        .archive_nav_links a:nth-child(4):hover {
+            border: none;
+            border-radius: 5px;
+            /* background-color: var(--red-dark) !important; */
+            color: var(--main-content) !important;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <main>
         <section class="dashboard">
             <section class="navigation_bar">
                 <?php
-                    include('../includes/nav_bar.php')
+                    include('../../includes/nav_bar.php')
                 ?>
             </section>
             <section class="main_content">
-                <?php
-                    include('../includes/top_panel.php')
-                ?>
+                <div class="top_panel">
+                    <div class="top_panel_content">
+                        <div class="text_cont">
+                            <h1>Pending Disposition</h1>
+                        </div>
+                        <div class="search_cont">
+                            <input type="text" placeholder="<?php echo "What would you like to search this " . date('l') . "?";?>">
+                            <img src="../../resources/img/icons/search.png" alt="search">
+                        </div>
+                        <div class="account_cont">       
+                            <div class="profile_circle">
+                                <?php
+                                    echo "<p>" . mb_substr($fullname, 0, 1). "</p>";
+                                ?>
+                            </div>
+                            <div class="profile_text">
+                                <?php
+                                    echo "<a href=\"../../dashboard/settings.php\"><p>" . ucwords($fullname) . "</p></a>";
+                                    echo "<p>" . ucwords($branch_name) . " (" . ucwords($role) . ")</p>";
+                                ?>
+                            </div>
+                            <div class="account_cont_actions"> 
+                                <button onclick="window.location.href='../../dashboard/notifications.php';"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>  
+                                <form id="logout-form" action="../../auth/logout.php" method="POST">
+                                    <button type="submit"><img src="../../resources/img/icons/logout.png" alt="logout"></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="central_panelC">
                     <div class="data_tableC">
                         <div class="data_panel_header">
                             <div class="data_panel_name">
                                 <div class="icon_normal">
-                                    <img src="../resources/img/icons/table_w.png" alt="table_icon">
+                                    <img src="../../resources/img/icons/archive_w.png" alt="table_icon">
                                 </div>
-                                <h2>Data Tabulation</h2>
+                                <h2>Items for Liquidation</h2>
                             </div>
-                            <div class="data_panel_buttons">
+                            <div class="data_panel_buttonsC">
                                 <div class="search_cont">
                                     <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
+                                    <img src="../../resources/img/icons/search.png" alt="search">
                                 </div>
                                 <?php
                                     $role = $_SESSION['role'];
@@ -67,8 +120,8 @@ include("../db/branch_fetch.php");
                                         
                                     $result = $stmt->get_result();
                                 ?>
-                                <form action="transactions.php" method="GET">
-                                    <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
+                                <form action="archived_transactions.php" method="GET">
+                                    <span class="custom-arrow-sort"><img src="../../resources/img/icons/filter.png" alt="filter"></span>
                                     <select name="branch" id="branch" onchange="this.form.submit()" class="sort">
                                         <?php
                                             $selected = $_GET['branch'] ?? 'all'; 
@@ -85,21 +138,19 @@ include("../db/branch_fetch.php");
                                             else if ($role == 'user')
                                             {
                                                 echo "
-                                                <option value='default' " . ($selected === 'default' ? 'selected' : '') . ">Default Sorting</option>
+                                                <option value='all' " . ($selected === 'default' ? 'selected' : '') . ">Default Sorting</option>
                                                 ";
                                             }
                                         ?>
                                         <option value="nameAZ" <?= $selected === 'nameAZ' ? 'selected' : '' ?>>Name (A-Z)</option>
                                         <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
-                                        <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Amount (Increasing)</option>
-                                        <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Amount (Decreasing)</option>
+                                        <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Price (Increasing)</option>
+                                        <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Price (Decreasing)</option>
                                         <option value="renewal" <?= $selected === 'renewal' ? 'selected' : '' ?>>Renewals</option>
                                         <option value="redeem" <?= $selected === 'redeem' ? 'selected' : '' ?>>Redemptions</option>
                                     </select>
-                                    <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
+                                    <span class="custom-arrow"><img src="../../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                                 </form>
-                                <button onclick="window.location.href='../dashboard/transactions/balance_audit.php'"><img src="../resources/img/icons/end_bal.png" alt="audit">Audit End Balance</button>
-                                <button onclick="window.location.href='../dashboard/transactions/add.php'"><img src="../resources/img/icons/add1.png" alt="add_transaction">Add Transaction</button>
                                 <?php
                                     /*Sorting*/
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
@@ -110,37 +161,37 @@ include("../db/branch_fetch.php");
                                     {
                                         case 'all':
                                         case 'default':
-                                            $orderBy = " ORDER BY t.created_at DESC";
+                                            $orderBy = " ORDER BY ta.edited_at DESC";
                                             break;
                                         case 'pasig':
                                             $where[] = "b.branch_name = 'Marikina-Pasig'";
-                                            $orderBy = " ORDER BY t.edited_at DESC";
+                                            $orderBy = " ORDER BY ta.edited_at DESC";
                                             break;
                                         case 'quezon':
                                             $where[] = "b.branch_name = 'Quezon City'";
-                                            $orderBy = " ORDER BY t.edited_at DESC";
+                                            $orderBy = " ORDER BY ta.edited_at DESC";
                                             break;
                                         case 'makati': 
                                             $where[] = "b.branch_name = 'Makati'";
-                                            $orderBy = " ORDER BY t.edited_at DESC";
+                                            $orderBy = " ORDER BY ta.edited_at DESC";
                                             break;
                                         case 'nameAZ': 
-                                            $orderBy = " ORDER BY c.fullname ASC";
+                                            $orderBy = " ORDER BY COALESCE(c.fullname, ca.fullname) ASC";
                                             break;
                                         case 'nameZA': 
-                                            $orderBy = " ORDER BY c.fullname DESC";
+                                            $orderBy = " ORDER BY COALESCE(c.fullname, ca.fullname) DESC";
                                             break;
                                         case 'price_increasing': 
-                                            $orderBy = " ORDER BY t.amount ASC";
+                                            $orderBy = " ORDER BY ta.amount ASC";
                                             break;
                                         case 'price_decreasing': 
-                                            $orderBy = " ORDER BY t.amount DESC";
+                                            $orderBy = " ORDER BY ta.amount DESC";
                                             break;
                                         case 'renewal':
-                                            $where[] = "t.type_of_pay = 'Interest'";
+                                            $where[] = "ta.type_of_pay = 'Interest'";
                                             break;
                                         case 'redeem':
-                                            $where[] = "t.type_of_pay = 'Principal'";
+                                            $where[] = "ta.type_of_pay = 'Principal'";
                                             break;
                                         default:
                                             $orderBy = '';
@@ -158,26 +209,30 @@ include("../db/branch_fetch.php");
                                         // $sql .= " WHERE " . implode(" AND ", $where);
                                         $where_sql = " WHERE " . implode(" AND ", $where);
                                     }
-
                                     /*Count*/
+                                    
                                     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
                                     $limit = 12;
                                     $offset = ($page - 1) * $limit;
 
-                                    $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method
-                                        FROM transactions AS t
-                                        INNER JOIN clients AS c ON t.client_id = c.client_id
-                                        INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                        INNER JOIN branches AS b ON t.branch_id = b.branch_id
+                                    $sql = "SELECT ta.transaction_id, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_name, ia.item_name) AS item_name, b.branch_name, ta.amount, ta.type_of_pay, ta.method
+                                        FROM transactions_archive AS ta
+                                        LEFT JOIN clients AS c ON ta.client_id = c.client_id
+                                        LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
+                                        LEFT JOIN inventory AS i ON ta.item_id = i.item_id
+                                        LEFT JOIN items_archive AS ia ON ta.item_id = ia.item_id
+                                        INNER JOIN branches AS b ON ta.branch_id = b.branch_id
                                         $where_sql
                                         $orderBy
                                         LIMIT $limit OFFSET $offset";
 
                                     $count_sql = "SELECT COUNT(*) AS total
-                                        FROM transactions AS t
-                                        INNER JOIN clients AS c ON t.client_id = c.client_id
-                                        INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                        INNER JOIN branches AS b ON t.branch_id = b.branch_id
+                                        FROM transactions_archive AS ta
+                                        LEFT JOIN clients AS c ON ta.client_id = c.client_id
+                                        LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
+                                        LEFT JOIN inventory AS i ON ta.item_id = i.item_id
+                                        LEFT JOIN items_archive AS ia ON ta.item_id = ia.item_id
+                                        INNER JOIN branches AS b ON ta.branch_id = b.branch_id
                                         $where_sql";
 
                                     // $sql .= " $orderBy LIMIT $limit OFFSET $offset";
@@ -199,7 +254,7 @@ include("../db/branch_fetch.php");
                                     $total = $total_row['total'] ?? 0;
                                 ?>
                             </div>
-                        </div>  
+                        </div>
                         <div class="table_cont">
                             <table>
                                 <thead>
@@ -208,7 +263,6 @@ include("../db/branch_fetch.php");
                                         <th>AN Code</th>
                                         <th>Client Name</th>
                                         <th>Item Name</th>
-                                        <th>Principal</th>
                                         <th>Amount</th>
                                         <th>Type</th>
                                         <th>Method</th>
@@ -227,15 +281,13 @@ include("../db/branch_fetch.php");
                                             $agreement_num = htmlspecialchars($row['agreement_num']);
                                             $client_name = htmlspecialchars($row['fullname']);
                                             $item = htmlspecialchars($row['item_name']);
-                                            $item_principal = htmlspecialchars($row['principal']);
                                             $branch = htmlspecialchars($row['branch_name']);
                                             $amount = htmlspecialchars($row['amount']);
                                             $pay_type = htmlspecialchars($row['type_of_pay']);
                                             $method = htmlspecialchars($row['method']);
-
-                                            $principal_decimal = number_format($item_principal, 2);
-                                            $amount_decimal = number_format($amount, 2);
             
+                                            $amount_decimal = number_format($amount, 2);
+                
                                             if ($branch === "Marikina-Pasig") {
                                                 $final_agreement_num = "MP" . $agreement_num;
                                             } else if ($branch === "Quezon City") {
@@ -253,12 +305,11 @@ include("../db/branch_fetch.php");
                                                 <td> $final_agreement_num </td>
                                                 <td> $client_name </td>
                                                 <td> $item </td>
-                                                <td>₱ $principal_decimal</td>
                                                 <td>₱ $amount_decimal</td>
                                                 <td> $pay_type </td>
                                                 <td> $method </td>
                                                 <td>
-                                                    <a href=\"../dashboard/transactions/transaction_details.php?id=" . $transaction_id . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
+                                                    <a href=\"../../archives/archived_transaction_details.php?id=" . $transaction_id . "\"><button type=\"submit\"><img src=\"../../resources/img/icons/open.png\" alt=\"open\"></button></a>
                                                 </td>
                                             </tr>
                                             ";
@@ -273,7 +324,7 @@ include("../db/branch_fetch.php");
                                                 <tr style='height: 43vh; border: none; cursor: auto;'>
                                                     <td rowspan='5' colspan='7' class='no_records_found'> 
                                                         <br>
-                                                        <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
+                                                        <img src=\"../../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                         <h3 style='font-size: 18px;'>No Records Found</h3>
                                                         <br>
                                                         <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
@@ -282,7 +333,7 @@ include("../db/branch_fetch.php");
                                                 </tr>
                                             ";
                                     }
-                                ?>
+                                ?> 
                                 </tbody>
                             </table>
                         </div>
@@ -331,12 +382,8 @@ include("../db/branch_fetch.php");
                                 </div>
                             </div>
                             <div class="data_table_actions_components">
-                                <div class="data_actions">          
-                                    <!--Supposedly dapat naka disable eto. kapag nag check ako sa ilang checkbox, tsaka lang sya mag enable. Dito na ren si multiple selection-->
-                                    <!-- <button><img src="../resources/img/icons/edit.png" alt="edit"><p>Edit</p></button>
-                                    <button><img src="../resources/img/icons/archive.png" alt="archive"><p>Archive</p></button> -->
-                                    <button onclick="window.location.href='../dashboard/transactions.php'"><img src="../resources/img/icons/refresh.png" alt="refresh"><p>Refresh</p></button>
-                                    <!-- <button><img src="../resources/img/icons/open.png" alt="view"><p>View</p></button> -->
+                                <div class="data_actions">
+                                    <button><img src="../../resources/img/icons/refresh.png" alt="refresh"><p>Refresh</p></button>
                                 </div>
                             </div>
                         </div>
@@ -347,17 +394,17 @@ include("../db/branch_fetch.php");
     </main>
     <div class="result_cont_bar">
         <?php
-            //$_SESSION['transac_success_msg'] = 'Test';
+            //$_SESSION['archive_success_msg'] = 'Test';
 
-            if (isset($_SESSION['transac_success_msg'])) {
-                echo "<span id=\"transac_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['transac_success_msg'] . "</span>";
+            if (isset($_SESSION['renew_success_msg'])) {
+                echo "<span id=\"renew_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['renew_success_msg'] . "</span>";
     
                 // 2. Add JavaScript immediately after the message to hide it after 3 seconds
                 echo "
                 <script>
                     // Function to hide the element
                     function hideMessage() {
-                        var element = document.getElementById('transac_success');
+                        var element = document.getElementById('renew_success');
                         if (element) {
                             // Use CSS opacity/transition for a smooth fade out (optional)
                             element.style.transition = 'opacity 0.5s ease-out';
@@ -377,10 +424,9 @@ include("../db/branch_fetch.php");
                 </script>
                 ";
 
-                unset($_SESSION['transac_success_msg']);
+                unset($_SESSION['renew_success_msg']);
             }
         ?>
     </div>
-    <script src="../resources/js/fetch_loan.js"></script>
 </body>
 </html>

@@ -21,8 +21,19 @@
             padding: 1.25rem;
         }
 
-            .login_panel .login_panel_container .logo img {
-                width: 25%;
+            .login_panel .login_panel_container .logo {
+                width: 100%;
+                display: flex;
+                gap: 1.50rem;
+                align-items: center;
+            }
+
+            .login_panel .login_panel_container .logo img:first-child {
+                height: 8rem;
+            }
+
+            .login_panel .login_panel_container .logo img:last-child {
+                height: 3.5rem;
             }
 
             .login_panel .login_panel_container  .login_header {

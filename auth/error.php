@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head><title>403 Forbidden</title></head>
+<head><title>Error</title></head>
 <body style="font-family:sans-serif;text-align:center;padding-top:20vh;">
-  <h1>403 Forbidden</h1>
-  <p>Your session has expired. Please <a href="../auth/login.php">log in again</a>.</p>
+  <h1>403 Not Found</h1>
+  <p>The page ran into an error. Please refresh the page.</p>
 </body>
 </html>

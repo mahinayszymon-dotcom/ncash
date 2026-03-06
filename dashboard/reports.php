@@ -64,7 +64,7 @@ include("../config/db_conn.php");
                                 ?>   
                                 <div class="form_conts">
                                     <label for="generate" style="opacity: 0;">Action</label>
-                                    <button type=""><img src="../resources/img/icons/pdf.png" alt="pdf">Generate</button>
+                                    <button type="" id="generate"><img src="../resources/img/icons/pdf.png" alt="pdf">Generate</button>
                                 </div>
                             </form>
                         </div>
@@ -111,12 +111,11 @@ include("../config/db_conn.php");
     </section>
     <div class="result_cont_bar">
         <?php
-            //$_SESSION['report_error_msg'] = 'Test';
+            // $_SESSION['report_error_msg'] = 'Test';
 
             if (isset($_SESSION['report_error_msg'])) {
                 echo "<span id=\"report_error\" class=\"message_success_d\"><img src=\"../resources/img/icons/error_bright.png\" alt=\"error\">" . $_SESSION['report_error_msg'] . "</span>";
     
-                // 2. Add JavaScript immediately after the message to hide it after 3 seconds
                 echo "
                 <script>
                     // Function to hide the element

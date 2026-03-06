@@ -1,0 +1,65 @@
+.data_tableC {
+    margin: 4.96px 4.96px 20px 4.96px !important;
+    max-height: 98%;
+}
+
+/*table*/
+#audit_trail th:nth-child(1), #audit_trail td:nth-child(1) {
+    width: 5% !important;
+}
+#audit_trail th:nth-child(2), #audit_trail td:nth-child(2) {
+    width: 25% !important;
+}
+#audit_trail th:nth-child(3), #audit_trail td:nth-child(3) {
+    width: 10% !important;
+}
+#audit_trail th:nth-child(4), #audit_trail td:nth-child(4) {
+    width: 10% !important;
+}
+#audit_trail th:nth-child(5), #audit_trail td:nth-child(5) {
+    width: 35% !important;
+}
+#audit_trail th:nth-child(6), #audit_trail td:nth-child(6) {
+    width: 15% !important;
+}
+
+
+#notifications_table th:nth-child(1), #notifications_table td:nth-child(1) {
+    width: 100% !important;
+    border-bottom: 1px solid var(--table-border-bottom);
+    opacity: 1;
+}
+
+.notif_card {
+    padding: .31rem;
+}
+
+.notif_card_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notif_type {
+    min-width: auto;
+    max-width: 16rem;
+    padding: .44rem;
+    background-color: var(--late);
+    border-radius: .31rem;
+}
+.notif_type p {
+    color: var(--main-content);
+    font-size: .94rem;
+}
+
+.notif_timestamp p {
+    color: var(--loading-dark);
+    font-size: .94rem;
+    opacity: .8;
+}
+
+.notif_card_description h3, .notif_card_description p {
+    font-size: .94rem;
+}
+

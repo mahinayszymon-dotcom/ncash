@@ -16,13 +16,13 @@ include("../../db/branch_fetch.php");
     <link rel="stylesheet" href="../../resources/css/fonts.css">
     <link rel="stylesheet" href="../../resources/css/pages/dashboard/transactions.css">
     <style>
-        .transaction_type a:nth-child(1) {
+        .transaction_type a:nth-child(2) {
             background-color: var(--late) !important;
             color: var(--main-content) !important;
             opacity: 1;
         }
 
-        .transaction_type a:nth-child(1):hover {
+        .transaction_type a:nth-child(2):hover {
             border: none;
             border-radius: 5px;
             /* background-color: var(--red-dark) !important; */
@@ -312,8 +312,8 @@ include("../../db/branch_fetch.php");
                                     <p>Transaction Details</p>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="mode_of_payment">Method of Payment<i style="color:red;">*</i></label>
-                                    <select name="mode_of_payment" id="mode_of_payment" required>
+                                    <label for="mode_of_payment_one">Method of Payment #1<i style="color:red;">*</i></label>
+                                    <select name="mode_of_payment_one" id="mode_of_payment_one" required>
                                         <option value="" disabled selected>--Select Method--</option>
                                         <option value="Cash">Cash</option>
                                         <option value="Online">Online</option>
@@ -321,17 +321,42 @@ include("../../db/branch_fetch.php");
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="type_of_payment">Type of Payment<i style="color:red;">*</i></label>
-                                    <select name="type_of_payment" id="type_of_payment" required>
+                                    <label for="type_of_payment_one">Type of Payment #1<i style="color:red;">*</i></label>
+                                    <select name="type_of_payment_one" id="type_of_payment_one" required>
                                         <option value="" disabled selected>--Select Type--</option>
                                         <option value="Principal">For Redemption (Principal)</option>
                                         <option value="Interest">For Renewal (Interest)</option>
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="amount">Amount<i style="color:red;">*</i></label>
-                                    <input type="text" name="amount" id="amount"  pattern="[0-9]*" required></input>
+                                    <label for="amount_one">Amount<i style="color:red;">*</i></label>
+                                    <input type="text" name="amount_one" id="amount_one"  pattern="[0-9]*" required></input>
                                 </div>
+                                <div class="input_cont"></div>
+                                <div class="fullwidth"><br></div>
+                                <div class="input_cont">
+                                    <label for="mode_of_payment_two">Method of Payment #2<i style="color:red;">*</i></label>
+                                    <select name="mode_of_payment_two" id="mode_of_payment_two" required>
+                                        <option value="" disabled selected>--Select Method--</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Online">Online</option>
+                                        <option value="Bank">Bank</option>
+                                    </select>
+                                </div>
+                                <div class="input_cont">
+                                    <label for="type_of_payment_two">Type of Payment #2<i style="color:red;">*</i></label>
+                                    <select name="type_of_payment_two" id="type_of_payment_two" required>
+                                        <option value="" disabled selected>--Select Type--</option>
+                                        <option value="Principal">For Redemption (Principal)</option>
+                                        <option value="Interest">For Renewal (Interest)</option>
+                                    </select>
+                                </div>
+                                <div class="input_cont">
+                                    <label for="amount_two">Amount<i style="color:red;">*</i></label>
+                                    <input type="text" name="amount_two" id="amount_two"  pattern="[0-9]*" required></input>
+                                </div>
+                                <div class="input_cont"></div>
+                                <div class="fullwidth"><br></div>
                                 <div class="input_cont">
                                     <label for="penalty">Penalty (Number of Days)<i style="color:red;">*</i></label>
                                     <input type="number" name="penalty" id="penalty" required disabled></input>
@@ -340,6 +365,7 @@ include("../../db/branch_fetch.php");
                                     <label for="discount">Discount<i style="color:red;">*</i></label>
                                     <input type="number" name="discount" id="discount" required disabled></input>
                                 </div>
+                                <div class="input_cont"></div>
                                 <div class="input_cont button_cont">
                                     <button type="submit" name="submit"><img src="../../resources/img/icons/add1.png" alt="add_transaction">Add Transaction</button>
                                 </div>

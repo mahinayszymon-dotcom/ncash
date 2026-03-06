@@ -48,9 +48,7 @@ date_default_timezone_set('Asia/Manila');
                             ?>
                         </div>
                         <div class="account_cont_actions"> 
-                            <form id="notif-form" action="" method="GET">
-                                <button type="submit"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>
-                            </form>        
+                            <button onclick="window.location.href='../../dashboard/notifications.php';"><img src="../../resources/img/icons/notif.png" alt="notifications"></button>     
                             <form id="logout-form" action="../../auth/logout.php" method="POST">
                                 <button type="submit"><img src="../../resources/img/icons/logout.png" alt="logout"></button>
                             </form>
@@ -271,26 +269,26 @@ date_default_timezone_set('Asia/Manila');
                                     }
                                 ?>
                                 <div class="input_cont">
-                                    <label for="">Agreement Number</label>
+                                    <label for="agreement_num">Agreement Number</label>
                                     <input type="text" name="agreement_num" id="agreement_num" pattern="[0-9]*" value="<?php echo $agreement_num ?>" readonly>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Client Name<i style="color:red;">*</i></label>
-                                    <input type="text" name="fullname" placeholder="Ex. John Anthony Santos" pattern="[A-Za-z ]+" required>
+                                    <label for="fullname">Client Name<i style="color:red;">*</i></label>
+                                    <input type="text" name="fullname" id="fullname" placeholder="Ex. John Anthony Santos" pattern="[A-Za-z ]+" required>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Contact No.<i style="color:red;">*</i></label>
-                                    <input type="text" name="contact" inputmode="numeric" placeholder="eg. 9123456789" pattern="[9]{1}[0-9]{2}[0-9]{3}[0-9]{4}" required>
+                                    <label for="contact">Contact No.<i style="color:red;">*</i></label>
+                                    <input type="text" name="contact" id="contact" inputmode="numeric" placeholder="eg. 9123456789" pattern="[9]{1}[0-9]{2}[0-9]{3}[0-9]{4}" required>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Email<i style="color:red;">*</i></label>
-                                    <input type="email" name="email" required>
+                                    <label for="email">Email<i style="color:red;">*</i></label>
+                                    <input type="email" name="email" id="email" required>
                                 </div>
                                 <?php
                                     if ($role === "admin") {
                                         echo '<div class="input_cont">
-                                                <label for="">Address<i style="color:red;">*</i></label>
-                                                <input type="text" style="resize: none;" name="address" required></input>
+                                                <label for="address">Address<i style="color:red;">*</i></label>
+                                                <input type="text" style="resize: none;"id="address" name="address" required></input>
                                             </div>';
                                         echo '<div class="input_cont">
                                                 <label for="branch_select">Branch<i style="color:red;">*</i></label>
@@ -303,19 +301,18 @@ date_default_timezone_set('Asia/Manila');
                                             </div>';
                                     } else {
                                         echo '<div class="fullwidth">
-                                                <label for="">Address<i style="color:red;">*</i></label>
-                                                <input type="text" style="resize: none;" name="address" required></input>
+                                                <label for="address">Address<i style="color:red;">*</i></label>
+                                                <input type="text" style="resize: none;" name="address" id="address" required></input>
                                             </div>';
                                     }
                                 ?>
                                 
                                 <div class="fullwidth">
-                                    <br>
                                     <p>Item Information</p>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Item Name<i style="color:red;">*</i></label>
-                                    <input type="text" name="item_name" required>
+                                    <label for="item_name">Item Name<i style="color:red;">*</i></label>
+                                    <input type="text" id="item_name" name="item_name" required>
                                 </div>
                                 <div class="input_cont">
                                     <label for="category">Category<i style="color:red;">*</i></label>
@@ -328,20 +325,20 @@ date_default_timezone_set('Asia/Manila');
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Principal<i style="color:red;">*</i></label>
-                                    <input type="text" name="principal" pattern="[0-9]*" required>
+                                    <label for="principal">Principal<i style="color:red;">*</i></label>
+                                    <input type="text" name="principal" id="principal" pattern="[0-9]*" required>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Interest Rate (%)<i style="color:red;">*</i></label>
-                                    <input type="text" name="interest" pattern="[0-9]*" required>
+                                    <label for="interest">Interest Rate (%)<i style="color:red;">*</i></label>
+                                    <input type="text" name="interest" id="interest" pattern="[0-9]*" required>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Due Date<i style="color:red;">*</i></label>
-                                    <input type="date" name="due_date" required>
+                                    <label for="due_date">Due Date<i style="color:red;">*</i></label>
+                                    <input type="date" name="due_date" id="due_date" required>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="">Remarks<i style="color:red;">*</i></label>
-                                    <input type="text" name="remarks" required></input>
+                                    <label for="remarks">Remarks<i style="color:red;">*</i></label>
+                                    <input type="text" name="remarks" id="remarks" required></input>
                                 </div>
                                 <div class="input_cont">
                                     <div class="result_cont">
