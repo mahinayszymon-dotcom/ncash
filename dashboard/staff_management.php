@@ -513,6 +513,37 @@ if ($role !== "admin") {
                 unset($_SESSION['user_add_success_msg']);
             }
 
+            if (isset($_SESSION['user_upd_success_msg'])) {
+                echo "<span id=\"user_upd_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['user_upd_success_msg'] . "</span>";
+    
+                // 2. Add JavaScript immediately after the message to hide it after 3 seconds
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('user_upd_success');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['user_upd_success_msg']);
+            }
+
             if (isset($_SESSION['user_add_error_msg'])) {
                 echo "<span id=\"user_add_error\" class=\"message_success_d\"><img src=\"../resources/img/icons/error_bright.png\" alt=\"error\">" . $_SESSION['user_add_error_msg'] . "</span>";
     

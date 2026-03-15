@@ -1,4 +1,4 @@
-<div class="central_panelF">
+<div class="central_panelC">
     <div class="data_controlsC">
         <div class="data_controls_header">
             <div class="data_controls_header_text">
@@ -35,25 +35,99 @@
                     </div>
                 </div>
                 <hr>
-                <?php
-                    if ($u_status === 'active') {
-                        echo '<div class="disable_btn_cont">
-                                <button type="submit" name="submit"><img src="../../resources/img/icons/disable.png" alt="disable">Disable User</button>
-                                <div class="disable_text">
-                                    <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Disabling this user will restrict them from accessing the system.</span>
-                                </div>
-                            </div>';
-                    } else {
-                        echo '<div class="enable_btn_cont">
-                                <button type="submit" name="submit" class="enable"><img src="../../resources/img/icons/enable.png" alt="enable">Enable User</button>
-                                <div class="enable_text">
-                                    <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Enabling this user will give them access in the system.</span>
-                                </div>
-                            </div>';
+                <form action="" method="POST">
+                    <?php
+                        if ($u_status === 'active') {
+                            echo '<div class="disable_btn_cont">
+                                    <button type="submit" name="disable" onclick="return confirm(\'Are you sure to disable this user?\');"><img src="../../resources/img/icons/disable.png" alt="disable">Disable User</button>
+                                    <div class="disable_text">
+                                        <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Disabling this user will restrict them from accessing the system.</span>
+                                    </div>
+                                </div>';
+                        } else {
+                            echo '<div class="enable_btn_cont">
+                                    <button type="submit" name="enable" class="enable" onclick="return confirm(\'Are you sure to enable this user?\');"><img src="../../resources/img/icons/enable.png" alt="enable">Enable User</button>
+                                    <div class="enable_text">
+                                        <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Enabling this user will give them access in the system.</span>
+                                    </div>
+                                </div>';
+                        }
+                    ?>
+                </form>
+                <?php  
+                    if(isset($_POST['disable']))
+                    {
+                        $sql = "UPDATE users
+                                SET status = 'inactive'
+                                WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $u_user_id);
+                        if($stmt->execute())
+                        {
+                            $audit_u_id = $_SESSION['user_id'];
+                            $audit_action = "Edited";
+                            $audit_obj = "User";
+                            $audit_desc = "Edited user '$u_uname' status to 'Inactive'";
+
+                            $curDate = new DateTime();
+                            $current = $curDate->format('Y-m-d H:i:s');
+
+                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                    VALUES (?, ?, ?, ?, ?, ?)";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
+                            if($stmt->execute())
+                            {
+                                $_SESSION['user_upd_success_msg'] = "User disabled successfully!";
+                                header("Location: ../staff_management.php");
+                                exit();
+                            }
+                        }
+                        else
+                        {
+                            $_SESSION['error_msg'] = "An error has occurred while disabling the user information.";
+                            header("Location: " . $_SERVER['REQUEST_URI']);
+                            exit();
+                        }
+                    }
+
+                    if(isset($_POST['enable']))
+                    {
+                        $sql = "UPDATE users
+                                SET status = 'active'
+                                WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $u_user_id);
+                        if($stmt->execute())
+                        {
+                            $audit_u_id = $_SESSION['user_id'];
+                            $audit_action = "Edited";
+                            $audit_obj = "User";
+                            $audit_desc = "Edited user '$u_uname' status to 'Active'";
+
+                            $curDate = new DateTime();
+                            $current = $curDate->format('Y-m-d H:i:s');
+
+                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                    VALUES (?, ?, ?, ?, ?, ?)";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
+                            if($stmt->execute())
+                            {
+                                $_SESSION['user_upd_success_msg'] = "User enabled successfully!";
+                                header("Location: ../staff_management.php");
+                                exit();
+                            }
+                        }
+                        else
+                        {
+                            $_SESSION['error_msg'] = "An error has occurred while disabling the user information.";
+                            header("Location: " . $_SERVER['REQUEST_URI']);
+                            exit();
+                        }
                     }
                 ?>
             </div>
-                
             <div class="details_editable">
                 <?php
                     echo '
@@ -65,12 +139,12 @@
 
                             <div class="item_info_detail_row">
                                 <label for="emp_name">Full Name</label>
-                                <input type="text" name="emp_name" id="emp_name" class="item_tags" value="' . $u_fullname . '" disabled>
+                                <input type="text" name="emp_name" id="emp_name" value="' . $u_fullname . '" disabled>
                             </div>
 
                             <div class="item_info_detail_row">
                                 <label for="emp_email">Email Address</label>
-                                <input type="email" name="emp_email" id="emp_email" class="item_tags" value="' . $u_email . '" disabled>
+                                <input type="email" name="emp_email" id="emp_email" value="' . $u_email . '" disabled>
                             </div>';
 
                             echo '
@@ -86,9 +160,9 @@
                             <div class="item_info_detail_row">
                                 <label for="ubranch_select">Branch</label>
                                 <select name="ubranch_select" id="ubranch_select" class="item_tags" disabled>
-                                    <option value="mp" ' . (($u_branch == "1100") ? "selected" : "") . '>Marikina-Pasig</option>
-                                    <option value="qc" ' . (($u_branch == "1101") ? "selected" : "") . '>Quezon City</option>
-                                    <option value="mc" ' . (($u_branch == "1102") ? "selected" : "") . '>Makati City</option>
+                                    <option value="1100" ' . (($u_branch == "1100") ? "selected" : "") . '>Marikina-Pasig</option>
+                                    <option value="1101" ' . (($u_branch == "1101") ? "selected" : "") . '>Quezon City</option>
+                                    <option value="1102" ' . (($u_branch == "1102") ? "selected" : "") . '>Makati City</option>
                                 </select>
                             </div>';
                             
@@ -96,7 +170,7 @@
                         echo '
                             <div class="item_info_detail_btn">
                                 <button type="button" id="editBtn">Edit</button>
-                                <button type="submit" id="submit" name="submit" disabled>Save Changes</button>
+                                <button type="submit" id="save" name="save" disabled>Save Changes</button>
                             </div>
                         </form>';
                 ?>
@@ -125,6 +199,65 @@
                         }
                     ?>
                 </div>
+                <?php 
+                    if(isset($_POST['save']))
+                    {
+                        $upd_role = htmlspecialchars($_POST['role_select']);
+                        $upd_branch = htmlspecialchars($_POST['ubranch_select']);
+
+                        $sql = "SELECT role, branch_id FROM users WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $u_user_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        $row = $result->fetch_assoc();
+                        $fetch_urole = $row['role'];
+                        $fetch_ubranch = $row['branch_id']; 
+
+                        if($fetch_urole == $upd_role && $fetch_ubranch == $upd_branch)
+                        {
+                            $_SESSION['nochange_msg'] = "New user information matches previous information. No changes made.";
+                            header("Location: " . $_SERVER['REQUEST_URI']);
+                            exit();
+                        }
+                        else
+                        {
+                            $sql = "UPDATE users
+                                    SET role = ?, branch_id = ?
+                                    WHERE user_id = ?";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("ssi", $upd_role, $upd_branch, $u_user_id);
+                            if($stmt->execute())
+                            {
+                                $audit_u_id = $_SESSION['user_id'];
+                                $audit_action = "Edited";
+                                $audit_obj = "User";
+                                $audit_desc = "Edited user '$u_uname' from branch '$u_branch_name'";
+
+                                $curDate = new DateTime();
+                                $current = $curDate->format('Y-m-d H:i:s');
+
+                                $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                        VALUES (?, ?, ?, ?, ?, ?)";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("isssis", $audit_u_id, $audit_action, $object_type, $audit_desc, $u_branch, $current);
+                                if($stmt->execute())
+                                {
+                                    $_SESSION['user_upd_success_msg'] = "User information successfully updated!";
+                                    header("Location: ../staff_management.php");
+                                    exit();
+                                }
+                            }
+                            else
+                            {
+                                $_SESSION['error_msg'] = "An error has occurred while updating the user information.";
+                                header("Location: " . $_SERVER['REQUEST_URI']);
+                                exit();
+                            }
+                        }
+                    }
+                ?>
             </div>
         </div>
     </div>

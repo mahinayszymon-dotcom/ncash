@@ -74,31 +74,42 @@ function updateTotals() {
     const penaltyInp = document.getElementById('penalty');
     const discountInp = document.getElementById('discount');
 
-    // Get original values
+    if (penaltyInp.value < 0) penaltyInp.value = 0;
+    if (discountInp.value < 0) discountInp.value = 0;
+
     const interest = parseFloat(interestDisp.getAttribute('data-base-val')) || 0;
     const principal = parseFloat(principalDisp.getAttribute('data-base-val')) || 0;
 
     const days = parseFloat(penaltyInp.value) || 0;
     const discount = parseFloat(discountInp.value) || 0;
 
-    //1% of Principal per day
+    // 1% of Principal per day
     const penaltyAmt = principal * 0.01 * days;
 
     const newInterest = interest + penaltyAmt - discount;
     interestDisp.value = `₱ ${newInterest.toFixed(0)}`;
 
     const newPrincipal = principal + penaltyAmt - discount;
-    principalDisp.value = `₱ ${newPrincipal.toFixed(0)}`
+    principalDisp.value = `₱ ${newPrincipal.toFixed(0)}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const penaltyInp = document.getElementById('penalty');
     const discountInp = document.getElementById('discount');
 
+    const blockInvalidChars = (e) => 
+    {
+        if (['e', 'E', '-', '+'].includes(e.key)) {
+            e.preventDefault();
+        }
+    };
+
     if (penaltyInp) {
+        penaltyInp.addEventListener('keydown', blockInvalidChars);
         penaltyInp.addEventListener('input', updateTotals);
     }
     if (discountInp) {
+        discountInp.addEventListener('keydown', blockInvalidChars);
         discountInp.addEventListener('input', updateTotals);
     }
 });

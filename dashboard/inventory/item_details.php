@@ -13,7 +13,7 @@ include("../../db/branch_fetch.php");
         date_default_timezone_set('Asia/Manila');
         if(isset($_GET['id']))
         {
-            $item_id = htmlspecialchars($_GET['id']);
+            $item_id = htmlspecialchars($_GET['id']);                                    
         }
         else 
         {
@@ -21,7 +21,7 @@ include("../../db/branch_fetch.php");
             exit();
         }
 
-        $sql = "SELECT i.agreement_num, c.client_id, c.fullname, c.contact, c.email, c.address, c.created_at AS client_date, i.item_name, i.principal, b.branch_id, b.branch_name, i.category, i.interest, i.status, i.due_date, i.remarks, i.created_at, i.updated_at
+        $sql = "SELECT i.agreement_num, c.client_id, c.fullname, c.contact, c.email, c.address, c.created_at AS client_date, i.item_name, i.principal, b.branch_id, b.branch_name, i.category, i.interest, i.status, i.due_date, i.remarks, i.created_at, i.updated_at, i.is_omitted
                 FROM inventory AS i
                 INNER JOIN clients AS c ON i.client_id = c.client_id
                 INNER JOIN branches AS b ON i.branch_id = b.branch_id
@@ -52,7 +52,22 @@ include("../../db/branch_fetch.php");
             $remarks = htmlspecialchars($row['remarks']);
             $item_created = htmlspecialchars($row['created_at']);
             $item_updated = htmlspecialchars($row['updated_at']);
+            $is_omit = htmlspecialchars($row['is_omitted']);
         }
+
+        $audit_u_id = $_SESSION['user_id'];
+        $audit_action = "Accessed";
+        $audit_obj = "Item";
+        $audit_desc = "Accessed item '$item_name' with agreement no. $agreement_num on inventory";
+
+        $curDate = new DateTime();
+        $current = $curDate->format('Y-m-d H:i:s');
+
+        $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $fetch_b_id, $current);
+        $stmt->execute();  
 
         $createDate = new DateTime($item_created);
         $created_at = $createDate->format("F j, Y");
@@ -203,17 +218,29 @@ include("../../db/branch_fetch.php");
                                 </div>
                             </div>
                             <hr>
-                            <div class="liquidate_btn_cont">
-                                <button type="submit" name="submit" id="liquidate_button"><img src="../../resources/img/icons/archive_w.png" alt="archive">Hold Item for Liquidation</button>
-                            </div>
-                            <br>
-                            <hr>
-                            <div class="archive_btn_cont">
-                                <button type="submit" name="submit" id="archive_button"><img src="../../resources/img/icons/archive_w.png" alt="archive">Archive this item</button>
-                                <div class="archive_text">
-                                    <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Archiving this item will move it to a separate list and hide it from active view in this module.</span>
+                            <?php 
+                            if($status == "Overdue")
+                            {
+                                echo "
+                                <div class=\"liquidate_btn_cont\">
+                                    <button type=\"submit\" name=\"submit\" id=\"liquidate_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Hold Item for Liquidation</button>
                                 </div>
-                            </div>
+                                <br>
+                                <hr>";
+                            }
+                            
+                            if($status != "Active")
+                            {
+                                echo "
+                                <div class=\"archive_btn_cont\">
+                                    <button type=\"submit\" name=\"submit\" id=\"archive_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Archive this item</button>
+                                    <div class=\"archive_text\">
+                                        <span class=\"message_info\"><img src=\"../../resources/img/icons/info.png\" alt=\"info\">Archiving this item will move it to a separate list and hide it from active view in this module.</span>
+                                    </div>
+                                </div>";
+                            }
+                            ?>
+                            
                         </div>
                         <?php
                             try
@@ -348,18 +375,54 @@ include("../../db/branch_fetch.php");
                                                             
                                                             $current = $curDate->format('Y-m-d H:i:s');
 
-                                                            $sql = "UPDATE inventory
-                                                                    SET client_id = ?, branch_id = ?, item_name = ?, category = ?, agreement_num = ?, principal = ?, status = ?, due_date = ?, remarks = ?, interest = ?
-                                                                    WHERE item_id = ?";
+                                                            $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
                                                             $stmt = $conn->prepare($sql);
-                                                            $stmt->bind_param("iissidsssdi", $client_id, $item_b_id, $upd_item_name, $upd_category, $upd_agreement, $upd_principal, $status, $upd_due, $upd_remarks, $upd_interest, $item_id);
-                                                            if($stmt->execute())
+                                                            $stmt->bind_param("i", $item_b_id);
+                                                            $stmt->execute();
+                                                            $result = $stmt->get_result();
+                                                            $row = $result->fetch_assoc();
+
+                                                            $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                                            $upd_success = false;
+
+                                                            if(isset($fetch_eb) && (int)$is_omit == 0)
                                                             {
-                                                                $insert_count = $stmt->affected_rows;
+                                                                $prev_eb_val = ($fetch_eb + (float)$principal_int) - (float)$interest; //reverse the old
+                                                                $new_eb_val = ($prev_eb_val - (float)$upd_principal) + (float)$upd_interest; //new advance interest
+                                                                $sql = "UPDATE branches
+                                                                        SET end_balance = ?
+                                                                        WHERE branch_id = ?";
+                                                                $stmt = $conn->prepare($sql);
+                                                                $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                                if($stmt->execute())
+                                                                {
+                                                                    $upd_success = true;
+                                                                }
                                                             }
                                                             else 
                                                             {
-                                                                $_SESSION['error_msg'] = "Error occurred while updating item info. (Client Info)";
+                                                                $upd_success = true;
+                                                            }
+
+                                                            if($upd_success)
+                                                            {
+                                                                $sql = "UPDATE inventory
+                                                                        SET client_id = ?, branch_id = ?, item_name = ?, category = ?, agreement_num = ?, principal = ?, status = ?, due_date = ?, remarks = ?, interest = ?
+                                                                        WHERE item_id = ?";
+                                                                $stmt = $conn->prepare($sql);
+                                                                $stmt->bind_param("iissidsssdi", $client_id, $item_b_id, $upd_item_name, $upd_category, $upd_agreement, $upd_principal, $status, $upd_due, $upd_remarks, $upd_interest, $item_id);
+                                                                if($stmt->execute())
+                                                                {
+                                                                    $insert_count = $stmt->affected_rows;
+                                                                }
+                                                                else 
+                                                                {
+                                                                    $_SESSION['error_msg'] = "Error occurred while updating item info. (Client Info)";
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                $_SESSION['error_msg'] = "Error occurred while updating item info.";
                                                             }
                                                         }
                                                         else 
@@ -390,9 +453,25 @@ include("../../db/branch_fetch.php");
                                                                             WHERE item_id = ?";
                                                                         $stmt = $conn->prepare($sql);
                                                                         $stmt->bind_param("isi", $upd_agreement, $current, $item_id);
-                                                                        $stmt->execute();
-                                                                        
-                                                                        $_SESSION['change_success_msg'] = "Item Successfully Updated!";
+                                                                        if($stmt->execute())
+                                                                        {
+                                                                            $audit_u_id = $_SESSION['user_id'];
+                                                                            $audit_action = "Edited";
+                                                                            $audit_obj = "Item";
+                                                                            $audit_desc = "Edited item '$item_name' with agreement no. $upd_agreement on inventory";
+
+                                                                            $curDate = new DateTime();
+                                                                            $current = $curDate->format('Y-m-d H:i:s');
+
+                                                                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                                                    VALUES (?, ?, ?, ?, ?, ?)";
+                                                                            $stmt = $conn->prepare($sql);
+                                                                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $fetch_b_id, $current);
+                                                                            if($stmt->execute())
+                                                                            {
+                                                                                $_SESSION['change_success_msg'] = "Item Successfully Updated!";
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
                                                                 else
@@ -596,7 +675,7 @@ include("../../db/branch_fetch.php");
                                 $success_str = "Item successfully archived!";
 
                                 // Transacs first
-                                $sql = "SELECT transaction_id, agreement_num, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date
+                                $sql = "SELECT transaction_id, agreement_num, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked
                                         FROM transactions
                                         WHERE item_id = ?";
                                 $stmt = $conn->prepare($sql);
@@ -619,15 +698,16 @@ include("../../db/branch_fetch.php");
                                         $transac_e_at = htmlspecialchars($row['edited_at']);
                                         $transac_method = htmlspecialchars($row['method']);
                                         $transac_p_date = htmlspecialchars($row['paid_date']);
+                                        $transac_is_link = htmlspecialchars($row['is_linked']);
 
                                         //insert si transac sa archive
                                         $transac_archiver = "system";
                                         $transac_reason = "Joined archive when item was archived";
 
-                                        $sql = "INSERT INTO transactions_archive (archived_by, archived_date, transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, reason)
-                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?)";
+                                        $sql = "INSERT INTO transactions_archive (archived_by, archived_date, transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked, reason)
+                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                         $stmt = $conn->prepare($sql);
-                                        $stmt->bind_param("ssiiiiidsssssss", $transac_archiver, $current, $transac_id, $transac_agreement, $transac_c_id, $transac_b_id, $item_id, $transac_amt, $transac_type, $transac_creator, $transac_c_at, $transac_e_at, $transac_method, $transac_p_date, $transac_reason);
+                                        $stmt->bind_param("ssiiiiidssssssis", $transac_archiver, $current, $transac_id, $transac_agreement, $transac_c_id, $transac_b_id, $item_id, $transac_amt, $transac_type, $transac_creator, $transac_c_at, $transac_e_at, $transac_method, $transac_p_date, $transac_is_link, $transac_reason);
                                         if($stmt->execute())
                                         {
                                             //Delete sa transac
@@ -655,10 +735,10 @@ include("../../db/branch_fetch.php");
                                 }
 
                                 //check muna if may agreement num na ganun sa archive
-                                $sql = "INSERT INTO items_archive (archived_by, item_id, client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_at, updated_at, created_by, updated_by, interest, reason) 
-                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                $sql = "INSERT INTO items_archive (archived_by, item_id, client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_at, updated_at, created_by, updated_by, interest, is_omitted, reason) 
+                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                 $stmt = $conn->prepare($sql);
-                                $stmt->bind_param("siiissidsssssssds", $archiver, $item_id, $fetch_c_id, $fetch_b_id, $item_name, $category, $agreement_num, $principal, $status, $due_date, $remarks, $item_created, $item_updated, $creator_uname, $editor_uname, $interest, $archive_reason);
+                                $stmt->bind_param("siiissidsssssssdis", $archiver, $item_id, $fetch_c_id, $fetch_b_id, $item_name, $category, $agreement_num, $principal, $status, $due_date, $remarks, $item_created, $item_updated, $creator_uname, $editor_uname, $interest, $is_omit, $archive_reason);
                                 if($stmt->execute())
                                 {
                                     //Delete sa inventory

@@ -121,6 +121,8 @@ $stmt->execute();
                                     <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
                                     <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Price (Increasing)</option>
                                     <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Price (Decreasing)</option>
+                                    <option value="date_increasing" <?= $selected === 'date_increasing' ? 'selected' : '' ?>>Due Date (Old)</option>
+                                    <option value="date_decreasing" <?= $selected === 'date_decreasing' ? 'selected' : '' ?>>Due Date (New)</option>
                                     <option value="active" <?= $selected === 'active' ? 'selected' : '' ?>>Active Items</option>
                                     <option value="overdue" <?= $selected === 'overdue' ? 'selected' : '' ?>>Overdue Items</option>
                                     <option value="redeemed" <?= $selected === 'redeemed' ? 'selected' : '' ?>>Redeemed Items</option>
@@ -163,6 +165,12 @@ $stmt->execute();
                                         break;
                                     case 'price_decreasing': 
                                         $orderBy = " ORDER BY i.principal DESC";
+                                        break;
+                                    case 'date_increasing':
+                                        $orderBy = " ORDER BY i.due_date ASC";
+                                        break;
+                                    case 'date_decreasing':
+                                        $orderBy = " ORDER BY i.due_date DESC";
                                         break;
                                     case 'active':
                                         $where[] = "i.status = 'Active'";
@@ -274,7 +282,7 @@ $stmt->execute();
                                             $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f1eceb; color: #a6a094;";
                                         }
         
-                                        $format_date = date("d M Y", strtotime($due_date));
+                                        $format_date = date("M d, Y", strtotime($due_date));
                                         
                                         if ($branch === "Marikina-Pasig") {
                                             $final_agreement_num = "MP" . $agreement_num;

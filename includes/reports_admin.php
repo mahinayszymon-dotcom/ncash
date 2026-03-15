@@ -52,7 +52,8 @@
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1100";
+                        AND branch_id = 1100
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -116,8 +117,7 @@
         <div class="val">
             <p>DEBIT</p>
             <?php
-                //kasama dito ung sa misc dapat (sa computation lng inde dito sa select statement)
-                //Gets the PRINCIPAL of the renewed items this week
+                //Gets the PRINCIPAL of the renewed items this week (Also used in credit)
                 $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
                         INNER JOIN transactions AS t ON i.item_id = t.item_id
                         WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
@@ -146,10 +146,22 @@
                 $row = $result->fetch_assoc();
                 $debit_transacs_mp = $row['debit_transacs'];
 
-                //Ilalagay dito ung select nung sa misc na debit
+                //Gets the amount of all debit in eb_transacs
+                $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Debit'
+                        AND branch_id = 1100";
 
-                //Dito ksama rin ung sa misc (debit is ung expenses etc.)
-                $total_debit_mp = $total_pawn_mp + $total_renew_mp + $debit_transacs_mp; //+ $total_debit_misc
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $debit_eb_transacs_mp = $row['debit_eb_transacs'];
+
+                //(debit is ung expenses etc.)
+                $total_debit_mp = $total_pawn_mp + $total_renew_mp + $debit_transacs_mp + $debit_eb_transacs_mp;
                 $debit_decimal_mp = number_format($total_debit_mp, 2);
 
                 echo "<p>₱ $debit_decimal_mp</p>";
@@ -163,7 +175,8 @@
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1100";
+                        AND branch_id = 1100
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -172,10 +185,21 @@
                 $row = $result->fetch_assoc();
                 $adv_int_mp = $row['adv_int'];
 
-                //Ilalagay dito ung select nung sa misc na credit
+                $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Credit'
+                        AND branch_id = 1100";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $credit_eb_transacs_mp = $row['credit_eb_transacs'];
 
                 //Dito ksama rin ung sa misc (credit is ung fund transfers etc.)
-                $total_credit_mp = $total_redeem_mp + $total_renew_mp + $adv_int_mp + $total_int_mp; //+ $total_credit_misc
+                $total_credit_mp = $total_redeem_mp + $total_renew_mp + $adv_int_mp + $total_int_mp + $credit_eb_transacs_mp;
                 $credit_decimal_mp = number_format($total_credit_mp, 2);
 
                 echo "<p>₱ $credit_decimal_mp</p>";
@@ -185,7 +209,18 @@
     <div class="debit_credit_cont">
         <div class="end_bal">
             <p>END BALANCE</p>
-            <p>₱ 0.00</p>
+            <?php 
+                $sql = "SELECT end_balance FROM branches WHERE branch_id = 1100";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+
+                $fetch_eb_mp = htmlspecialchars($row['end_balance']);
+                $fetch_eb_mp = number_format($fetch_eb_mp, 2);
+
+                echo "<p>₱ $fetch_eb_mp</p>"
+            ?>
         </div>
     </div>
     <div class="available_reports_cont">
@@ -258,7 +293,8 @@
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1101";
+                        AND branch_id = 1101
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -349,7 +385,20 @@
                 $row = $result->fetch_assoc();
                 $debit_transacs_q = $row['debit_transacs'];
 
-                $total_debit_q = $total_pawn_q + $total_renew_q + $debit_transacs_q; //+ $total_debit_misc
+                $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Debit'
+                        AND branch_id = 1101";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $debit_eb_transacs_q = $row['debit_eb_transacs'];
+
+                $total_debit_q = $total_pawn_q + $total_renew_q + $debit_transacs_q + $debit_eb_transacs_q;
                 $debit_decimal_q = number_format($total_debit_q, 2);
 
                 echo "<p>₱ $debit_decimal_q</p>";
@@ -361,7 +410,8 @@
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1101";
+                        AND branch_id = 1101
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -370,7 +420,20 @@
                 $row = $result->fetch_assoc();
                 $adv_int_q = $row['adv_int'];
 
-                $total_credit_q = $total_redeem_q + $total_renew_q + $adv_int_q + $total_int_q; //+ $total_credit_misc
+                $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Credit'
+                        AND branch_id = 1101";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $credit_eb_transacs_q = $row['credit_eb_transacs'];
+
+                $total_credit_q = $total_redeem_q + $total_renew_q + $adv_int_q + $total_int_q + $credit_eb_transacs_q;
                 $credit_decimal_q = number_format($total_credit_q, 2);
 
                 echo "<p>₱ $credit_decimal_q</p>";
@@ -380,7 +443,18 @@
     <div class="debit_credit_cont">
         <div class="end_bal">
             <p>END BALANCE</p>
-            <p>₱ 0.00</p>
+            <?php 
+                $sql = "SELECT end_balance FROM branches WHERE branch_id = 1101";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+
+                $fetch_eb_q = htmlspecialchars($row['end_balance']);
+                $fetch_eb_q = number_format($fetch_eb_q, 2);
+
+                echo "<p>₱ $fetch_eb_q</p>"
+            ?>
         </div>
     </div>
     <div class="available_reports_cont">
@@ -451,7 +525,8 @@
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1102";
+                        AND branch_id = 1102
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -538,7 +613,20 @@
                 $row = $result->fetch_assoc();
                 $debit_transacs_m = $row['debit_transacs'];
 
-                $total_debit_m = $total_pawn_m + $total_renew_m + $debit_transacs_m; //+ $total_debit_misc
+                $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Debit'
+                        AND branch_id = 1102";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $debit_eb_transacs_m = $row['debit_eb_transacs'];
+
+                $total_debit_m = $total_pawn_m + $total_renew_m + $debit_transacs_m + $debit_eb_transacs_m;
                 $debit_decimal_m = number_format($total_debit_m, 2);
 
                 echo "<p>₱ $debit_decimal_m </p>";
@@ -550,7 +638,8 @@
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
                         WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
                         AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
-                        AND branch_id = 1102";
+                        AND branch_id = 1102
+                        AND is_omitted != 1";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();    
@@ -559,7 +648,20 @@
                 $row = $result->fetch_assoc();
                 $adv_int_m = $row['adv_int'];
 
-                $total_credit_m = $total_redeem_m + $total_renew_m + $adv_int_m + $total_int_m; //+ $total_credit_misc
+                $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
+                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
+                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        AND type_of_transac = 'Credit'
+                        AND branch_id = 1102";
+
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();    
+                $result = $stmt->get_result();
+
+                $row = $result->fetch_assoc();
+                $credit_eb_transacs_m = $row['credit_eb_transacs'];
+
+                $total_credit_m = $total_redeem_m + $total_renew_m + $adv_int_m + $total_int_m + $credit_eb_transacs_m;
                 $credit_decimal_m = number_format($total_credit_m, 2);
 
                 echo "<p>₱ $credit_decimal_m </p>";
@@ -569,7 +671,18 @@
     <div class="debit_credit_cont">
         <div class="end_bal">
             <p>END BALANCE</p>
-            <p>₱ 0.00</p>
+            <?php 
+                $sql = "SELECT end_balance FROM branches WHERE branch_id = 1102";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+
+                $fetch_eb_m = htmlspecialchars($row['end_balance']);
+                $fetch_eb_m = number_format($fetch_eb_m, 2);
+
+                echo "<p>₱ $fetch_eb_m</p>"
+            ?>
         </div>
     </div>
     <div class="available_reports_cont">

@@ -44,9 +44,24 @@ if ($role !== "admin") {
             $u_email    = htmlspecialchars($row['email']);
             $u_role     = htmlspecialchars($row['role']);
             $u_branch   = htmlspecialchars($row['branch_id']);
+            $u_branch_name   = htmlspecialchars($row['branch_name']);
             $u_status   = htmlspecialchars($row['status']); 
             $u_created_date  = new DateTime($row['created_at']);
             $formatted_date = $u_created_date->format("F j, Y");
+
+            $audit_u_id = $_SESSION['user_id'];
+            $audit_action = "Accessed";
+            $audit_obj = "User";
+            $audit_desc = "Accessed user '$u_uname' from branch '$u_branch_name'";
+
+            $curDate = new DateTime();
+            $current = $curDate->format('Y-m-d H:i:s');
+
+            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
+            $stmt->execute();
         } else {
             // error
         }

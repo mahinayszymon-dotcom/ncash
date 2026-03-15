@@ -78,31 +78,6 @@ include("../../config/db_conn.php");
                         <h2>Data Tabulation</h2>
                     </div>
                     <div class="data_panel_buttons">
-                        <?php
-                            $role = $_SESSION['role'];
-                            date_default_timezone_set('Asia/Manila');
-        
-                            $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, i.due_date, b.branch_name, i.status
-                                    FROM inventory AS i
-                                    INNER JOIN clients AS c ON i.client_id = c.client_id
-                                    INNER JOIN branches AS b ON i.branch_id = b.branch_id";
-                                
-                            if($role != 'admin')
-                            {
-                                $sql .= " WHERE i.branch_id = ?";
-                            }
-        
-                            $stmt = $conn->prepare($sql);
-        
-                            if($role != 'admin')
-                            {
-                                $stmt->bind_param("i", $branch_id);
-                            }
-        
-                            $stmt->execute();
-                                
-                            $result = $stmt->get_result();
-                        ?>
                         <form action="audit_trail.php" method="GET">
                             <span class="custom-arrow-sort"><img src="../../resources/img/icons/filter.png" alt="filter"></span>
                             <select name="branch" id="branch" onchange="this.form.submit()" class="sort">
@@ -127,9 +102,13 @@ include("../../config/db_conn.php");
                                 ?>
                                 <option value="nameAZ" <?= $selected === 'nameAZ' ? 'selected' : '' ?>>Name (A-Z)</option>
                                 <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
-                                <option value="nameZA" <?= $selected === 'datetimeold' ? 'selected' : '' ?>>Date & Time (Old)</option>
-                                <option value="nameZA" <?= $selected === 'datetimenew' ? 'selected' : '' ?>>Date & Time (New)</option>
-                                <option value="nameZA" <?= $selected === 'groupedactions' ? 'selected' : '' ?>>Grouped Actions</option>
+                                <option value="datetimeold" <?= $selected === 'datetimeold' ? 'selected' : '' ?>>Date & Time (Old)</option>
+                                <option value="datetimenew" <?= $selected === 'datetimenew' ? 'selected' : '' ?>>Date & Time (New)</option>
+                                <option value="accessed" <?= $selected === 'accessed' ? 'selected' : '' ?>>Action: Accessed</option>
+                                <option value="created" <?= $selected === 'created' ? 'selected' : '' ?>>Action: Created</option>
+                                <option value="edited" <?= $selected === 'edited' ? 'selected' : '' ?>>Action: Edited</option>
+                                <option value="archive" <?= $selected === 'archive' ? 'selected' : '' ?>>Action: Archive</option>
+                                <option value="deleted" <?= $selected === 'deleted' ? 'selected' : '' ?>>Action: Deleted</option>
                             </select>
                             <span class="custom-arrow"><img src="../../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                         </form>
@@ -143,38 +122,47 @@ include("../../config/db_conn.php");
                             {
                                 case 'all':
                                 case 'default':
-                                    $orderBy = " ORDER BY t.created_at DESC";
+                                    $orderBy = " ORDER BY tr.timestamp DESC";
                                     break;
-                                // case 'pasig':
-                                //     $where[] = "b.branch_name = 'Marikina-Pasig'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
-                                // case 'quezon':
-                                //     $where[] = "b.branch_name = 'Quezon City'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
-                                // case 'makati': 
-                                //     $where[] = "b.branch_name = 'Makati'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
+                                case 'pasig':
+                                     $where[] = "b.branch_name = 'Marikina-Pasig'";
+                                     $orderBy = " ORDER BY tr.timestamp DESC";
+                                     break;
+                                case 'quezon':
+                                     $where[] = "b.branch_name = 'Quezon City'";
+                                     $orderBy = " ORDER BY tr.timestamp DESC";
+                                     break;
+                                case 'makati': 
+                                     $where[] = "b.branch_name = 'Makati'";
+                                     $orderBy = " ORDER BY tr.timestamp DESC";
+                                     break;
                                 case 'nameAZ': 
-                                    $orderBy = " ORDER BY c.fullname ASC";
+                                    $orderBy = " ORDER BY u.username ASC";
                                     break;
                                 case 'nameZA': 
-                                    $orderBy = " ORDER BY c.fullname DESC";
+                                    $orderBy = " ORDER BY u.username DESC";
                                     break;
-                                // case 'price_increasing': 
-                                //     $orderBy = " ORDER BY t.amount ASC";
-                                //     break;
-                                // case 'price_decreasing': 
-                                //     $orderBy = " ORDER BY t.amount DESC";
-                                //     break;
-                                // case 'renewal':
-                                //     $where[] = "t.type_of_pay = 'Interest'";
-                                //     break;
-                                // case 'redeem':
-                                //     $where[] = "t.type_of_pay = 'Principal'";
-                                //     break;
+                                case 'datetimeold': 
+                                     $orderBy = " ORDER BY tr.timestamp ASC";
+                                     break;
+                                case 'datetimenew': 
+                                     $orderBy = " ORDER BY tr.timestamp DESC";
+                                     break;
+                                case 'accessed':
+                                     $where[] = "tr.action = 'Accessed'";
+                                     break;
+                                case 'created':
+                                     $where[] = "tr.action = 'Created'";
+                                     break;
+                                case 'edited':
+                                     $where[] = "tr.action = 'Edited'";
+                                     break;
+                                case 'archive':
+                                     $where[] = "tr.action = 'Archive'";
+                                     break;
+                                case 'deleted':
+                                     $where[] = "tr.action = 'Deleted'";
+                                     break;
                                 default:
                                     $orderBy = '';
                                     break;
@@ -197,20 +185,18 @@ include("../../config/db_conn.php");
                             $limit = 12;
                             $offset = ($page - 1) * $limit;
 
-                            $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method
-                                FROM transactions AS t
-                                INNER JOIN clients AS c ON t.client_id = c.client_id
-                                INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                INNER JOIN branches AS b ON t.branch_id = b.branch_id
-                                $where_sql
-                                $orderBy
-                                LIMIT $limit OFFSET $offset";
+                            $sql = "SELECT u.username, tr.action, tr.object_type, tr.description, b.branch_name, tr.timestamp
+                                    FROM audit_trail AS tr
+                                    INNER JOIN branches AS b ON tr.branch_id = b.branch_id
+                                    INNER JOIN users AS u ON tr.user_id = u.user_id
+                                    $where_sql
+                                    $orderBy
+                                    LIMIT $limit OFFSET $offset";
 
                             $count_sql = "SELECT COUNT(*) AS total
-                                FROM transactions AS t
-                                INNER JOIN clients AS c ON t.client_id = c.client_id
-                                INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                INNER JOIN branches AS b ON t.branch_id = b.branch_id
+                                FROM audit_trail AS tr
+                                INNER JOIN branches AS b ON tr.branch_id = b.branch_id
+                                INNER JOIN users AS u ON tr.user_id = u.user_id
                                 $where_sql";
 
                             // $sql .= " $orderBy LIMIT $limit OFFSET $offset";
@@ -242,6 +228,7 @@ include("../../config/db_conn.php");
                                 <th>Action Type</th>
                                 <th>Object Type</th>
                                 <th>Description</th>
+                                <th>Branch</th>
                                 <th>Timestamp</th>
                             </tr>
                         </thead>
@@ -249,75 +236,62 @@ include("../../config/db_conn.php");
                         <?php
                             $number = (($page - 1) * $limit) + 1;
 
-                            // if($result->num_rows > 0) 
-                            // {
-                            //     while($row = $result->fetch_assoc())
-                            //     {
-                            //         $transaction_id = htmlspecialchars($row['transaction_id']);
-                            //         $agreement_num = htmlspecialchars($row['agreement_num']);
-                            //         $client_name = htmlspecialchars($row['fullname']);
-                            //         $item = htmlspecialchars($row['item_name']);
-                            //         $item_principal = htmlspecialchars($row['principal']);
-                            //         $branch = htmlspecialchars($row['branch_name']);
-                            //         $amount = htmlspecialchars($row['amount']);
-                            //         $pay_type = htmlspecialchars($row['type_of_pay']);
-                            //         $method = htmlspecialchars($row['method']);
-
-                            //         $principal_decimal = number_format($item_principal, 2);
-                            //         $amount_decimal = number_format($amount, 2);
+                            if($result->num_rows > 0) 
+                            {
+                                while($row = $result->fetch_assoc())
+                                {
+                                    $audit_uname = htmlspecialchars($row['username']);
+                                    $action = htmlspecialchars($row['action']);
+                                    $obj_type = htmlspecialchars($row['object_type']);
+                                    $desc = htmlspecialchars($row['description']);
+                                    $aud_branch = htmlspecialchars($row['branch_name']);
+                                    $timestamp = htmlspecialchars($row['timestamp']);
     
-                            //         if ($branch === "Marikina-Pasig") {
-                            //             $final_agreement_num = "MP" . $agreement_num;
-                            //         } else if ($branch === "Quezon City") {
-                            //             $final_agreement_num = "Q" . $agreement_num;
-                            //         } else if ($branch === "Makati") {
-                            //             $final_agreement_num = "M" . $agreement_num;
-                            //         } else {
-                            //             $final_agreement_num = "-" . $agreement_num;
-                            //         }
+                                    if ($aud_branch === "Marikina-Pasig") {
+                                        $branch_acro = "MP";
+                                    } else if ($aud_branch === "Quezon City") {
+                                        $branch_acro = "Q";
+                                    } else if ($aud_branch === "Makati") {
+                                        $branch_acro = "M";
+                                    } else {
+                                        $branch_acro = "-";
+                                    }
 
-                            //         echo 
-                            //         "
-                            //         <tr>
-                            //             <td> $number </td>
-                            //             <td> $final_agreement_num </td>
-                            //             <td> $client_name </td>
-                            //             <td> $item </td>
-                            //             <td>₱ $principal_decimal</td>
-                            //             <td>₱ $amount_decimal</td>
-                            //         </tr>
-                            //         ";
+                                    $format_date = date("M d, Y | h:i A", strtotime($timestamp));
 
-                            //         $number++;
-                            //     }
-                            // }
-                            // else
-                            // {
-                            //     echo
-                            //         "
-                            //             <tr style='height: auto; border: none; cursor: auto;'>
-                            //                 <td rowspan='5' colspan='7' class='no_records_found'> 
-                            //                     <br>
-                            //                     <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
-                            //                     <h3 style='font-size: 18px;'>No Records Found</h3>
-                            //                     <br>
-                            //                     <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
-                            //                     <br>
-                            //                 </td>
-                            //             </tr>
-                            //         ";
-                            // }
+                                    echo 
+                                    "
+                                    <tr>
+                                        <td> $number </td>
+                                        <td> $audit_uname </td>
+                                        <td> $action </td>
+                                        <td> $obj_type </td>
+                                        <td> $desc </td>
+                                        <td> $branch_acro </td>
+                                        <td> $format_date </td>
+                                    </tr>
+                                    ";
+
+                                    $number++;
+                                }
+                            }
+                            else
+                            {
+                                echo
+                                    "
+                                        <tr style='height: auto; border: none; cursor: auto;'>
+                                            <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                <br>
+                                                <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
+                                                <h3 style='font-size: 18px;'>No Records Found</h3>
+                                                <br>
+                                                <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
+                                                <br>
+                                            </td>
+                                        </tr>
+                                    ";
+                            }
                         ?>
-                            <tr>
-                                <td>1</td>
-                                <td>
-c
-                                </td>
-                                <td>CREATE</td>
-                                <td>Item</td>
-                                <td>Created item 'Sample'</td>
-                                <td>01 Mar 2026</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>

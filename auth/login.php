@@ -179,7 +179,7 @@ $conn->close();
                     <script>
                         // Function to hide the element
                         function hideMessage() {
-                            var element = document.getElementById('archive_success');
+                            var element = document.getElementById('login_success');
                             if (element) {
                                 // Use CSS opacity/transition for a smooth fade out (optional)
                                 element.style.transition = 'opacity 0.5s ease-out';

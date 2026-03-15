@@ -391,25 +391,6 @@ select option{
     padding-bottom: 8rem;
 }
 
-.checkbox_cont {
-    display: flex;
-    justify-content: end;
-    align-items: center; /* This is the magic that vertically centers them perfectly */
-    gap: .5rem; /* Adds a nice, consistent space between the box and the text */
-}
-
-/* Optional: Reset any bottom margin on the label inside this specific container so it doesn't get pushed up */
-.checkbox_cont label {
-    margin-bottom: 0; 
-    opacity: 0.7 !important;
-}
-
-.checkbox_cont input[type="checkbox"] {
-    width: 2rem;  /* This tells the checkbox to only take up its natural, small size */
-    margin: 0;    /* Resets any weird default margins */
-    cursor: pointer; /* A nice little extra: makes it a pointer finger when you hover! */
-}
-
 .transaction_type {
     display: flex;
     height: 100%;

@@ -186,24 +186,76 @@ date_default_timezone_set('Asia/Manila');
                                                         $status = "Active";
                                                     }
 
+                                                    $is_omit = (isset($_POST['omit_transaction'])) ? 1 : 0;
+
                                                     $rate = $rate_input / 100;
                                                     $interest = $principal * $rate;
                                                     $creator = $_SESSION['username'];
 
                                                     $due_date = $inputDate->format('Y-m-d H:i:s');
-                                                    
-                                                    $sql = "INSERT INTO inventory (client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_by, updated_by, interest)
-                                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                                    $stmt = $conn->prepare($sql);
-                                                    $stmt->bind_param("iissidsssssd", $client_id, $branch_id, $item_name, $category, $agreement_num, $principal, $status, $due_date, $remarks, $creator, $creator, $interest);
 
-                                                    if($stmt->execute())
+                                                    $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("i", $branch_id);
+                                                    $stmt->execute();
+                                                    $result = $stmt->get_result();
+                                                    $row = $result->fetch_assoc();
+
+                                                    $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                                    $upd_success = false;
+
+                                                    if(isset($fetch_eb) && $is_omit == 0)
                                                     {
-                                                        $_SESSION['success_msg'] = "Item Successfully Added!";
+                                                        $new_eb_val = ($fetch_eb - (float)$principal) + (float)$interest; //advance interest
+                                                        $sql = "UPDATE branches
+                                                                SET end_balance = ?
+                                                                WHERE branch_id = ? ";
+                                                        $stmt = $conn->prepare($sql);
+                                                        $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                        if($stmt->execute())
+                                                        {
+                                                            $upd_success = true;
+                                                        }
                                                     }
-                                                    else
+                                                    else 
                                                     {
-                                                        $_SESSION['error_msg'] = "Error:" . $stmt->error;
+                                                        $upd_success = true;
+                                                    }
+                                                    
+                                                    if($upd_success)
+                                                    {
+                                                        $sql = "INSERT INTO inventory (client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_by, updated_by, interest, is_omitted)
+                                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                        $stmt = $conn->prepare($sql);
+                                                        $stmt->bind_param("iissidsssssdi", $client_id, $branch_id, $item_name, $category, $agreement_num, $principal, $status, $due_date, $remarks, $creator, $creator, $interest, $is_omit);
+
+                                                        if($stmt->execute())
+                                                        {
+                                                            $audit_u_id = $_SESSION['user_id'];
+                                                            $audit_action = "Created";
+                                                            $audit_obj = "Item";
+                                                            $audit_desc = "Created item '$item_name' with agreement no. $agreement_num on inventory";
+
+                                                            $curDate = new DateTime();
+                                                            $current = $curDate->format('Y-m-d H:i:s');
+
+                                                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                                    VALUES (?, ?, ?, ?, ?, ?)";
+                                                            $stmt = $conn->prepare($sql);
+                                                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $branch_id, $current);
+                                                            if($stmt->execute())
+                                                            {
+                                                                $_SESSION['success_msg'] = "Item Successfully Added!";
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            $_SESSION['error_msg'] = "Error:" . $stmt->error;
+                                                        }
+                                                    }
+                                                    else 
+                                                    {
+                                                        $_SESSION['error_msg'] = "Error occurred while inserting item.";
                                                     }
                                                 }
                                             }
@@ -306,6 +358,10 @@ date_default_timezone_set('Asia/Manila');
                                             </div>';
                                     }
                                 ?>
+                                <div class="fullwidth checkbox_cont">
+                                    <input type="checkbox" id="omit_transaction" name="omit_transaction" value="1">
+                                    <label for="exclude_transaction">Omit this transaction from business reports.</label>
+                                </div>
                                 
                                 <div class="fullwidth">
                                     <p>Item Information</p>

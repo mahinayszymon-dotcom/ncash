@@ -164,7 +164,7 @@ include("../db/branch_fetch.php");
                                     $limit = 12;
                                     $offset = ($page - 1) * $limit;
 
-                                    $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method
+                                    $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method, t.paid_date, t.is_linked
                                         FROM transactions AS t
                                         INNER JOIN clients AS c ON t.client_id = c.client_id
                                         INNER JOIN inventory AS i ON t.item_id = i.item_id
@@ -173,7 +173,7 @@ include("../db/branch_fetch.php");
                                         $orderBy
                                         LIMIT $limit OFFSET $offset";
 
-                                    $count_sql = "SELECT COUNT(*) AS total
+                                    $count_sql = "SELECT SUM(CASE WHEN t.is_linked = 1 THEN 0.5 ELSE 1 END) AS total
                                         FROM transactions AS t
                                         INNER JOIN clients AS c ON t.client_id = c.client_id
                                         INNER JOIN inventory AS i ON t.item_id = i.item_id
@@ -195,8 +195,8 @@ include("../db/branch_fetch.php");
                                     $result = $stmt->get_result();
                                     $count_stmt->execute();
                                     $count_result = $count_stmt->get_result();
-                                    $total_row = $count_result ? $count_result->fetch_assoc() : null;
-                                    $total = $total_row['total'] ?? 0;
+                                    $total_row = $count_result->fetch_assoc();
+                                    $total = ceil($total_row['total'] ?? 0);
                                 ?>
                             </div>
                         </div>  
@@ -218,51 +218,108 @@ include("../db/branch_fetch.php");
                                 <tbody>
                                 <?php
                                     $number = (($page - 1) * $limit) + 1;
+                                    $processed_ids = [];
 
                                     if($result->num_rows > 0) 
                                     {
-                                        while($row = $result->fetch_assoc())
+                                        while($row = $result->fetch_assoc()) 
                                         {
-                                            $transaction_id = htmlspecialchars($row['transaction_id']);
+                                            $transaction_id = $row['transaction_id'];
+
+                                            if (in_array($transaction_id, $processed_ids)) 
+                                            {
+                                                continue;
+                                            }
+
+                                            $is_linked = (int)$row['is_linked'];
                                             $agreement_num = htmlspecialchars($row['agreement_num']);
                                             $client_name = htmlspecialchars($row['fullname']);
                                             $item = htmlspecialchars($row['item_name']);
-                                            $item_principal = htmlspecialchars($row['principal']);
                                             $branch = htmlspecialchars($row['branch_name']);
-                                            $amount = htmlspecialchars($row['amount']);
                                             $pay_type = htmlspecialchars($row['type_of_pay']);
-                                            $method = htmlspecialchars($row['method']);
-
-                                            $principal_decimal = number_format($item_principal, 2);
-                                            $amount_decimal = number_format($amount, 2);
-            
-                                            if ($branch === "Marikina-Pasig") {
-                                                $final_agreement_num = "MP" . $agreement_num;
-                                            } else if ($branch === "Quezon City") {
-                                                $final_agreement_num = "Q" . $agreement_num;
-                                            } else if ($branch === "Makati") {
-                                                $final_agreement_num = "M" . $agreement_num;
-                                            } else {
-                                                $final_agreement_num = "-" . $agreement_num;
+                                            
+                                            if ($branch === "Marikina-Pasig") 
+                                            { 
+                                                $final_agreement_num = "MP" . $agreement_num; 
+                                            }
+                                            else if ($branch === "Quezon City") 
+                                            { 
+                                                $final_agreement_num = "Q" . $agreement_num; 
+                                            }
+                                            else if ($branch === "Makati") 
+                                            { 
+                                                $final_agreement_num = "M" . $agreement_num; 
                                             }
 
-                                            echo 
-                                            "
-                                            <tr>
-                                                <td> $number </td>
-                                                <td> $final_agreement_num </td>
-                                                <td> $client_name </td>
-                                                <td> $item </td>
-                                                <td>₱ $principal_decimal</td>
-                                                <td>₱ $amount_decimal</td>
-                                                <td> $pay_type </td>
-                                                <td> $method </td>
-                                                <td>
-                                                    <a href=\"../dashboard/transactions/transaction_details.php?id=" . $transaction_id . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
-                                                </td>
-                                            </tr>
-                                            ";
+                                            if ($is_linked === 1) 
+                                            {
+                                                //Looking up linked transac
+                                                $sql_dual = "SELECT transaction_id, amount, method FROM transactions 
+                                                            WHERE agreement_num = ? 
+                                                            AND DATE(paid_date) = DATE(?) 
+                                                            AND type_of_pay = ?
+                                                            AND transaction_id != ? 
+                                                            LIMIT 1";
+                                                                        
+                                                $stmt_p = $conn->prepare($sql_dual);
+                                                $stmt_p->bind_param("issi", $row['agreement_num'], $row['paid_date'], $pay_type, $transaction_id);
+                                                $stmt_p->execute();
+                                                $res_p = $stmt_p->get_result();
+                                                $dual = $res_p->fetch_assoc();
 
+                                                if ($dual) 
+                                                {
+                                                    $processed_ids[] = $dual['transaction_id'];
+                                                    
+                                                    $amt1 = number_format($row['amount'], 2);
+                                                    $amt2 = number_format($dual['amount'], 2);
+                                                    $meth1 = htmlspecialchars($row['method']);
+                                                    $meth2 = htmlspecialchars($dual['method']);
+
+                                                    echo "
+                                                    <tr class='row-single'>
+                                                        <td> $number </td>
+                                                        <td> $final_agreement_num <br><small style='color:green;'>SPLIT</small> </td>
+                                                        <td> $client_name </td>
+                                                        <td> $item </td>
+                                                        <td> ₱ " . number_format($row['principal'], 2) . "</td>
+                                                        <td>
+                                                            <div style='border-bottom: 1px solid #ccc; padding: 2px;'>₱ $amt1</div>
+                                                            <div style='padding: 2px;'>₱ $amt2</div>
+                                                        </td>
+                                                        <td> $pay_type </td>
+                                                        <td>
+                                                            <div style='border-bottom: 1px solid #ccc; padding: 2px;'>$meth1</div>
+                                                            <div style='padding: 2px;'>$meth2</div>
+                                                        </td>
+                                                        <td>
+                                                            <a href=\"../dashboard/transactions/transaction_details.php?id=$transaction_id\">
+                                                                <button><img src=\"../resources/img/icons/open.png\"></button>
+                                                            </a>
+                                                        </td>
+                                                    </tr>";
+                                                }
+                                            } 
+                                            else 
+                                            {
+                                                $amount_decimal = number_format($row['amount'], 2);
+                                                $method = htmlspecialchars($row['method']);
+                                                
+                                                echo "
+                                                <tr class='row-single'>
+                                                    <td> $number </td>
+                                                    <td> $final_agreement_num </td>
+                                                    <td> $client_name </td>
+                                                    <td> $item </td>
+                                                    <td> ₱ " . number_format($row['principal'], 2) . "</td>
+                                                    <td> ₱ $amount_decimal </td>
+                                                    <td> $pay_type </td>
+                                                    <td> $method </td>
+                                                    <td>
+                                                        <a href=\"../dashboard/transactions/transaction_details.php?id=$transaction_id\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\"></button></a>
+                                                    </td>
+                                                </tr>";
+                                            }
                                             $number++;
                                         }
                                     }
@@ -290,9 +347,8 @@ include("../db/branch_fetch.php");
                             <div class="data_table_actions_components">
                                 <p>
                                     <?php 
-                                        $shown = $result->num_rows;
                                         $start = $offset + 1; 
-                                        $end = $offset + $shown; 
+                                        $end = $offset + $total; 
 
                                         if ($total == 0 || $end == 0) {
                                             echo "Showing 0 entries";
@@ -378,6 +434,37 @@ include("../db/branch_fetch.php");
                 ";
 
                 unset($_SESSION['transac_success_msg']);
+            }
+            
+            if(isset($_SESSION['transac_dual_success_msg'])) {
+                echo "<span id=\"transac_dual_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['transac_dual_success_msg'] . "</span>";
+    
+                // 2. Add JavaScript immediately after the message to hide it after 3 seconds
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('transac_dual_success');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['transac_dual_success_msg']);
             }
         ?>
     </div>

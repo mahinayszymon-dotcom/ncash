@@ -197,7 +197,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     $limit = 12;
                                     $offset = ($page - 1) * $limit;
 
-                                    $sql = "SELECT ta.transaction_id, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_name, ia.item_name) AS item_name, b.branch_name, ta.amount, ta.type_of_pay, ta.method
+                                    $sql = "SELECT ta.transaction_id, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_name, ia.item_name) AS item_name, COALESCE(i.principal, ia.principal) AS principal, b.branch_name, ta.amount, ta.type_of_pay, ta.method, ta.paid_date, ta.is_linked
                                         FROM transactions_archive AS ta
                                         LEFT JOIN clients AS c ON ta.client_id = c.client_id
                                         LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
@@ -208,7 +208,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                         $orderBy
                                         LIMIT $limit OFFSET $offset";
 
-                                    $count_sql = "SELECT COUNT(*) AS total
+                                    $count_sql = "SELECT SUM(CASE WHEN ta.is_linked = 1 THEN 0.5 ELSE 1 END) AS total
                                         FROM transactions_archive AS ta
                                         LEFT JOIN clients AS c ON ta.client_id = c.client_id
                                         LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
@@ -232,8 +232,8 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     $result = $stmt->get_result();
                                     $count_stmt->execute();
                                     $count_result = $count_stmt->get_result();
-                                    $total_row = $count_result ? $count_result->fetch_assoc() : null;
-                                    $total = $total_row['total'] ?? 0;
+                                    $total_row = $count_result->fetch_assoc();
+                                    $total = ceil($total_row['total'] ?? 0);
                                 ?>
                             </div>
                         </div>
@@ -245,6 +245,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                         <th>AN Code</th>
                                         <th>Client Name</th>
                                         <th>Item Name</th>
+                                        <th>Principal</th>
                                         <th>Amount</th>
                                         <th>Type</th>
                                         <th>Method</th>
@@ -254,12 +255,19 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 <tbody>
                                 <?php
                                     $number = (($page - 1) * $limit) + 1;
+                                    $processed_ids = [];
 
                                     if($result->num_rows > 0) 
                                     {
                                         while($row = $result->fetch_assoc())
                                         {
                                             $transaction_id = htmlspecialchars($row['transaction_id']);
+
+                                            if (in_array($transaction_id, $processed_ids)) 
+                                            {
+                                                continue;
+                                            }
+
                                             $agreement_num = htmlspecialchars($row['agreement_num']);
                                             $client_name = htmlspecialchars($row['fullname']);
                                             $item = htmlspecialchars($row['item_name']);
@@ -267,6 +275,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                             $amount = htmlspecialchars($row['amount']);
                                             $pay_type = htmlspecialchars($row['type_of_pay']);
                                             $method = htmlspecialchars($row['method']);
+                                            $is_linked = htmlspecialchars($row['is_linked']);
             
                                             $amount_decimal = number_format($amount, 2);
                 
@@ -280,21 +289,75 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                                 $final_agreement_num = "-" . $agreement_num;
                                             }
 
-                                            echo 
-                                            "
-                                            <tr>
-                                                <td> $number </td>
-                                                <td> $final_agreement_num </td>
-                                                <td> $client_name </td>
-                                                <td> $item </td>
-                                                <td>₱ $amount_decimal</td>
-                                                <td> $pay_type </td>
-                                                <td> $method </td>
-                                                <td>
-                                                    <a href=\"../archives/archived_transaction_details.php?id=" . $transaction_id . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
-                                                </td>
-                                            </tr>
-                                            ";
+                                            if ($is_linked == 1) 
+                                            {
+                                                //Looking up linked transac
+                                                $sql_dual = "SELECT transaction_id, amount, method FROM transactions_archive
+                                                            WHERE agreement_num = ? 
+                                                            AND DATE(paid_date) = DATE(?) 
+                                                            AND type_of_pay = ?
+                                                            AND transaction_id != ? 
+                                                            LIMIT 1";
+                                                                        
+                                                $stmt_p = $conn->prepare($sql_dual);
+                                                $stmt_p->bind_param("issi", $row['agreement_num'], $row['paid_date'], $pay_type, $transaction_id);
+                                                $stmt_p->execute();
+                                                $res_p = $stmt_p->get_result();
+                                                $dual = $res_p->fetch_assoc();
+
+                                                if ($dual) 
+                                                {
+                                                    $processed_ids[] = $dual['transaction_id'];
+                                                    
+                                                    $amt1 = number_format($row['amount'], 2);
+                                                    $amt2 = number_format($dual['amount'], 2);
+                                                    $meth1 = htmlspecialchars($row['method']);
+                                                    $meth2 = htmlspecialchars($dual['method']);
+
+                                                    echo "
+                                                    <tr class='row-single'>
+                                                        <td> $number </td>
+                                                        <td> $final_agreement_num <br><small style='color:green;'>SPLIT</small> </td>
+                                                        <td> $client_name </td>
+                                                        <td> $item </td>
+                                                        <td> ₱ " . number_format($row['principal'], 2) . "</td>
+                                                        <td>
+                                                            <div style='border-bottom: 1px solid #ccc; padding: 2px;'>₱ $amt1</div>
+                                                            <div style='padding: 2px;'>₱ $amt2</div>
+                                                        </td>
+                                                        <td> $pay_type </td>
+                                                        <td>
+                                                            <div style='border-bottom: 1px solid #ccc; padding: 2px;'>$meth1</div>
+                                                            <div style='padding: 2px;'>$meth2</div>
+                                                        </td>
+                                                        <td>
+                                                            <a href=\"../archives/archived_transaction_details.php?id=$transaction_id\">
+                                                                <button><img src=\"../resources/img/icons/open.png\"></button>
+                                                            </a>
+                                                        </td>
+                                                    </tr>";
+                                                }
+                                            } 
+                                            else 
+                                            {
+                                                $amount_decimal = number_format($row['amount'], 2);
+                                                $method = htmlspecialchars($row['method']);
+                                                
+                                                echo "
+                                                <tr class='row-single'>
+                                                    <td> $number </td>
+                                                    <td> $final_agreement_num </td>
+                                                    <td> $client_name </td>
+                                                    <td> $item </td>
+                                                    <td> ₱ " . number_format($row['principal'], 2) . "</td>
+                                                    <td> ₱ $amount_decimal </td>
+                                                    <td> $pay_type </td>
+                                                    <td> $method </td>
+                                                    <td>
+                                                        <a href=\"../archives/archived_transaction_details.php?id=$transaction_id\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\"></button></a>
+                                                    </td>
+                                                </tr>";
+                                            }
 
                                             $number++;
                                         }
@@ -323,9 +386,8 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                             <div class="data_table_actions_components">
                                 <p>
                                     <?php 
-                                        $shown = $result->num_rows;
                                         $start = $offset + 1; 
-                                        $end = $offset + $shown; 
+                                        $end = $offset + $total; 
 
                                         if ($total == 0 || $end == 0) {
                                             echo "Showing 0 entries";

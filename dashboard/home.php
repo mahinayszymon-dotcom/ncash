@@ -16,6 +16,51 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $current);
 $stmt->execute();
 //pwede ilagay dto ung sa pagdelete ng mga may deletion period na clients
+
+$new_date = new DateTime('yesterday');
+
+if ($new_date->format('N') == 7) {
+    $new_date->modify('-1 day');
+}
+
+$date_history = $new_date->format('Y-m-d H:i:s');
+
+//check if existing na si date
+$sql = "SELECT date FROM balance_history WHERE date = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $date_history);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) 
+{
+    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1100";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $mp_branch_bal = htmlspecialchars($row['end_balance']);
+
+    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1101";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $q_branch_bal = htmlspecialchars($row['end_balance']);
+
+    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1102";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $m_branch_bal = htmlspecialchars($row['end_balance']);
+
+    $sql = "INSERT INTO balance_history (date, mp_branch, q_branch, m_branch)
+            VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sddd", $date_history, $mp_branch_bal, $q_branch_bal, $m_branch_bal);
+    $stmt->execute();
+} 
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -373,6 +418,12 @@ $stmt->execute();
                                         case 'price_decreasing': 
                                             $orderBy = " ORDER BY i.principal DESC";
                                             break;
+                                        case 'date_increasing':
+                                            $orderBy = " ORDER BY i.due_date ASC";
+                                            break;
+                                        case 'date_decreasing':
+                                            $orderBy = " ORDER BY i.due_date DESC";
+                                            break;
                                         case 'default':
                                             $orderBy = " ORDER BY i.due_date ASC";
                                             break;
@@ -465,6 +516,8 @@ $stmt->execute();
                                         <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
                                         <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Price (Increasing)</option>
                                         <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Price (Decreasing)</option>
+                                        <option value="date_increasing" <?= $selected === 'date_increasing' ? 'selected' : '' ?>>Due Date (Old)</option>
+                                        <option value="date_decreasing" <?= $selected === 'date_decreasing' ? 'selected' : '' ?>>Due Date (New)</option>
                                     </select>
                                     <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                                 </form>
@@ -515,7 +568,7 @@ $stmt->execute();
                                                     $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f1eceb; color: #a6a094;";
                                                 }
                 
-                                                $format_date = date("d M Y", strtotime($due_date));
+                                                $format_date = date("M d, Y", strtotime($due_date));
                                                 
                                                 if ($branch === "Marikina-Pasig") {
                                                     $final_agreement_num = "MP" . $agreement_num;

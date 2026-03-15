@@ -22,7 +22,7 @@ include("../db/branch_fetch.php");
         }
 
         $sql = "SELECT ia.archived_by, ia.archived_date, ia.agreement_num, COALESCE(c.client_id, ca.client_id) AS client_id, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(c.contact, ca.contact) AS contact, COALESCE(c.email, ca.email) AS email, COALESCE(c.address, ca.address) AS address, COALESCE(NULLIF(c.created_at, '0000-00-00 00:00:00'), NULLIF(ca.created_at, '0000-00-00 00:00:00')) AS client_date, 
-                       ia.item_name, ia.principal, b.branch_id, b.branch_name, ia.category, ia.interest, ia.status, ia.due_date, ia.remarks, ia.created_at, ia.updated_at, ia.reason
+                       ia.item_name, ia.principal, b.branch_id, b.branch_name, ia.category, ia.interest, ia.status, ia.due_date, ia.remarks, ia.created_at, ia.updated_at, ia.is_omitted, ia.reason
                 FROM items_archive AS ia
                 LEFT JOIN clients AS c ON ia.client_id = c.client_id
                 LEFT JOIN clients_archive AS ca ON ia.client_id = ca.client_id
@@ -56,6 +56,7 @@ include("../db/branch_fetch.php");
             $a_remarks = htmlspecialchars($row['remarks']);
             $a_item_created = htmlspecialchars($row['created_at']);
             $a_item_updated = htmlspecialchars($row['updated_at']);
+            $a_is_omitted = htmlspecialchars($row['is_omitted']);
             $a_reason = htmlspecialchars($row['reason']);
         }
 
@@ -223,8 +224,12 @@ include("../db/branch_fetch.php");
                             <hr>
                             <form action="" method="POST">
                                 <div class="archive_btn_cont">
-                                    <button type="submit" name="submit"><img src="../resources/img/icons/unarchive_w.png" alt="unarchive">Restore</button>
                                     <?php 
+                                        if($a_status != "Active" && $a_status != "Overdue")
+                                        {
+                                            echo "<button type=\"submit\" name=\"submit\"><img src=\"../resources/img/icons/unarchive_w.png\" alt=\"unarchive\">Restore</button>";
+                                        }
+
                                         if (isset($_POST['delete'])) 
                                         {
                                             $sql = "DELETE FROM transactions_archive WHERE item_id = ?";
@@ -377,10 +382,10 @@ include("../db/branch_fetch.php");
                                         else
                                         {
                                             //Insert item back to the inventory
-                                            $sql = "INSERT INTO inventory (item_id, client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_at, updated_at, created_by, updated_by, interest)
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                            $sql = "INSERT INTO inventory (item_id, client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_at, updated_at, created_by, updated_by, interest, is_omitted)
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                             $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("iiissidsssssssd", $item_id, $a_fetch_c_id, $a_fetch_b_id, $a_item_name, $a_category, $a_agreement, $a_principal, $a_status, $a_due_date, $a_remarks, $a_item_created, $a_item_updated, $creator_uname, $editor_uname, $a_interest);
+                                            $stmt->bind_param("iiissidsssssssdi", $item_id, $a_fetch_c_id, $a_fetch_b_id, $a_item_name, $a_category, $a_agreement, $a_principal, $a_status, $a_due_date, $a_remarks, $a_item_created, $a_item_updated, $creator_uname, $editor_uname, $a_interest, $a_is_omitted);
                                             
                                             if($stmt->execute()) //Remove from archive
                                             {
@@ -391,7 +396,7 @@ include("../db/branch_fetch.php");
                                             }
 
                                             //Getting all the transactions from archive
-                                            $sql = "SELECT transaction_id, agreement_num, item_id, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date
+                                            $sql = "SELECT transaction_id, agreement_num, item_id, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked
                                                     FROM transactions_archive
                                                     WHERE item_id = ?";
                                             $stmt = $conn->prepare($sql);
@@ -415,11 +420,12 @@ include("../db/branch_fetch.php");
                                                     $transArch_e_at = htmlspecialchars($row['edited_at']);
                                                     $transArch_method = htmlspecialchars($row['method']);
                                                     $transArch_p_date = htmlspecialchars($row['paid_date']);
+                                                    $transArch_is_link = htmlspecialchars($row['is_linked']);
 
-                                                    $sql = "INSERT INTO transactions (transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date)
-                                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                    $sql = "INSERT INTO transactions (transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked)
+                                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                                     $stmt = $conn->prepare($sql);
-                                                    $stmt->bind_param("iiiiidssssss", $transArch_id, $transArch_agreement, $transArch_c_id, $transArch_b_id, $transArch_i_id, $transArch_amt, $transArch_type, $transArch_creator, $transArch_c_at, $transArch_e_at, $transArch_method, $transArch_p_date);
+                                                    $stmt->bind_param("iiiiidssssssi", $transArch_id, $transArch_agreement, $transArch_c_id, $transArch_b_id, $transArch_i_id, $transArch_amt, $transArch_type, $transArch_creator, $transArch_c_at, $transArch_e_at, $transArch_method, $transArch_p_date, $transArch_is_link);
                                                     if($stmt->execute())
                                                     {
                                                         //Delete sa transac

@@ -21,7 +21,7 @@ include("../db/branch_fetch.php");
             exit();
         }
 
-        $sql = "SELECT ta.archived_by, ta.archived_date, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_id, ia.item_id) AS item_id, COALESCE(i.item_name, ia.item_name) AS item_name, b.branch_name, ta.amount, ta.type_of_pay, ta.method, ta.created_at, COALESCE(i.status, ia.status) AS status, ta.reason, ta.paid_date
+        $sql = "SELECT ta.archived_by, ta.archived_date, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_id, ia.item_id) AS item_id, COALESCE(i.item_name, ia.item_name) AS item_name, ta.branch_id, b.branch_name, ta.amount, ta.type_of_pay, ta.method, ta.created_at, COALESCE(i.status, ia.status) AS status, ta.reason, ta.paid_date, ta.is_linked
                 FROM transactions_archive AS ta
                 LEFT JOIN clients AS c ON ta.client_id = c.client_id
                 LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
@@ -44,6 +44,7 @@ include("../db/branch_fetch.php");
             $a_client_name = htmlspecialchars($row['fullname']);
             $a_fetch_item_id = htmlspecialchars($row['item_id']);
             $a_item_name = htmlspecialchars($row['item_name']);
+            $a_fetch_br_id = htmlspecialchars($row['branch_id']);
             $a_transac_branch = htmlspecialchars($row['branch_name']);
             $a_transac_amount = htmlspecialchars($row['amount']);
             $a_transac_type = htmlspecialchars($row['type_of_pay']);
@@ -52,7 +53,22 @@ include("../db/branch_fetch.php");
             $a_status = htmlspecialchars($row['status']);
             $a_transac_reason = htmlspecialchars($row['reason']);
             $a_transac_p_date = htmlspecialchars($row['paid_date']);
+            $a_is_linked = htmlspecialchars($row['is_linked']);
         }
+
+        $audit_u_id = $_SESSION['user_id'];
+        $audit_action = "Accessed";
+        $audit_obj = "Transaction";
+        $audit_desc = "Accessed archived transaction for agreement no. $a_agreement";
+
+        $curDate = new DateTime();
+        $current = $curDate->format('Y-m-d H:i:s');
+
+        $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $a_fetch_br_id, $current);
+        $stmt->execute(); 
 
         $createDate = new DateTime($a_transac_date);
         $a_transac_created = $createDate->format("F j, Y");
@@ -245,14 +261,57 @@ include("../db/branch_fetch.php");
                                     <label for="client_name">Client Name</label>
                                     <input type="text" name="client_name" id="client_name" class="item_tags" value="<?php echo $a_client_name; ?>" disabled>
                                 </div>
-                                <div class="item_info_detail_row">
-                                    <label for="amount">Amount</label>
-                                    <input type="text" name="amount" id="amount" class="item_tags" value="<?php echo $a_transac_amount; ?>" disabled>
-                                </div>
-                                <div class="item_info_detail_row">
-                                    <label for="method">Method of Payment</label>
-                                    <input type="text" name="method" id="method" class="item_tags" value="<?php echo $a_transac_method; ?>" disabled>
-                                </div>
+                                <?php
+                                    if ($role === "admin") 
+                                    {
+                                        echo   '<div class="item_info_detail_row">
+                                                    <label for="branch_name">Branch</label>
+                                                    <input type="text" name="branch_name" id="branch_name" class="item_tags" value="'; echo $a_transac_branch; echo '" disabled>
+                                                </div>';
+                                    }
+                                
+                                    if($a_is_linked == 0)
+                                    {
+                                        echo '<div class="item_info_detail_row">
+                                                <label for="method">Method of Payment</label>
+                                                <input type="text" name="method" id="method" class="item_tags" value="'; echo $a_transac_method; echo '" disabled>
+                                              </div>
+                                              <div class="item_info_detail_row">
+                                                  <label for="amount">Amount</label>
+                                                  <input type="text" name="amount" id="amount" class="item_tags" value="'; echo $a_transac_amount; echo '" disabled>
+                                              </div>';
+                                    }
+                                    else if($a_is_linked == 1)
+                                    {
+                                        $sql = "SELECT transaction_id, amount, method FROM transactions_archive WHERE item_id = ? AND branch_id = ? AND paid_date = ? AND transaction_id != ?";
+                                        $stmt = $conn->prepare($sql);
+                                        $stmt->bind_param("iisi", $a_fetch_item_id, $a_fetch_br_id, $a_transac_p_date, $transaction_id);
+                                        $stmt->execute();
+                                        $result = $stmt->get_result();
+                                        $linked = $result->fetch_assoc();
+
+                                        $a_transac_id2 = htmlspecialchars($linked['transaction_id']);
+                                        $a_transac_amount2 = htmlspecialchars($linked['amount']);
+                                        $a_transac_method2 = htmlspecialchars($linked['method']);
+
+                                        echo '<div class="item_info_detail_row">
+                                                <label for="method">Method of Payment #1</label>
+                                                <input type="text" name="method" id="method" class="item_tags" value="'; echo $a_transac_method; echo '" disabled>
+                                              </div>
+                                              <div class="item_info_detail_row">
+                                                  <label for="amount">Amount Paid (First Payment)</label>
+                                                  <input type="text" name="amount" id="amount" class="item_tags" value="'; echo $a_transac_amount; echo '" disabled>
+                                              </div>
+                                              <div class="item_info_detail_row">
+                                                <label for="method2">Method of Payment #2</label>
+                                                <input type="text" name="method2" id="method2" class="item_tags" value="'; echo $a_transac_method2; echo '" disabled>
+                                              </div>
+                                              <div class="item_info_detail_row">
+                                                  <label for="amount2">Amount Paid (First Payment)</label>
+                                                  <input type="text" name="amount2" id="amount2" class="item_tags" value="'; echo $a_transac_amount2; echo '" disabled>
+                                              </div>';
+                                    }
+                                ?>
                                 <div class="item_info_detail_row">
                                     <label for="type">Type of Payment</label>
                                     <input type="text" name="type" id="type" class="item_tags" value="<?php echo $a_transac_type; ?>" disabled>
@@ -309,7 +368,7 @@ include("../db/branch_fetch.php");
                                         }
 
                                         // Removing from archive
-                                        $sql = "SELECT transaction_id, agreement_num, item_id, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date
+                                        $sql = "SELECT transaction_id, agreement_num, item_id, client_id, branch_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked
                                                 FROM transactions_archive
                                                 WHERE transaction_id = ?";
                                         $stmt = $conn->prepare($sql);
@@ -332,6 +391,7 @@ include("../db/branch_fetch.php");
                                             $transArch_e_at = htmlspecialchars($row['edited_at']);
                                             $transArch_method = htmlspecialchars($row['method']);
                                             $transArch_p_date = htmlspecialchars($row['paid_date']);
+                                            $transArch_is_linked = htmlspecialchars($row['is_linked']);
 
                                             $fetch_sql = "SELECT MIN(paid_date) AS prev FROM transactions_archive WHERE item_id = ?";
                                             $stmt = $conn->prepare($fetch_sql);
@@ -434,18 +494,176 @@ include("../db/branch_fetch.php");
                                                             $stmt->execute();
                                                         }
 
-                                                        //insert ule sa transactions
-                                                        $sql = "INSERT INTO transactions (transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date)
-                                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                                        $stmt = $conn->prepare($sql);
-                                                        $stmt->bind_param("iiiiidssssss", $transArch_id, $transArch_agreement, $transArch_c_id, $transArch_b_id, $transArch_i_id, $transArch_amt, $transArch_type, $transArch_creator, $transArch_c_at, $transArch_e_at, $transArch_method, $transArch_p_date);
-                                                        if($stmt->execute())
+                                                        if($transArch_is_linked == 0)
                                                         {
-                                                            //Delete sa transac
-                                                            $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
+                                                            $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
                                                             $stmt = $conn->prepare($sql);
-                                                            $stmt->bind_param("i", $transaction_id);
+                                                            $stmt->bind_param("i", $transArch_b_id);
                                                             $stmt->execute();
+                                                            $result = $stmt->get_result();
+                                                            $row = $result->fetch_assoc();
+
+                                                            $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                                            $upd_success = false;
+
+                                                            $sql = "UPDATE branches
+                                                                    SET end_balance = ?
+                                                                    WHERE branch_id = ?";
+                                                            $stmt = $conn->prepare($sql);
+                                                            if(isset($fetch_eb))
+                                                            {
+                                                                if($transArch_method == "Cash")
+                                                                {
+                                                                    $new_eb_val = $fetch_eb + (float)$transArch_amt; 
+                                                                    $stmt->bind_param("di", $new_eb_val, $transArch_b_id);
+                                                                    if($stmt->execute())
+                                                                    {
+                                                                        $upd_success = true;
+                                                                    }
+                                                                }
+                                                                else 
+                                                                {
+                                                                    $new_eb_val = ($fetch_eb + (float)$transArch_amt) - (float)$transArch_amt; //no change (cancel out)
+                                                                    $stmt->bind_param("di", $new_eb_val, $transArch_b_id);
+                                                                    if($stmt->execute())
+                                                                    {
+                                                                        $upd_success = true;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else 
+                                                            {
+                                                                $upd_success = true;
+                                                            }
+
+                                                            if($upd_success)
+                                                            {
+                                                                //insert ule sa transactions
+                                                                $sql = "INSERT INTO transactions (transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked)
+                                                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                                $stmt = $conn->prepare($sql);
+                                                                $stmt->bind_param("iiiiidssssssi", $transArch_id, $transArch_agreement, $transArch_c_id, $transArch_b_id, $transArch_i_id, $transArch_amt, $transArch_type, $transArch_creator, $transArch_c_at, $transArch_e_at, $transArch_method, $transArch_p_date, $transArch_is_linked);
+                                                                if($stmt->execute())
+                                                                {
+                                                                    //Delete sa transac
+                                                                    $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
+                                                                    $stmt = $conn->prepare($sql);
+                                                                    $stmt->bind_param("i", $transaction_id);
+                                                                    $stmt->execute();
+
+                                                                    $audit_u_id = $_SESSION['user_id'];
+                                                                    $audit_action = "Archive";
+                                                                    $audit_obj = "Transaction";
+                                                                    $audit_desc = "Restored $transArch_type transaction for agreement no. $transArch_agreement";
+
+                                                                    $curDate = new DateTime();
+                                                                    $current = $curDate->format('Y-m-d H:i:s');
+
+                                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                                            VALUES (?, ?, ?, ?, ?, ?)";
+                                                                    $stmt = $conn->prepare($sql);
+                                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $transArch_b_id, $current);
+                                                                    $stmt->execute();
+                                                                }
+                                                            }
+                                                        }
+                                                        else if($transArch_is_linked == 1)
+                                                        {
+                                                            $transArch_pay_parts = 
+                                                            [
+                                                                [
+                                                                    'transac_id' => $transaction_id,
+                                                                    'amount' => $a_transac_amount,
+                                                                    'method' => $a_transac_method
+                                                                ],
+                                                                [
+                                                                    'transac_id' => $a_transac_id2,
+                                                                    'amount' => $a_transac_amount2,
+                                                                    'method' => $a_transac_method2
+                                                                ]
+                                                            ];
+
+                                                            $count = 1;
+                                                            foreach ($transArch_pay_parts as $transArch_part) 
+                                                            {
+                                                                $transArch_part_id = $transArch_part['transac_id'];
+                                                                $transArch_part_amount = $transArch_part['amount'];
+                                                                $transArch_part_method = $transArch_part['method'];
+
+                                                                $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
+                                                                $stmt = $conn->prepare($sql);
+                                                                $stmt->bind_param("i", $transArch_b_id);
+                                                                $stmt->execute();
+                                                                $result = $stmt->get_result();
+                                                                $row = $result->fetch_assoc();
+
+                                                                $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                                                $upd_success = false;
+
+                                                                $sql = "UPDATE branches
+                                                                        SET end_balance = ?
+                                                                        WHERE branch_id = ?";
+                                                                $stmt = $conn->prepare($sql);
+                                                                if(isset($fetch_eb))
+                                                                {
+                                                                    if($transArch_part_method == "Cash")
+                                                                    {
+                                                                        $new_eb_val = $fetch_eb + (float)$transArch_part_amount; 
+                                                                        $stmt->bind_param("di", $new_eb_val, $transArch_b_id);
+                                                                        if($stmt->execute())
+                                                                        {
+                                                                            $upd_success = true;
+                                                                        }
+                                                                    }
+                                                                    else 
+                                                                    {
+                                                                        $new_eb_val = ($fetch_eb + (float)$transArch_part_amount) - (float)$transArch_part_amount; //no change (cancel out)
+                                                                        $stmt->bind_param("di", $new_eb_val, $transArch_b_id);
+                                                                        if($stmt->execute())
+                                                                        {
+                                                                            $upd_success = true;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else 
+                                                                {
+                                                                    $upd_success = true;
+                                                                }
+
+                                                                if($upd_success)
+                                                                {
+                                                                    $sql = "INSERT INTO transactions (transaction_id, agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, created_at, edited_at, method, paid_date, is_linked)
+                                                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                                    $stmt = $conn->prepare($sql);
+                                                                    $stmt->bind_param("iiiiidssssssi", $transArch_part_id, $transArch_agreement, $transArch_c_id, $transArch_b_id, $transArch_i_id, $transArch_part_amount, $transArch_type, $transArch_creator, $transArch_c_at, $transArch_e_at, $transArch_part_method, $transArch_p_date, $transArch_is_linked);
+                                                                    if($stmt->execute())
+                                                                    {
+                                                                        //Delete sa transac
+                                                                        $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
+                                                                        $stmt = $conn->prepare($sql);
+                                                                        $stmt->bind_param("i", $transArch_part_id);
+                                                                        $stmt->execute();
+
+                                                                        if($count == 1)
+                                                                        {
+                                                                            $audit_u_id = $_SESSION['user_id'];
+                                                                            $audit_action = "Archive";
+                                                                            $audit_obj = "Transaction";
+                                                                            $audit_desc = "Restored split $transArch_type transaction for agreement no. $transArch_agreement";
+
+                                                                            $curDate = new DateTime();
+                                                                            $current = $curDate->format('Y-m-d H:i:s');
+
+                                                                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                                                    VALUES (?, ?, ?, ?, ?, ?)";
+                                                                            $stmt = $conn->prepare($sql);
+                                                                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $transArch_b_id, $current);
+                                                                            $stmt->execute();
+                                                                        }
+                                                                    }
+                                                                }
+                                                                $count++;
+                                                            }
                                                         }
                                                     }
                                                     else 

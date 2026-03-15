@@ -86,129 +86,199 @@ include("../../db/branch_fetch.php");
                     <div class="data_controls_form">
                         <div class="form">   
                             <?php
-                                if(isset($_POST['submit']))
+                                if(isset($_POST['submit'])) 
                                 {
                                     date_default_timezone_set('Asia/Manila');
 
-                                    $selected_id =  htmlspecialchars($_POST['agreement_num']);
+                                    $selected_id = htmlspecialchars($_POST['agreement_num']);
                                     $type_of_pay = htmlspecialchars($_POST['type_of_payment']);
-                                    $method = htmlspecialchars($_POST['mode_of_payment']);
-                                    $amount = trim(htmlspecialchars($_POST['amount']));
-                                    $success = false;
-
+                                    $s_count = 0;
                                     $curDate = new DateTime();
-                                        
-                                    $sql = "SELECT due_date FROM inventory WHERE item_id = ?";
-                                    $stmt = $conn->prepare($sql);
-                                    $stmt->bind_param("i", $selected_id);
-                                    $stmt->execute();
-                                    $result = $stmt->get_result();
-                                    if($result->num_rows > 0)
-                                    {
-                                        $row = $result->fetch_assoc();
-                                        $date_str = htmlspecialchars($row['due_date']);
-                                        $dueDate = new DateTime($date_str);
-                                    }
-                                        
-                                    if($type_of_pay == "Principal")
-                                    {
-                                        $principal = htmlspecialchars($_POST['principal']);
-                                        $trim = trim($principal, '₱ ');
-                                        $current = $curDate->format('Y-m-d H:i:s');
 
-                                        if($amount == $trim)
-                                        {
-                                            $sql = "UPDATE inventory
-                                                    SET status = 'Redeemed', updated_at = ?
-                                                    WHERE item_id = ?";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("si", $current, $selected_id);
-                                            if($stmt->execute())
-                                            {
-                                                $success = true;
-                                            }
-                                            else
-                                            {
-                                                $_SESSION['error_msg'] = "Error:" . $stmt->error;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $_SESSION['error_msg'] = "Amount should be equal to selected type of payment.";
-                                        }
-                                    }
-                                    else if($type_of_pay == "Interest")
-                                    {
-                                        $interest = htmlspecialchars($_POST['interest']);
-                                        $trim = trim($interest, '₱ ');
-                                        if($amount == $trim)
-                                        {
-                                            if($dueDate >= $curDate)
-                                            {
-                                                $dueDate->modify("+30 days");
-                                                $newDate = $dueDate->format('Y-m-d H:i:s');
-                                            }
-                                            else
-                                            {
-                                                $curDate->modify("+30 days");
-                                                $newDate = $curDate->format('Y-m-d H:i:s');
-                                            }
-                                                
-                                            $sql = "UPDATE inventory
-                                                    SET due_date = ?, status = 'Active'
-                                                    WHERE item_id = ?";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("si", $newDate, $selected_id);
-                                            if($stmt->execute())
-                                            {
-                                                $success = true;
-                                            }
-                                            else
-                                            {
-                                                $_SESSION['error_msg'] = "Error:" . $stmt->error;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $_SESSION['error_msg'] = "Amount should be equal to selected type of payment.";
-                                            header('Location: ' . $_SERVER['PHP_SELF']);
-                                            exit();
-                                        }
-                                    }
+                                    $pay_parts = 
+                                    [
+                                        [
+                                            'amount' => trim(htmlspecialchars($_POST['amount_one'])),
+                                            'method' => htmlspecialchars($_POST['mode_of_payment_one'])
+                                        ],
+                                        [
+                                            'amount' => trim(htmlspecialchars($_POST['amount_two'])),
+                                            'method' => htmlspecialchars($_POST['mode_of_payment_two'])
+                                        ]
+                                    ];
 
-                                    if(isset($success) && $success == true)
+                                    if ($pay_parts[0]['amount'] <= 0 || $pay_parts[1]['amount'] <= 0) 
                                     {
-                                        $sql = "SELECT branch_id, client_id, agreement_num FROM inventory WHERE item_id = ?";
+                                        $_SESSION['error_msg'] = "Both amounts must be greater than zero.";
+                                    } 
+                                    else if ($pay_parts[0]['method'] === $pay_parts[1]['method']) 
+                                    {
+                                        $_SESSION['error_msg'] = "Methods of payment must differ for split transactions.";
+                                    } 
+                                    else 
+                                    {
+                                        $sql = "SELECT due_date, branch_id, client_id, agreement_num FROM inventory WHERE item_id = ?";
                                         $stmt = $conn->prepare($sql);
                                         $stmt->bind_param("i", $selected_id);
                                         $stmt->execute();
                                         $result = $stmt->get_result();
-                                
-                                        if($result->num_rows > 0)
+
+                                        if($result->num_rows > 0) 
                                         {
                                             $row = $result->fetch_assoc();
-                                            $item_branch = htmlspecialchars($row['branch_id']);
-                                            $client_id = htmlspecialchars($row['client_id']);
-                                            $agreement_num = htmlspecialchars($row['agreement_num']);
-                                        }
+                                            $date_str = htmlspecialchars($row['due_date']);
+                                            $dueDate = new DateTime($date_str);
+                                            
+                                            $item_branch = $row['branch_id'];
+                                            $client_id = $row['client_id'];
+                                            $agreement_num = $row['agreement_num'];
 
-                                        if(isset($client_id) && isset($selected_id))
-                                        {
-                                            $creator = $_SESSION['username'];
-                                            $sql = "INSERT INTO transactions (agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, method, paid_date)
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("iiiidssss", $agreement_num, $client_id, $item_branch, $selected_id, $amount, $type_of_pay, $creator, $method, $date_str);
-                                            if($stmt->execute())
+                                            $u_success = false;
+
+                                            if($type_of_pay == "Principal") 
                                             {
-                                                $_SESSION['transac_success_msg'] = "Transaction has been added and recorded successfully!";
+                                                $p_val = htmlspecialchars($_POST['principal']);
+                                                $p_expect = trim($p_val, '₱ ');
+                                                $ttl_paid = $pay_parts[0]['amount'] + $pay_parts[1]['amount'];
+
+                                                if($ttl_paid == $p_expect) 
+                                                {
+                                                    $current = $curDate->format('Y-m-d H:i:s');
+                                                    $sql = "UPDATE inventory SET status = 'Redeemed', updated_at = ? WHERE item_id = ?";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("si", $current, $selected_id);
+                                                    if($stmt->execute()) 
+                                                    { 
+                                                        $u_success = true; 
+                                                    }
+                                                } 
+                                                else 
+                                                {
+                                                    $_SESSION['error_msg'] = "Total of both amounts should be equal to the Principal.";
+                                                }
+                                            } 
+                                            else if($type_of_pay == "Interest")
+                                            {
+                                                $i_val = htmlspecialchars($_POST['interest']);
+                                                $i_expect = trim($i_val, '₱ ');
+                                                $ttl_paid = $pay_parts[0]['amount'] + $pay_parts[1]['amount'];
+
+                                                if($ttl_paid == $i_expect) 
+                                                {
+                                                    if($dueDate >= $curDate)
+                                                    {
+                                                        $dueDate->modify("+30 days");
+                                                        $newDate = $dueDate->format('Y-m-d H:i:s');
+                                                    }
+                                                    else
+                                                    {
+                                                        $curDate->modify("+30 days");
+                                                        $newDate = $curDate->format('Y-m-d H:i:s');
+                                                    }
+
+                                                    $sql = "UPDATE inventory SET due_date = ?, status = 'Active' WHERE item_id = ?";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("si", $newDate, $selected_id);
+                                                    if($stmt->execute()) 
+                                                    { 
+                                                        $u_success = true; 
+                                                    }
+                                                } 
+                                                else 
+                                                {
+                                                    $_SESSION['error_msg'] = "Total of both amounts should be equal to the Interest.";
+                                                }
+                                            }
+
+                                            if($u_success) 
+                                            {
+                                                $creator = $_SESSION['username'];
+                                                $is_linked = 1; 
+
+                                                foreach ($pay_parts as $part) 
+                                                {
+                                                    $part_amount = $part['amount'];
+                                                    $part_method = $part['method'];
+
+                                                    $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("i", $item_branch);
+                                                    $stmt->execute();
+                                                    $result = $stmt->get_result();
+                                                    $row = $result->fetch_assoc();
+
+                                                    $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                                    $upd_success = false;
+
+                                                    $sql = "UPDATE branches
+                                                            SET end_balance = ?
+                                                            WHERE branch_id = ?";
+                                                    $stmt = $conn->prepare($sql);
+                                                    if(isset($fetch_eb))
+                                                    {
+                                                        if($part_method == "Cash")
+                                                        {
+                                                            $new_eb_val = $fetch_eb + (float)$part_amount; 
+                                                            $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                            if($stmt->execute())
+                                                            {
+                                                                $upd_success = true;
+                                                            }
+                                                        }
+                                                        else 
+                                                        {
+                                                            $new_eb_val = ($fetch_eb + (float)$part_amount) - (float)$part_amount; //no change (cancel out)
+                                                            $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                            if($stmt->execute())
+                                                            {
+                                                                $upd_success = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    else 
+                                                    {
+                                                        $upd_success = true;
+                                                    }
+
+                                                    if($upd_success)
+                                                    {
+                                                        $sql = "INSERT INTO transactions (agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, method, paid_date, is_linked)
+                                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                        $stmt = $conn->prepare($sql);
+                                                        $stmt->bind_param("iiiidssssi", $agreement_num, $client_id, $item_branch, $selected_id, $part_amount, $type_of_pay, $creator, $part_method, $date_str, $is_linked);
+                                                        
+                                                        if($stmt->execute()) 
+                                                        {
+                                                            $s_count++;
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
-                                } 
-                                ob_end_flush();
+
+                                    if($s_count == 2) 
+                                    {
+                                        $audit_u_id = $_SESSION['user_id'];
+                                        $audit_action = "Created";
+                                        $audit_obj = "Transaction";
+                                        $audit_desc = "Created split $type_of_pay transaction for agreement no. $agreement_num";
+
+                                        $curDate = new DateTime();
+                                        $current = $curDate->format('Y-m-d H:i:s');
+
+                                        $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                VALUES (?, ?, ?, ?, ?, ?)";
+                                        $stmt = $conn->prepare($sql);
+                                        $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $item_branch, $current);
+                                        if($stmt->execute())
+                                        {
+                                            $_SESSION['transac_success_msg'] = "Split Transaction recorded successfully!";
+                                        }
+                                    }
+                                }
                             ?>     
-                            <form action="add.php" method="POST">
+                            <form action="add_dual.php" method="POST">
                                 <div class="fullwidth">
                                     <div class="result_cont">
                                         <?php
@@ -283,10 +353,6 @@ include("../../db/branch_fetch.php");
                                         ?>
                                     </select>
                                 </div>
-                                <div class="fullwidth checkbox_cont">
-                                    <input type="checkbox" id="exclude_transaction" name="exclude_transaction">
-                                    <label for="exclude_transaction">Exclude this transaction from business reports.</label>
-                                </div>
                                 <div class="fullwidth">
                                     <br>
                                     <p>Item Information</p>
@@ -321,18 +387,9 @@ include("../../db/branch_fetch.php");
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="type_of_payment_one">Type of Payment #1<i style="color:red;">*</i></label>
-                                    <select name="type_of_payment_one" id="type_of_payment_one" required>
-                                        <option value="" disabled selected>--Select Type--</option>
-                                        <option value="Principal">For Redemption (Principal)</option>
-                                        <option value="Interest">For Renewal (Interest)</option>
-                                    </select>
-                                </div>
-                                <div class="input_cont">
                                     <label for="amount_one">Amount<i style="color:red;">*</i></label>
                                     <input type="text" name="amount_one" id="amount_one"  pattern="[0-9]*" required></input>
                                 </div>
-                                <div class="input_cont"></div>
                                 <div class="fullwidth"><br></div>
                                 <div class="input_cont">
                                     <label for="mode_of_payment_two">Method of Payment #2<i style="color:red;">*</i></label>
@@ -344,28 +401,26 @@ include("../../db/branch_fetch.php");
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="type_of_payment_two">Type of Payment #2<i style="color:red;">*</i></label>
-                                    <select name="type_of_payment_two" id="type_of_payment_two" required>
+                                    <label for="amount_two">Amount<i style="color:red;">*</i></label>
+                                    <input type="text" name="amount_two" id="amount_two"  pattern="[0-9]*" required></input>
+                                </div>
+                                <div class="fullwidth"><br></div>
+                                <div class="input_cont">
+                                    <label for="type_of_payment_one">Type of Payment<i style="color:red;">*</i></label>
+                                    <select name="type_of_payment" id="type_of_payment" required>
                                         <option value="" disabled selected>--Select Type--</option>
                                         <option value="Principal">For Redemption (Principal)</option>
                                         <option value="Interest">For Renewal (Interest)</option>
                                     </select>
                                 </div>
                                 <div class="input_cont">
-                                    <label for="amount_two">Amount<i style="color:red;">*</i></label>
-                                    <input type="text" name="amount_two" id="amount_two"  pattern="[0-9]*" required></input>
-                                </div>
-                                <div class="input_cont"></div>
-                                <div class="fullwidth"><br></div>
-                                <div class="input_cont">
                                     <label for="penalty">Penalty (Number of Days)<i style="color:red;">*</i></label>
-                                    <input type="number" name="penalty" id="penalty" required disabled></input>
+                                    <input type="number" name="penalty" id="penalty" min="0" required disabled></input>
                                 </div>
                                 <div class="input_cont">
                                     <label for="discount">Discount<i style="color:red;">*</i></label>
-                                    <input type="number" name="discount" id="discount" required disabled></input>
+                                    <input type="number" name="discount" id="discount" min="0" required disabled></input>
                                 </div>
-                                <div class="input_cont"></div>
                                 <div class="input_cont button_cont">
                                     <button type="submit" name="submit"><img src="../../resources/img/icons/add1.png" alt="add_transaction">Add Transaction</button>
                                 </div>

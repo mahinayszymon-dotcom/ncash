@@ -18,7 +18,7 @@ if ($role !== "admin") {
         date_default_timezone_set('Asia/Manila');
         if(isset($_GET['id']))
         {
-            $d_notif_id = htmlspecialchars($_GET['id']);
+            $d_notif_id = htmlspecialchars($_GET['id']);  
         }
         else 
         {
@@ -26,7 +26,7 @@ if ($role !== "admin") {
             exit();
         }
 
-        $sql = "SELECT n.notif_id, c.fullname, n.message, n.type, n.status, n.date_sent
+        $sql = "SELECT n.notif_id, n.branch_id, c.fullname, n.message, n.type, n.status, n.date_sent
                 FROM notifs AS n
                 INNER JOIN clients AS c ON n.client_id = c.client_id
                 WHERE n.notif_id = ?";
@@ -40,6 +40,7 @@ if ($role !== "admin") {
             $row = $result->fetch_assoc();
 
             $m_notif_id = htmlspecialchars($row['notif_id']);
+            $m_branch_id = htmlspecialchars($row['branch_id']);
             $m_client_name = htmlspecialchars($row['fullname']);
             $m_message = htmlspecialchars($row['message']);
             $m_type = htmlspecialchars($row['type']);
@@ -47,6 +48,20 @@ if ($role !== "admin") {
             $m_date_sent = htmlspecialchars($row['date_sent']);
 
             $format_date = date("j M Y", strtotime($m_date_sent));
+
+            $audit_u_id = $_SESSION['user_id'];
+            $audit_action = "Accessed";
+            $audit_obj = "Notif";
+            $audit_desc = "Accessed notification with notif id: $m_notif_id";
+
+            $curDate = new DateTime();
+            $current = $curDate->format('Y-m-d H:i:s');
+
+            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $m_branch_id, $current);
+            $stmt->execute();
         } else {
             header("Location: ../../404.php");
             exit();

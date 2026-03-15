@@ -194,14 +194,72 @@ include("../../db/branch_fetch.php");
 
                                         if(isset($client_id) && isset($selected_id))
                                         {
-                                            $creator = $_SESSION['username'];
-                                            $sql = "INSERT INTO transactions (agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, method, paid_date)
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                            $sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
                                             $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("iiiidssss", $agreement_num, $client_id, $item_branch, $selected_id, $amount, $type_of_pay, $creator, $method, $date_str);
-                                            if($stmt->execute())
+                                            $stmt->bind_param("i", $item_branch);
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+                                            $row = $result->fetch_assoc();
+
+                                            $fetch_eb = (float)htmlspecialchars($row['end_balance']);
+                                            $upd_success = false;
+
+                                            if(isset($fetch_eb))
                                             {
-                                                $_SESSION['transac_success_msg'] = "Transaction has been added and recorded successfully!";
+                                                $sql = "UPDATE branches
+                                                        SET end_balance = ?
+                                                        WHERE branch_id = ?";
+                                                $stmt = $conn->prepare($sql);
+                                                if($method == "Cash")
+                                                {
+                                                    $new_eb_val = $fetch_eb + (float)$amount; 
+                                                    $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                    if($stmt->execute())
+                                                    {
+                                                        $upd_success = true;
+                                                    }
+                                                }
+                                                else 
+                                                {
+                                                    $new_eb_val = ($fetch_eb + (float)$amount) - (float)$amount; //no change
+                                                    $stmt->bind_param("di", $new_eb_val, $branch_id);
+                                                    if($stmt->execute())
+                                                    {
+                                                        $upd_success = true;
+                                                    }
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                $upd_success = true;
+                                            }
+                                            
+                                            if($upd_success)
+                                            {
+                                                $creator = $_SESSION['username'];
+                                                $sql = "INSERT INTO transactions (agreement_num, client_id, branch_id, item_id, amount, type_of_pay, created_by, method, paid_date)
+                                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("iiiidssss", $agreement_num, $client_id, $item_branch, $selected_id, $amount, $type_of_pay, $creator, $method, $date_str);
+                                                if($stmt->execute())
+                                                {
+                                                    $audit_u_id = $_SESSION['user_id'];
+                                                    $audit_action = "Created";
+                                                    $audit_obj = "Transaction";
+                                                    $audit_desc = "Created $type_of_pay transaction for agreement no. $agreement_num";
+
+                                                    $curDate = new DateTime();
+                                                    $current = $curDate->format('Y-m-d H:i:s');
+
+                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                            VALUES (?, ?, ?, ?, ?, ?)";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $item_branch, $current);
+                                                    if($stmt->execute())
+                                                    {
+                                                        $_SESSION['transac_success_msg'] = "Transaction has been added and recorded successfully!";
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -231,7 +289,7 @@ include("../../db/branch_fetch.php");
                                 <div class="fullwitdh">
                                     <div class="transaction_type">
                                         <a href="add.php">Single</a>
-                                        <a href="add_dual.php">Dual</a>
+                                        <a href="add_dual.php">Split</a>
                                     </div>
                                 </div>
                                 <div class="fullwidth">
@@ -283,10 +341,6 @@ include("../../db/branch_fetch.php");
                                         ?>
                                     </select>
                                 </div>
-                                <div class="fullwidth checkbox_cont">
-                                    <input type="checkbox" id="exclude_transaction" name="exclude_transaction">
-                                    <label for="exclude_transaction">Exclude this transaction from business reports.</label>
-                                </div>
                                 <div class="fullwidth">
                                     <br>
                                     <p>Item Information</p>
@@ -334,11 +388,11 @@ include("../../db/branch_fetch.php");
                                 </div>
                                 <div class="input_cont">
                                     <label for="penalty">Penalty (Number of Days)<i style="color:red;">*</i></label>
-                                    <input type="number" name="penalty" id="penalty" required disabled></input>
+                                    <input type="number" name="penalty" id="penalty" min="0" required disabled></input>
                                 </div>
                                 <div class="input_cont">
                                     <label for="discount">Discount<i style="color:red;">*</i></label>
-                                    <input type="number" name="discount" id="discount" required disabled></input>
+                                    <input type="number" name="discount" id="discount" min="0" required disabled></input>
                                 </div>
                                 <div class="input_cont button_cont">
                                     <button type="submit" name="submit"><img src="../../resources/img/icons/add1.png" alt="add_transaction">Add Transaction</button>
