@@ -301,7 +301,7 @@ include("../../db/branch_fetch.php");
                                 <div class="fullwitdh">
                                     <div class="transaction_type">
                                         <a href="add.php">Single</a>
-                                        <a href="add_dual.php">Dual</a>
+                                        <a href="add_dual.php">Split</a>
                                     </div>
                                 </div>
                                 <div class="fullwidth">

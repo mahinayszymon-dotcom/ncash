@@ -219,15 +219,15 @@ include("../../db/branch_fetch.php");
                             </div>
                             <hr>
                             <?php 
-                            if($status == "Overdue")
-                            {
-                                echo "
-                                <div class=\"liquidate_btn_cont\">
-                                    <button type=\"submit\" name=\"submit\" id=\"liquidate_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Hold Item for Liquidation</button>
-                                </div>
-                                <br>
-                                <hr>";
-                            }
+                            // if($status == "Overdue")
+                            // {
+                            //     echo "
+                            //     <div class=\"liquidate_btn_cont\">
+                            //         <button type=\"submit\" name=\"submit\" id=\"liquidate_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Hold Item for Liquidation</button>
+                            //     </div>
+                            //     <br>
+                            //     <hr>";
+                            // }
                             
                             if($status != "Active")
                             {
@@ -587,13 +587,13 @@ include("../../db/branch_fetch.php");
 
                                     if (isset($_SESSION['change_success_msg'])) {
                                         $redirect_url = "../../dashboard/inventory.php";
-                                        $delay = 3; // three seconds muna taymperst
+                                        $delay = 0; // three seconds muna taymperst
 
-                                        echo "<span class=\"message_success\"><img src=\"../../resources/img/icons/check.png\" alt=\"success\">" . $_SESSION['change_success_msg'] . "</span>";
+                                        // echo "<span class=\"message_success\"><img src=\"../../resources/img/icons/check.png\" alt=\"success\">" . $_SESSION['change_success_msg'] . "</span>";
                                         
                                         echo "<meta http-equiv='refresh' content='" . $delay . "; url=" . $redirect_url . "'>";
 
-                                        unset($_SESSION['change_success_msg']); 
+                                        // unset($_SESSION['change_success_msg']); 
                                     } else if (isset($_SESSION['error_msg'])) {
                                         echo "<span class=\"message_error\"><img src=\"../../resources/img/icons/error.png\" alt=\"error\">" . $_SESSION['error_msg'] . "</span>";
                                         unset($_SESSION['error_msg']);

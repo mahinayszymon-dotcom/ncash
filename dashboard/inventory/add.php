@@ -321,7 +321,7 @@ date_default_timezone_set('Asia/Manila');
                                     }
                                 ?>
                                 <div class="input_cont">
-                                    <label for="agreement_num">Agreement Number</label>
+                                    <label for="agreement_num" title="Agreement number is a unique identification number for this item">Agreement Number</label>
                                     <input type="text" name="agreement_num" id="agreement_num" pattern="[0-9]*" value="<?php echo $agreement_num ?>" readonly>
                                 </div>
                                 <div class="input_cont">

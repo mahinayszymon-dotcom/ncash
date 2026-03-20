@@ -332,7 +332,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                                         </td>
                                                         <td>
                                                             <a href=\"../archives/archived_transaction_details.php?id=$transaction_id\">
-                                                                <button><img src=\"../resources/img/icons/open.png\"></button>
+                                                                <button style=\"background-color: transparent !important; border: none; opacity: 0.6\"><img src=\"../resources/img/icons/open.png\"></button>
                                                             </a>
                                                         </td>
                                                     </tr>";
@@ -354,7 +354,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                                     <td> $pay_type </td>
                                                     <td> $method </td>
                                                     <td>
-                                                        <a href=\"../archives/archived_transaction_details.php?id=$transaction_id\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\"></button></a>
+                                                        <a href=\"../archives/archived_transaction_details.php?id=$transaction_id\"><button type=\"submit\" style=\"background-color: transparent !important; border: none; opacity: 0.6;\"><img src=\"../resources/img/icons/open.png\"></button></a>
                                                     </td>
                                                 </tr>";
                                             }
@@ -398,32 +398,9 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 </p>
                             </div>
                             <div class="data_table_actions_components">
-                                <div class="pagination">
-                                    <?php
-                                        $total_pages = ceil($total / $limit);
-
-                                        // Previous link
-                                        if ($page > 1) {
-                                            $prev = $page - 1;
-                                            echo "<div class=\"page_button_direct\"><a href='?page=$prev&branch=$sorting'><</a></div>";
-                                        }
-
-                                        // Page number links
-                                        for ($i = 1; $i <= $total_pages; $i++) {
-                                            if ($i == $page) {
-                                                echo "<div class=\"page_button_active\">$i</div>"; // current page highlighted
-                                            } else {
-                                                echo "<div class=\"page_button\"><a href='?page=$i&branch=$sorting'>$i</a></div>";
-                                            }
-                                        }
-
-                                        // Next link
-                                        if ($page < $total_pages) {
-                                            $next = $page + 1;
-                                            echo "<div class=\"page_button_direct\"><a href='?page=$next&branch=$sorting'>></a></div>";
-                                        }
-                                    ?>
-                                </div>
+                                <?php
+                                    include("../includes/pagination.php")
+                                ?>
                             </div>
                             <div class="data_table_actions_components">
                                 <div class="data_actions">

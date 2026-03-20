@@ -241,7 +241,7 @@
                                 $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
                                         VALUES (?, ?, ?, ?, ?, ?)";
                                 $stmt = $conn->prepare($sql);
-                                $stmt->bind_param("isssis", $audit_u_id, $audit_action, $object_type, $audit_desc, $u_branch, $current);
+                                $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
                                 if($stmt->execute())
                                 {
                                     $_SESSION['user_upd_success_msg'] = "User information successfully updated!";

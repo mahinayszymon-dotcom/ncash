@@ -98,6 +98,39 @@ include("../../config/db_conn.php");
                             <div class="card_general">
                                 <?php include("../../includes/change_pass_form.php") ?> 
                             </div>
+                            <?php
+                                $user_id = $_SESSION['user_id']; 
+
+                                // Fetch user's email from the main users table
+                                $stmt1 = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
+                                $stmt1->bind_param("i", $user_id);
+                                $stmt1->execute();
+                                $result1 = $stmt1->get_result();
+                                $userData = $result1->fetch_assoc();
+
+                                // ALWAYS CLOSE the previous statement before opening a new one!
+                                $stmt1->close(); 
+
+                                $stmt2fa = $conn->prepare("SELECT is_enabled FROM user_two_factor WHERE user_id = ?");
+
+                                // THE FIX: Bind the $user_id to the '?' in the query above
+                                $stmt2fa->bind_param("i", $user_id);
+
+                                // 1. Execute the query
+                                $stmt2fa->execute();
+
+                                // 2. Get the result set
+                                $result2fa = $stmt2fa->get_result();
+
+                                // 3. FETCH the actual data as an associative array
+                                $tfaData = $result2fa->fetch_assoc(); 
+
+                                // 4. Now your original line will work perfectly!
+                                $is_tfa_enabled = ($tfaData && $tfaData['is_enabled'] == 1);
+
+                                // Close this statement too when you are done!
+                                $stmt2fa->close();
+                            ?>
                             <div class="card_general">
                                 <div class="card_general_profile" class="card_main">
                                     <div class="profile_text">             
@@ -105,22 +138,31 @@ include("../../config/db_conn.php");
                                         <p class="p_settings">Add an extra layer of security to your account.</p>
                                     </div>          
                                     <div class="profile_more">
-                                        <button onclick="this.closest('.card_general').querySelector('.dropdown_content').classList.toggle('show'); this.classList.toggle('rotate')"><img src="../../resources/img/icons/chevron_down.png" alt="chevron_down"></button>
+                                        <button onclick="this.closest('.card_general').querySelector('.dropdown_content').classList.toggle('show'); this.classList.toggle('rotate')">
+                                            <img src="../../resources/img/icons/chevron_down.png" alt="chevron_down">
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="dropdown_content">
                                     <div class="tfa_container">
                                         <div class="tfa_content">
                                             <p>Two-factor authentication</p>
-                                            <p>Disabled</p>
-                                            <!--Output-->
+                                            <p>
+                                                <?php if ($is_tfa_enabled): ?>
+                                                    <span style="color: var(--success); font-size: 1rem;">Enabled</span>
+                                                <?php else: ?>
+                                                    <span style="color: var(--loading-dark); font-size: 1rem;">Disabled</span>
+                                                <?php endif; ?>
+                                            </p>
                                         </div>
                                         <div class="tfa_content">
                                             <p>Two-factor authentication method</p>
-                                            <p>None selected</p>
+                                            <p>
+                                                <?php echo $is_tfa_enabled ? 'Email (' . htmlspecialchars($email) . ')' : 'No email selected'; ?>
+                                            </p>
                                         </div>
                                         <div class="tfa_content_btn">
-                                            <button>Edit two-factor authentication settings</button>
+                                            <button onclick="openTfaModal()">Edit two-factor authentication settings</button>
                                         </div>
                                     </div>
                                 </div> 
@@ -131,6 +173,41 @@ include("../../config/db_conn.php");
             </div>
         </section>
     </section>
+    <div id="tfaModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeTfaModal()" style="cursor:pointer;">&times;</span>
+            <h2>Two-Factor Authentication Settings</h2>
+            
+            <form action="../../includes/update_2fa.php" method="POST">
+                <p>Receive a 6-digit code via email every time you log in.</p>
+                
+                <div class="radio-group">
+                    <label for="tfa_enable">
+                        <input type="radio" id="tfa_enable" name="tfa_status" value="1" <?php echo $is_tfa_enabled ? 'checked' : ''; ?>> 
+                        <span>Enable Email 2FA</span>
+                    </label>
+                    
+                    <label for="tfa_disable">
+                        <input type="radio" id="tfa_disable" name="tfa_status" value="0" <?php echo !$is_tfa_enabled ? 'checked' : ''; ?>> 
+                        <span>Disable 2FA</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="button_save">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function openTfaModal() { document.getElementById('tfaModal').style.display = 'block'; }
+        function closeTfaModal() { document.getElementById('tfaModal').style.display = 'none'; }
+        window.onclick = function(event) {
+            const modal = document.getElementById('tfaModal');
+            // Check if what they clicked was the dark background (the modal wrapper itself)
+            if (event.target === modal) {
+                closeTfaModal();
+            }
+        }
+    </script>
 </body>
 </html>
 <script>
@@ -138,23 +215,29 @@ include("../../config/db_conn.php");
     const visibilityOff = document.querySelector(".visibility_icon");
     const visibilityOffC = document.querySelector(".visibility_icon2");
 
-    visibilityOff.addEventListener("click", () => {
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            visibilityOff.src = "../../resources/img/icons/visibility_on.png";
-        } else {
-            passwordInput.type = "password";
-            visibilityOff.src = "../../resources/img/icons/visibility_off.png";
-        }
-    });
+    // Only add the event listener if the icon actually exists on the page
+    if (visibilityOff && passwordInput) {
+        visibilityOff.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                visibilityOff.src = "../../resources/img/icons/visibility_on.png";
+            } else {
+                passwordInput.type = "password";
+                visibilityOff.src = "../../resources/img/icons/visibility_off.png";
+            }
+        });
+    }
 
-    visibilityOffC.addEventListener("click", () => {
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            visibilityOffC.src = "../../resources/img/icons/visibility_on_c.png";
-        } else {
-            passwordInput.type = "password";
-            visibilityOffC.src = "../../resources/img/icons/visibility_off_c.png";
-        }
-    });
+    // Only add the event listener if the second icon actually exists
+    if (visibilityOffC && passwordInput) {
+        visibilityOffC.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                visibilityOffC.src = "../../resources/img/icons/visibility_on_c.png";
+            } else {
+                passwordInput.type = "password";
+                visibilityOffC.src = "../../resources/img/icons/visibility_off_c.png";
+            }
+        });
+    }
 </script>

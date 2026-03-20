@@ -1,20 +1,77 @@
 <?php
     session_start();
     include("../config/db_conn.php");
+    
+    require_once("../resources/external/phpmailer/mail_helper.php"); 
 
-    if (isset($_SESSION['user_id']) && isset($_SESSION['role']))
-    {
-        header("Location: ../dashboard/");
+    // 1. If they are already fully logged in, send them to the dashboard
+    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+        header("Location: ../dashboard/home.php");
         exit();
-    } else if (is_null($_SESSION['temp_email']) && is_null($_SESSION['temp_verify']))
-    {
+    } 
+    // 2. VERY IMPORTANT: Did they actually pass the OTP check? 
+    else if (!isset($_SESSION['temp_user_id']) || !isset($_SESSION['can_reset_password']) || $_SESSION['can_reset_password'] !== true) {
+        // If not, kick them out!
         header("Location: ../auth/denied.php");
         exit();
-    } else {
-        // unset($_SESSION['temp_verify']);
     }
 
+    $error_message = "";
 
+    // 3. Process the new password submission
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['new_password']) && isset($_POST['confirm_new_password'])) {
+        
+        $new_password = $_POST['new_password'];
+        $confirm_password = $_POST['confirm_new_password'];
+        $user_id = $_SESSION['temp_user_id'];
+        $user_email = $_SESSION['temp_email']; // Grab the email we saved earlier!
+
+        if ($new_password !== $confirm_password) {
+            $error_message = "Passwords do not match. Please try again.";
+        } 
+        else if (strlen($new_password) < 12) {
+            $error_message = "Password must be at least 12 characters long.";
+        } 
+        else {
+            // Hash the new password securely
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+            // Update the user's password in the database
+            $update_sql = "UPDATE users SET password = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param("si", $hashed_password, $user_id);
+            
+            if ($stmt->execute()) {
+                
+                // --- email ---
+                $subject = "TraceMo - Password Changed Successfully";
+                $message = "
+                    <h2>Your Password Has Been Changed</h2>
+                    <p>This email is to confirm that the password for your TraceMo account has been successfully updated.</p>
+                    <div style='background-color: #fff3f3; padding: 15px; border-left: 4px solid #d93025; margin-top: 20px;'>
+                        <p style='color: #d93025; margin: 0; font-weight: bold;'>Security Alert:</p>
+                        <p style='margin-top: 5px; color: #333;'>If you did not authorize this change, please contact your system administrator or N-Cash support immediately to secure your account.</p>
+                    </div>
+                ";
+                sendBusinessEmail($user_email, $subject, $message);
+                // ------------------------------------
+
+                // Destroy the temporary sessions so they can't reset it again without a new OTP
+                session_unset(); 
+                session_destroy();
+
+                // Start a fresh session just to show the success message on the login page
+                session_start();
+                $_SESSION['register_success_msg'] = "Password changed successfully! You can now log in.";
+                
+                header("Location: login.php");
+                exit();
+            } else {
+                $error_message = "Database error. Failed to update password.";
+            }
+            $stmt->close();
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

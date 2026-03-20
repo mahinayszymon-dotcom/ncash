@@ -1,65 +1,126 @@
 .data_tableC {
-    margin: 4.96px 4.96px 20px 4.96px !important;
+    margin: .31rem .31rem 1.25rem .31rem !important;
     max-height: 98%;
 }
 
+/*Audit trail*/
 /*table*/
-#audit_trail th:nth-child(1), #audit_trail td:nth-child(1) {
-    width: 5% !important;
-}
-#audit_trail th:nth-child(2), #audit_trail td:nth-child(2) {
+#audit_trail th:nth-child(1) {
     width: 25% !important;
+    min-width: 16rem;
+}
+
+#audit_trail td:nth-child(1) {
+    width: 25% !important;
+    min-width: 16rem;
+    display: flex;
+    justify-content: flex-start; /* Changed from 'center' to prevent left-side clipping */
+    align-items: center;
+    gap: 1rem;
+    opacity: 1;
+}
+
+#audit_trail td:nth-child(1) .audit_profile_circle {
+    width: 40px;
+    height: 40px;
+    background-color: var(--purple);
+    color: var(--main-content);
+    border-radius: 50%;
+    
+    /* flexbox settings to center the "acro" */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    flex-shrink: 0; /* prevents the circle from getting squished into an oval/flat edge */
+}
+
+#audit_trail td:nth-child(1) .audit_content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column; /* Stacks the text vertically */
+    justify-content: center;
+    gap: 0.2rem; /* Controls the exact space between the name and branch */
+}
+
+#audit_trail td:nth-child(1) .audit_content h3, #audit_trail td:nth-child(2) .audit_content h3 {
+    font-size: 1rem;
+    margin: 0; /* Removes default browser spacing */
+    line-height: 1.2; /* Tightens the text */
+    white-space: nowrap; /* Forces text to stay on one line */
+    overflow: hidden; /* Hides text that goes beyond the container */
+    text-overflow: ellipsis; /* Adds '...' to the end if it gets cut off */
+    opacity: 0.98;
+}
+
+#audit_trail td:nth-child(1) .audit_content p {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin: 0; /* Removes default browser spacing */
+    line-height: 1; /* Tightens the text */
+    white-space: nowrap; /* Forces text to stay on one line */
+    overflow: hidden; /* Hides text that goes beyond the container */
+    text-overflow: ellipsis; /* Adds '...' to the end if it gets cut off */
+}
+
+#audit_trail td:nth-child(2) .audit_content p {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin: 0; /* Removes default browser spacing */
+    line-height: 1.2; /* Tightens the text */
+    white-space: nowrap; /* Forces text to stay on one line */
+    overflow: hidden; /* Hides text that goes beyond the container */
+    text-overflow: ellipsis; /* Adds '...' to the end if it gets cut off */
+}
+
+#audit_trail th:nth-child(2), #audit_trail td:nth-child(2) {
+    width: 60% !important;
+    opacity: 1;
 }
 #audit_trail th:nth-child(3), #audit_trail td:nth-child(3) {
-    width: 10% !important;
-}
-#audit_trail th:nth-child(4), #audit_trail td:nth-child(4) {
-    width: 10% !important;
-}
-#audit_trail th:nth-child(5), #audit_trail td:nth-child(5) {
-    width: 35% !important;
-}
-#audit_trail th:nth-child(6), #audit_trail td:nth-child(6) {
     width: 15% !important;
 }
 
 
+/*notif*/
 #notifications_table th:nth-child(1), #notifications_table td:nth-child(1) {
     width: 100% !important;
-    border-bottom: 1px solid var(--table-border-bottom);
+    border-bottom: .06rem solid var(--table-border-bottom);
     opacity: 1;
 }
 
 .notif_card {
-    padding: .31rem;
+    padding: 4.96px;
 }
 
 .notif_card_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 16px;
 }
 
 .notif_type {
     min-width: auto;
-    max-width: 16rem;
-    padding: .44rem;
+    max-width: 256px;
+    padding: 7.04px;
     background-color: var(--late);
-    border-radius: .31rem;
+    border-radius: 4.96px;
 }
 .notif_type p {
     color: var(--main-content);
-    font-size: .94rem;
+    font-size: 15.04px;
 }
 
 .notif_timestamp p {
     color: var(--loading-dark);
-    font-size: .94rem;
+    font-size: 15.04px;
     opacity: .8;
 }
 
 .notif_card_description h3, .notif_card_description p {
-    font-size: .94rem;
+    font-size: 15.04px;
 }
+
 

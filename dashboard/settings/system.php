@@ -102,6 +102,14 @@ if ($role !== "admin") {
                             <div class="card_general">
                                 <div class="card_general_profile" class="card_main">
                                     <div class="profile_text">             
+                                        <p>System Version</p>
+                                        <p class="p_settings">V2.0.0 Beta</p>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div class="card_general">
+                                <div class="card_general_profile" class="card_main">
+                                    <div class="profile_text">             
                                         <p>Backup & Restore</p>
                                         <p class="p_settings">Manage system backups or restore points.</p>
                                     </div>          
@@ -119,5 +127,6 @@ if ($role !== "admin") {
             </div>
         </section>
     </section>
+    <script src="../../resources/js/event_click.js"></script>
 </body>
 </html>

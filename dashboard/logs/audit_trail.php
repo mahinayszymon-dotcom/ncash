@@ -182,10 +182,10 @@ include("../../config/db_conn.php");
 
                             /*Count*/
                             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                            $limit = 12;
+                            $limit = 9;
                             $offset = ($page - 1) * $limit;
 
-                            $sql = "SELECT u.username, tr.action, tr.object_type, tr.description, b.branch_name, tr.timestamp
+                            $sql = "SELECT u.fullname, u.branch_id, tr.action, tr.object_type, tr.description, b.branch_name, tr.timestamp
                                     FROM audit_trail AS tr
                                     INNER JOIN branches AS b ON tr.branch_id = b.branch_id
                                     INNER JOIN users AS u ON tr.user_id = u.user_id
@@ -223,12 +223,8 @@ include("../../config/db_conn.php");
                     <table id="audit_trail">
                         <thead>
                             <tr>
-                                <th>#</th>
                                 <th>User</th>
-                                <th>Action Type</th>
-                                <th>Object Type</th>
-                                <th>Description</th>
-                                <th>Branch</th>
+                                <th>Audit Log</th>
                                 <th>Timestamp</th>
                             </tr>
                         </thead>
@@ -240,19 +236,30 @@ include("../../config/db_conn.php");
                             {
                                 while($row = $result->fetch_assoc())
                                 {
-                                    $audit_uname = htmlspecialchars($row['username']);
+                                    $audit_name = htmlspecialchars($row['fullname']);
                                     $action = htmlspecialchars($row['action']);
                                     $obj_type = htmlspecialchars($row['object_type']);
                                     $desc = htmlspecialchars($row['description']);
                                     $aud_branch = htmlspecialchars($row['branch_name']);
+                                    $u_branch = htmlspecialchars($row['branch_id']);
                                     $timestamp = htmlspecialchars($row['timestamp']);
     
+                                    if ($u_branch == 1100) {
+                                        $branch_u = "Marikina-Pasig";
+                                    } else if ($u_branch == 1101) {
+                                        $branch_u = "Quezon City";
+                                    } else if ($u_branch == 1102) {
+                                        $branch_u = "Makati City";
+                                    } else {
+                                        $branch_u = "-";
+                                    }
+
                                     if ($aud_branch === "Marikina-Pasig") {
-                                        $branch_acro = "MP";
+                                        $branch_acro = "Marikina-Pasig";
                                     } else if ($aud_branch === "Quezon City") {
-                                        $branch_acro = "Q";
+                                        $branch_acro = "Quezon City";
                                     } else if ($aud_branch === "Makati") {
-                                        $branch_acro = "M";
+                                        $branch_acro = "Makati City";
                                     } else {
                                         $branch_acro = "-";
                                     }
@@ -262,13 +269,22 @@ include("../../config/db_conn.php");
                                     echo 
                                     "
                                     <tr>
-                                        <td> $number </td>
-                                        <td> $audit_uname </td>
-                                        <td> $action </td>
-                                        <td> $obj_type </td>
-                                        <td> $desc </td>
-                                        <td> $branch_acro </td>
-                                        <td> $format_date </td>
+                                        <td> 
+                                            <div class=\"audit_profile_circle\">
+                                                " . ucwords(mb_substr($audit_name, 0, 1)) . "
+                                            </div>
+                                            <div class=\"audit_content\">
+                                                <h3>$audit_name</h3>
+                                                <p>$branch_u</p>
+                                            </div>
+                                        </td>
+                                        <td> 
+                                            <div class=\"audit_content\">
+                                                <h3>$action $obj_type</h3>
+                                                <p>$desc on $branch_acro branch.</p>
+                                            </div>
+                                        </td>
+                                        <td> $format_date</td>
                                     </tr>
                                     ";
 
@@ -312,32 +328,9 @@ include("../../config/db_conn.php");
                         </p>
                     </div>
                     <div class="data_table_actions_components">
-                        <div class="pagination">
-                            <?php
-                                $total_pages = ceil($total / $limit);
-
-                                // Previous link
-                                if ($page > 1) {
-                                    $prev = $page - 1;
-                                    echo "<div class=\"page_button_direct\"><a href='?page=$prev&branch=$sorting'><</a></div>";
-                                }
-
-                                // Page number links
-                                for ($i = 1; $i <= $total_pages; $i++) {
-                                    if ($i == $page) {
-                                        echo "<div class=\"page_button_active\">$i</div>"; // current page highlighted
-                                    } else {
-                                        echo "<div class=\"page_button\"><a href='?page=$i&branch=$sorting'>$i</a></div>";
-                                    }
-                                }
-
-                                // Next link
-                                if ($page < $total_pages) {
-                                    $next = $page + 1;
-                                    echo "<div class=\"page_button_direct\"><a href='?page=$next&branch=$sorting'>></a></div>";
-                                }
-                            ?>
-                        </div>
+                        <?php
+                            include("../../includes/pagination.php")
+                        ?>
                     </div>
                     <div class="data_table_actions_components">
                         <div class="data_actions">          

@@ -2,14 +2,64 @@
     session_start();
     include("../config/db_conn.php");
 
-    if (isset($_SESSION['user_id']) && isset($_SESSION['role']))
-    {
-        header("Location: ../dashboard/");
+    // If they are already fully logged in, they shouldn't be here
+    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+        header("Location: ../dashboard/home.php");
         exit();
     }
 
-    $_SESSION['temp_email'] = "temp"; // kapag may button logic ka na, sama mo eto
-    // unset($_SESSION['temp_email']);
+    $error_message = "";
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
+        $entered_email = trim($_POST['email']);
+
+        // 1. Check if the email exists in the users table
+        $sql = "SELECT user_id, email FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $entered_email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $user_id = $user['user_id'];
+
+            // 2. Generate a secure 6-digit OTP
+            $otp = (string) random_int(100000, 999999);
+
+            // 3. Clear any old, unused reset codes for this user to keep the DB clean
+            $delete_old = $conn->prepare("DELETE FROM password_resets WHERE user_id = ?");
+            $delete_old->bind_param("i", $user_id);
+            $delete_old->execute();
+            $delete_old->close();
+
+            // 4. Insert the new OTP into the dedicated password_resets table (Using MySQL Time)
+            $insert_reset = $conn->prepare("INSERT INTO password_resets (user_id, otp_code, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+            $insert_reset->bind_param("is", $user_id, $otp);
+            $insert_reset->execute();
+            $insert_reset->close();
+
+            // 5. Send the email using your helper
+            require_once("../resources/external/phpmailer/mail_helper.php"); 
+            $subject = "TraceMo - Password Reset Request";
+            $message = "<h2>Your password reset code is: <span style='color: #d93025;'>$otp</span></h2><p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>";
+            sendBusinessEmail($user['email'], $subject, $message);
+
+            // 6. Set TEMPORARY sessions and set the ACTION flag to 'password_reset'
+            $_SESSION['temp_user_id'] = $user_id;
+            $_SESSION['temp_email'] = $user['email'];
+            $_SESSION['otp_action'] = 'password_reset'; // The router flag!
+
+            // 7. Send them to the OTP page
+            header("Location: verify_otp.php");
+            exit();
+
+        } else {
+            // Security Best Practice: Don't explicitly say "Email not found".
+            $error_message = "If that email exists in our system, a code has been sent.";
+        }
+        $stmt->close();
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

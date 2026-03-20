@@ -357,32 +357,9 @@ $stmt->execute();
                             </p>
                         </div>
                         <div class="data_table_actions_components">
-                            <div class="pagination">
-                                <?php
-                                    $total_pages = ceil($total / $limit);
-
-                                    // Previous link
-                                    if ($page > 1) {
-                                        $prev = $page - 1;
-                                        echo "<div class=\"page_button_direct\"><a href='?page=$prev&branch=$sorting'><</a></div>";
-                                    }
-
-                                    // Page number links
-                                    for ($i = 1; $i <= $total_pages; $i++) {
-                                        if ($i == $page) {
-                                            echo "<div class=\"page_button_active\">$i</div>"; // current page highlighted
-                                        } else {
-                                            echo "<div class=\"page_button\"><a href='?page=$i&branch=$sorting'>$i</a></div>";
-                                        }
-                                    }
-
-                                    // Next link
-                                    if ($page < $total_pages) {
-                                        $next = $page + 1;
-                                        echo "<div class=\"page_button_direct\"><a href='?page=$next&branch=$sorting'>></a></div>";
-                                    }
-                                ?>
-                            </div>
+                            <?php
+                                include("../includes/pagination.php");
+                            ?>
                         </div>
                         <div class="data_table_actions_components">
                             <div class="data_actions">
@@ -460,9 +437,38 @@ $stmt->execute();
                 ";
 
                 unset($_SESSION['success_msg']);
+            } else if (isset($_SESSION['change_success_msg'])) {
+                echo "<span id=\"change_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['change_success_msg'] . "</span>";
+    
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('change_success');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['change_success_msg']);
             } else {
                 unset($_SESSION['archive_success_msg']);
                 unset($_SESSION['success_msg']);
+                unset($_SESSION['change_success_msg']);
             }
         ?>
     </div>

@@ -19,10 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $username = mysqli_real_escape_string($conn, $username);
-    $password = mysqli_real_escape_string($conn, $password);
-
-    $sql = "SELECT * FROM users WHERE username = ?";
+    // Notice the LEFT JOIN here! We grab the 2FA status right away.
+    $sql = "SELECT u.*, t.is_enabled 
+            FROM users u 
+            LEFT JOIN user_two_factor t ON u.user_id = t.user_id 
+            WHERE u.username = ?";
+            
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -38,28 +40,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if (password_verify($password, $user['password'])) {
-            // diko sure kung may kulang pa
-            session_regenerate_id(true);
+            
+            // STRICT CHECK: Is 2FA enabled?
+            // Since we used LEFT JOIN, if the user isn't in the 2FA table yet, is_enabled will be NULL.
+            // We strictly check if it equals 1.
+            if (isset($user['is_enabled']) && $user['is_enabled'] == 1) {
+                
+                // 1. Generate a secure 6-digit OTP
+                $otp = (string) random_int(100000, 999999);
 
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['fullname'] = $user['fullname'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['branch_id'] = $user['branch_id'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['status'] = $user['status'];
-            $_SESSION['register_status'] = $user['register_status'];
-            $_SESSION['created_at'] = $user['created_at'];
+                // 2. Save it to the database using MySQL's DATE_ADD function
+                $update_otp = $conn->prepare("UPDATE user_two_factor SET otp_code = ?, otp_expires_at = DATE_ADD(NOW(), INTERVAL 10 MINUTE) WHERE user_id = ?");
+                // Note: We changed "ssi" to "si" because we are only passing a String (OTP) and an Integer (User ID) now!
+                $update_otp->bind_param("si", $otp, $user['user_id']);
+                $update_otp->execute();
+                $update_otp->close();
 
-            if ($user['register_status'] == 1) {
-                header("Location: register.php");
+                // 3. Send the email
+                require_once("../resources/external/phpmailer/mail_helper.php"); 
+                
+                $subject = "Your TraceMo Login Code";
+                $message = "<h2>Your verification code is: <span style='color: #d93025;'>$otp</span></h2><p>This code will expire in 10 minutes. Do not share it with anyone.</p>";
+                sendBusinessEmail($user['email'], $subject, $message);
+
+                // 4. Set TEMPORARY sessions (Do not log them in!)
+                $_SESSION['temp_user_id'] = $user['user_id'];
+                $_SESSION['temp_email'] = $user['email'];
+                $_SESSION['otp_action'] = '2fa_login';
+
+                // 5. Send them to the OTP page
+                header("Location: verify_otp.php");
                 exit();
-            } else if ($user['register_status'] == 0) {
-                header("Location: ../dashboard/home.php");
-                exit();
+                
             } else {
-                header("Location: ../auth/denied.php");
-                exit();
+                // --- NORMAL LOGIN FLOW (If 2FA is Disabled or NULL) ---
+                session_regenerate_id(true);
+
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['fullname'] = $user['fullname'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['branch_id'] = $user['branch_id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['status'] = $user['status'];
+                $_SESSION['register_status'] = $user['register_status'];
+                $_SESSION['created_at'] = $user['created_at'];
+
+                if ($user['register_status'] == 1) {
+                    header("Location: register.php");
+                    exit();
+                } else if ($user['register_status'] == 0) {
+                    header("Location: ../dashboard/home.php");
+                    exit();
+                } else {
+                    header("Location: ../auth/denied.php");
+                    exit();
+                }
             }
 
         } else {
