@@ -5,6 +5,14 @@ include("../../config/db_conn.php");
 include("../../db/branch_fetch.php");
 
 date_default_timezone_set('Asia/Manila');
+
+$is_readonly = $_SESSION['is_readonly'];
+
+if($is_readonly == '1')
+{
+    header("Location: ../inventory.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

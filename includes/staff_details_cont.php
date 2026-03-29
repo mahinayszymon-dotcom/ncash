@@ -37,6 +37,22 @@
                 <hr>
                 <form action="" method="POST">
                     <?php
+                        if ($u_readonly == 0 && $u_role == "user") {
+                            echo '<div class="enable_btn_cont">
+                                    <button type="submit" name="readonly_on" onclick="return confirm(\'Are you sure to enable readonly mode for this user?\');"><img src="../../resources/img/icons/enable.png" alt="disable">Enable Readonly</button>
+                                    <div class="enable_text">
+                                        <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Enabling this will remove the user\'s capability to add or edit records</span>
+                                    </div>
+                                </div>';
+                        } else if ($u_readonly == 1 && $u_role == "user") {
+                            echo '<div class="disable_btn_cont">
+                                    <button type="submit" name="readonly_off" class="enable" onclick="return confirm(\'Are you sure to disable readonly mode for this user?\');"><img src="../../resources/img/icons/disable.png" alt="enable">Disable Readonly</button>
+                                    <div class="disable_text">
+                                        <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Disabling this will allow the user to add or edit records</span>
+                                    </div>
+                                </div>';
+                        }
+
                         if ($u_status === 'active') {
                             echo '<div class="disable_btn_cont">
                                     <button type="submit" name="disable" onclick="return confirm(\'Are you sure to disable this user?\');"><img src="../../resources/img/icons/disable.png" alt="disable">Disable User</button>
@@ -55,10 +71,10 @@
                     ?>
                 </form>
                 <?php  
-                    if(isset($_POST['disable']))
+                    if(isset($_POST['readonly_on']))
                     {
                         $sql = "UPDATE users
-                                SET status = 'inactive'
+                                SET is_readonly = 1
                                 WHERE user_id = ?";
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("i", $u_user_id);
@@ -67,7 +83,7 @@
                             $audit_u_id = $_SESSION['user_id'];
                             $audit_action = "Edited";
                             $audit_obj = "User";
-                            $audit_desc = "Edited user '$u_uname' status to 'Inactive'";
+                            $audit_desc = "Edited user '$u_uname' to readonly mode (on)";
 
                             $curDate = new DateTime();
                             $current = $curDate->format('Y-m-d H:i:s');
@@ -78,7 +94,7 @@
                             $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
                             if($stmt->execute())
                             {
-                                $_SESSION['user_upd_success_msg'] = "User disabled successfully!";
+                                $_SESSION['user_upd_success_msg'] = "Successfully turned on readonly mode!";
                                 header("Location: ../staff_management.php");
                                 exit();
                             }
@@ -90,6 +106,43 @@
                             exit();
                         }
                     }
+
+                    if(isset($_POST['readonly_off']))
+                    {
+                        $sql = "UPDATE users
+                                SET is_readonly = 0
+                                WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $u_user_id);
+                        if($stmt->execute())
+                        {
+                            $audit_u_id = $_SESSION['user_id'];
+                            $audit_action = "Edited";
+                            $audit_obj = "User";
+                            $audit_desc = "Edited user '$u_uname' to readonly mode (off)";
+
+                            $curDate = new DateTime();
+                            $current = $curDate->format('Y-m-d H:i:s');
+
+                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                    VALUES (?, ?, ?, ?, ?, ?)";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
+                            if($stmt->execute())
+                            {
+                                $_SESSION['user_upd_success_msg'] = "Successfully turned off readonly mode";
+                                header("Location: ../staff_management.php");
+                                exit();
+                            }
+                        }
+                        else
+                        {
+                            $_SESSION['error_msg'] = "An error has occurred while disabling the user information.";
+                            header("Location: " . $_SERVER['REQUEST_URI']);
+                            exit();
+                        }
+                    }
+
 
                     if(isset($_POST['enable']))
                     {
@@ -115,6 +168,42 @@
                             if($stmt->execute())
                             {
                                 $_SESSION['user_upd_success_msg'] = "User enabled successfully!";
+                                header("Location: ../staff_management.php");
+                                exit();
+                            }
+                        }
+                        else
+                        {
+                            $_SESSION['error_msg'] = "An error has occurred while disabling the user information.";
+                            header("Location: " . $_SERVER['REQUEST_URI']);
+                            exit();
+                        }
+                    }
+
+                    if(isset($_POST['disable']))
+                    {
+                        $sql = "UPDATE users
+                                SET status = 'inactive'
+                                WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $u_user_id);
+                        if($stmt->execute())
+                        {
+                            $audit_u_id = $_SESSION['user_id'];
+                            $audit_action = "Edited";
+                            $audit_obj = "User";
+                            $audit_desc = "Edited user '$u_uname' status to 'Inactive'";
+
+                            $curDate = new DateTime();
+                            $current = $curDate->format('Y-m-d H:i:s');
+
+                            $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                    VALUES (?, ?, ?, ?, ?, ?)";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $u_branch, $current);
+                            if($stmt->execute())
+                            {
+                                $_SESSION['user_upd_success_msg'] = "User disabled successfully!";
                                 header("Location: ../staff_management.php");
                                 exit();
                             }

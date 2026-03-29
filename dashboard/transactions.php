@@ -3,6 +3,8 @@ ob_start();
 include("../config/session_check.php");
 include("../config/db_conn.php");
 include("../db/branch_fetch.php");
+
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,8 +100,13 @@ include("../db/branch_fetch.php");
                                     </select>
                                     <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                                 </form>
-                                <button onclick="window.location.href='../dashboard/transactions/balance_audit.php'"><img src="../resources/img/icons/end_bal.png" alt="audit">Audit End Balance</button>
-                                <button onclick="window.location.href='../dashboard/transactions/add.php'"><img src="../resources/img/icons/add1.png" alt="add_transaction">Add Transaction</button>
+                                <?php 
+                                    if($is_readonly == 0)
+                                    {
+                                        echo  "<button onclick=\"window.location.href='../dashboard/transactions/balance_audit.php'\"><img src=\"../resources/img/icons/end_bal.png\" alt=\"audit\">Audit End Balance</button>
+                                               <button onclick=\"window.location.href='../dashboard/transactions/add.php'\"><img src=\"../resources/img/icons/add1.png\" alt=\"add_transaction\">Add Transaction</button>";
+                                    }
+                                ?>
                                 <?php
                                     /*Sorting*/
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';

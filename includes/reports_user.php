@@ -1,10 +1,10 @@
 <?php
     if ($_SESSION['branch_id'] == 1100) {
-        $branch_name = 'Marikina-Pasig City Branch';
+        $branch_name = 'Marikina-Pasig';
     } else if ($_SESSION['branch_id'] == 1101) {
-        $branch_name = 'Quezon City Branch';
+        $branch_name = 'Quezon City';
     } else if ($_SESSION['branch_id'] == 1102) {
-        $branch_name = 'Makati City Branch';
+        $branch_name = 'Makati City';
     } else {
         $_SESSION['report_error_msg'] = 'Error: Cannot retrieve branch ID.';
         $style = 'style="display: none;"';
@@ -13,7 +13,7 @@
 <div class="branch-card-a" <?php if (isset($style)) { echo $style; }?>>
     <div class="card-header">
         <div class="branch-ident">
-            <h3><?php echo $branch_name; ?></h3>
+            <h3><?php echo $branch_name; ?> Branch</h3>
         </div>
     </div>
     <div class="top_analytics">
@@ -72,8 +72,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = ?
                         AND is_omitted != 1";
 
@@ -94,8 +94,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(amount) AS total_redeem FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Principal'
                         AND branch_id = ?";
 
@@ -116,8 +116,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(amount) AS total_int FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Interest'
                         AND branch_id = ?";
 
@@ -140,8 +140,8 @@
             <?php
                 $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
                         INNER JOIN transactions AS t ON i.item_id = t.item_id
-                        WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND t.type_of_pay = 'Interest'
                         AND t.branch_id = ?";
 
@@ -154,8 +154,8 @@
                 $total_renew = $row['total_renew'];
                 
                 $sql = "SELECT SUM(amount) AS debit_transacs FROM transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND method != 'Cash'
                         AND branch_id = ?";
 
@@ -168,8 +168,8 @@
                 $debit_transacs = $row['debit_transacs'];
 
                 $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Debit'
                         AND branch_id = ?";
 
@@ -191,8 +191,8 @@
             <p>CREDIT</p>
             <?php 
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = ?
                         AND is_omitted != 1";
 
@@ -205,8 +205,8 @@
                 $adv_int = $row['adv_int'];
 
                 $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Credit'
                         AND branch_id = ?";
 
@@ -245,7 +245,7 @@
     </div>
     <div class="available_reports_cont">
         <button style="display: none;"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
-        <button><img src="../resources/img/icons/download_w.png" alt="download">Download Weekly Report</button>
+        <button onclick="downloadPdf('<?php echo $branch_name; ?>', <?php echo $branch_id; ?>)"><img src="../resources/img/icons/download_w.png" alt="download">Download Monthly Report</button>
     </div>
 </div>
 <div class="branch-card-a">

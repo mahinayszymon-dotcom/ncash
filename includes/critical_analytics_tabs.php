@@ -82,7 +82,8 @@
                 $sql .= " AND branch_id = ?";
             }
 
-            $sql .= " AND YEARWEEK(updated_at, 1) = YEARWEEK(CURDATE(), 1)";
+            $sql .= " AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                      AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')";
             $stmt = $conn->prepare($sql);
 
             if($role != 'admin')
@@ -119,11 +120,11 @@
         <?php
             if($role != 'admin')
             {
-                echo "<p>This Week ($user_branch)</p>";
+                echo "<p>This Month ($user_branch)</p>";
             }
             else if($role == 'admin')
             {
-                echo "<p>This Week (All Branches)</p>";
+                echo "<p>This Month (All Branches)</p>";
             }
         ?>
     </div>

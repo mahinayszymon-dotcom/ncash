@@ -3,6 +3,9 @@ ob_start();
 include("../../config/session_check.php");
 include("../../config/db_conn.php");
 include("../../db/branch_fetch.php");
+
+$is_readonly = $_SESSION['is_readonly'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +20,7 @@ include("../../db/branch_fetch.php");
         }
         else 
         {
-            header("Location: ../auth/denied.php");
+            header("Location: ../../auth/denied.php");
             exit();
         }
 
@@ -229,15 +232,18 @@ include("../../db/branch_fetch.php");
                             //     <hr>";
                             // }
                             
-                            if($status != "Active")
+                            if($status == "Redeem")
                             {
-                                echo "
-                                <div class=\"archive_btn_cont\">
-                                    <button type=\"submit\" name=\"submit\" id=\"archive_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Archive this item</button>
-                                    <div class=\"archive_text\">
-                                        <span class=\"message_info\"><img src=\"../../resources/img/icons/info.png\" alt=\"info\">Archiving this item will move it to a separate list and hide it from active view in this module.</span>
-                                    </div>
-                                </div>";
+                                if($is_readonly == 0)
+                                {
+                                    echo "
+                                    <div class=\"archive_btn_cont\">
+                                        <button type=\"submit\" name=\"submit\" id=\"archive_button\"><img src=\"../../resources/img/icons/archive_w.png\" alt=\"archive\">Archive this item</button>
+                                        <div class=\"archive_text\">
+                                            <span class=\"message_info\"><img src=\"../../resources/img/icons/info.png\" alt=\"info\">Archiving this item will move it to a separate list and hide it from active view in this module.</span>
+                                        </div>
+                                    </div>";
+                                }
                             }
                             ?>
                             
@@ -296,59 +302,20 @@ include("../../db/branch_fetch.php");
                                                     }
                                                     else 
                                                     {
-                                                        $keywords = explode(' ', $upd_client_name);
-                                                        $search_query = '';
-
-                                                        foreach ($keywords as $word) 
-                                                        {
-                                                            if (!empty($word)) 
-                                                            {
-                                                                $search_query .= $word . '* ';
-                                                            }
-                                                        }
-                                                        $final_search_query = trim($search_query);
-
-                                                        $sql = "SELECT * FROM clients 
-                                                                WHERE MATCH(fullname) AGAINST(? IN BOOLEAN MODE) 
-                                                                AND (contact = ? OR email = ?)";
+                                                        $sql = "UPDATE clients
+                                                                SET fullname = ?, contact = ?, email = ?, address = ?
+                                                                WHERE client_id = ?";
                                                         $stmt = $conn->prepare($sql);
-                                                        $stmt->bind_param("sis", $upd_client_name, $upd_contact, $upd_email);
-                                                        $stmt->execute();
-                                                        $result = $stmt->get_result();
-
-                                                        if($result->num_rows > 0)
-                                                        {
-                                                            $sql = "UPDATE clients
-                                                                    SET fullname = ?, contact = ?, email = ?, address = ?
-                                                                    WHERE client_id = ?";
-                                                            $stmt = $conn->prepare($sql);
-                                                            $stmt->bind_param("sissi", $upd_client_name, $upd_contact, $upd_email, $upd_address, $fetch_c_id);
+                                                        $stmt->bind_param("sissi", $upd_client_name, $upd_contact, $upd_email, $upd_address, $fetch_c_id);
                                                             
-                                                            if($stmt->execute())
-                                                            {
-                                                                $client_id = $fetch_c_id;
-                                                                $client_count = $stmt->affected_rows;
-                                                            }
-                                                            else 
-                                                            {
-                                                                $_SESSION['error_msg'] = "Error occurred while updating item info. (Client Info)";
-                                                            }
+                                                        if($stmt->execute())
+                                                        {
+                                                            $client_id = $fetch_c_id;
+                                                            $client_count = $stmt->affected_rows;
                                                         }
-                                                        else
+                                                        else 
                                                         {
-                                                            $sql = "INSERT INTO clients (fullname, contact, email, address) VALUES (?,?,?,?)";
-                                                            $stmt = $conn->prepare($sql);
-                                                            $stmt->bind_param("siss", $upd_client_name, $upd_contact, $upd_email, $upd_address);
-                                                            
-                                                            if($stmt->execute())
-                                                            {
-                                                                $client_id = $conn->insert_id;
-                                                                $client_count = $stmt->affected_rows;
-                                                            }
-                                                            else 
-                                                            {
-                                                                $_SESSION['error_msg'] = "Error occurred while updating item info. (Client Info)";
-                                                            }
+                                                            $_SESSION['error_msg'] = "Error occurred while updating item info. (Client Info)";
                                                         }
 
                                                         if(isset($client_id))
@@ -575,11 +542,18 @@ include("../../db/branch_fetch.php");
                                                 
                                             </div>';
                                     }
+
+                                    if ($status != "Redeemed")
+                                    {
+                                        if($is_readonly == 0)
+                                        {
+                                            echo '<div class="item_info_detail_btn">
+                                                    <button type="button">Edit</button>
+                                                    <button type="submit" id="submit" name="submit" disabled>Save Changes</button>
+                                                </div>';
+                                        }     
+                                    }
                                 ?>
-                                <div class="item_info_detail_btn">
-                                    <button type="button">Edit</button>
-                                    <button type="submit" id="submit" name="submit" disabled>Save Changes</button>
-                                </div>
                             </form>
                             <div class="result_cont">
                                 <?php
@@ -646,9 +620,14 @@ include("../../db/branch_fetch.php");
                                 <td colspan="2"><textarea style="resize: none; font-size: 15px;" name="custom_reason" rows="4" cols="50" placeholder="If cases above don't apply, type reason here."></textarea></td>
                             </tr>
                         </table>
-                        <div class="modal-actions">
-                            <button type="submit" id="proceed" name="proceed" class="btn-proceed"><img src="../../resources/img/icons/arrow_circle_right.png" alt="proceed">Proceed to Archive</button>
-                        </div>
+                        <?php
+                            if($is_readonly == 0)
+                            {
+                                echo "<div class=\"modal-actions\">
+                                          <button type=\"submit\" id=\"proceed\" name=\"proceed\" class=\"btn-proceed\"><img src=\"../../resources/img/icons/arrow_circle_right.png\" alt=\"proceed\">Proceed to Archive</button>
+                                      </div>";
+                            }
+                        ?>
                     </form>
                 </div>
                 <?php 
@@ -734,7 +713,7 @@ include("../../db/branch_fetch.php");
                                     $archive_reason = htmlspecialchars($_POST['reason']);
                                 }
 
-                                //check muna if may agreement num na ganun sa archive
+                                //Insert na sa archive
                                 $sql = "INSERT INTO items_archive (archived_by, item_id, client_id, branch_id, item_name, category, agreement_num, principal, status, due_date, remarks, created_at, updated_at, created_by, updated_by, interest, is_omitted, reason) 
                                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                 $stmt = $conn->prepare($sql);

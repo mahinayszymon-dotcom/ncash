@@ -22,7 +22,7 @@ if ($role !== "admin") {
         }
         else 
         {
-            header("Location: ../auth/denied.php");
+            header("Location: ../../auth/denied.php");
             exit();
         }
 
@@ -153,9 +153,14 @@ if ($role !== "admin") {
                                 </div>
                             </div>
                             <hr>
-                            <div class="disable_btn_cont">
-                                <button type="submit" name="submit"><img src="../../resources/img/icons/delete_forever_w.png" alt="delete">Delete Log</button>
-                            </div>
+                            <?php  
+                                if($is_readonly)
+                                {
+                                    echo "<div class=\"disable_btn_cont\">
+                                              <button type=\"submit\" name=\"submit\"><img src=\"../../resources/img/icons/delete_forever_w.png\" alt=\"delete\">Delete Log</button>
+                                          </div>";
+                                }
+                            ?>
                         </div>
                             
                         <div class="details_editable">

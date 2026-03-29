@@ -50,8 +50,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1100
                         AND is_omitted != 1";
 
@@ -73,8 +73,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(amount) AS total_redeem FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Principal'
                         AND branch_id = 1100";
 
@@ -96,8 +96,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(amount) AS total_int FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Interest'
                         AND branch_id = 1100";
 
@@ -120,8 +120,8 @@
                 //Gets the PRINCIPAL of the renewed items this week (Also used in credit)
                 $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
                         INNER JOIN transactions AS t ON i.item_id = t.item_id
-                        WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND t.type_of_pay = 'Interest'
                         AND t.branch_id = 1100";
 
@@ -134,8 +134,8 @@
                 
                 //AMOUNT (inde na principal) nung transacs this week
                 $sql = "SELECT SUM(amount) AS debit_transacs FROM transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND method != 'Cash'
                         AND branch_id = 1100";
 
@@ -148,8 +148,8 @@
 
                 //Gets the amount of all debit in eb_transacs
                 $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Debit'
                         AND branch_id = 1100";
 
@@ -173,8 +173,8 @@
                 //kasama dito ung sa misc dapat (sa computation lng inde dito sa select statement)
                 //Gets the INTEREST of the items pawned this week (Advance Interest)
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1100
                         AND is_omitted != 1";
 
@@ -186,8 +186,8 @@
                 $adv_int_mp = $row['adv_int'];
 
                 $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Credit'
                         AND branch_id = 1100";
 
@@ -225,7 +225,7 @@
     </div>
     <div class="available_reports_cont">
         <button onclick="openReport('Marikina-Pasig', 1100)"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
-        <button><img src="../resources/img/icons/download_w.png" alt="download">Download Weekly Report</button>
+        <button onclick="downloadPdf('Marikina-Pasig', 1100)"><img src="../resources/img/icons/download_w.png" alt="download">Download Monthly Report</button>
     </div>
 </div>
 <div class="branch-card-a"> <!-- Quezon City Branch -->
@@ -291,8 +291,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1101
                         AND is_omitted != 1";
 
@@ -314,8 +314,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(amount) AS total_redeem FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Principal'
                         AND branch_id = 1101";
 
@@ -337,8 +337,8 @@
                 $role = $_SESSION['role'];
 
                 $sql = "SELECT SUM(amount) AS total_int FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Interest'
                         AND branch_id = 1101";
 
@@ -360,8 +360,8 @@
             <?php
                 $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
                         INNER JOIN transactions AS t ON i.item_id = t.item_id
-                        WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND t.type_of_pay = 'Interest'
                         AND t.branch_id = 1101";
 
@@ -373,8 +373,8 @@
                 $total_renew_q = $row['total_renew'];
                 
                 $sql = "SELECT SUM(amount) AS debit_transacs FROM transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND method != 'Cash'
                         AND branch_id = 1101";
 
@@ -386,8 +386,8 @@
                 $debit_transacs_q = $row['debit_transacs'];
 
                 $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Debit'
                         AND branch_id = 1101";
 
@@ -408,8 +408,8 @@
             <p>CREDIT</p>
             <?php 
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1101
                         AND is_omitted != 1";
 
@@ -421,8 +421,8 @@
                 $adv_int_q = $row['adv_int'];
 
                 $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Credit'
                         AND branch_id = 1101";
 
@@ -459,7 +459,7 @@
     </div>
     <div class="available_reports_cont">
         <button onclick="openReport('Quezon City', 1101)"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
-        <button><img src="../resources/img/icons/download_w.png" alt="download">Download Weekly Report</button>
+        <button onclick="downloadPdf('Quezon City', 1101)"><img src="../resources/img/icons/download_w.png" alt="download">Download Monthly Report</button>
     </div>
 </div>
 <div class="branch-card-a"> <!-- Makati Branch -->
@@ -523,8 +523,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(principal) AS total_pawn FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1102
                         AND is_omitted != 1";
 
@@ -544,8 +544,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(amount) AS total_redeem FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Principal'
                         AND branch_id = 1102";
 
@@ -565,8 +565,8 @@
         <div class="value">
             <?php
                 $sql = "SELECT SUM(amount) AS total_int FROM transactions 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_pay = 'Interest'
                         AND branch_id = 1102";
 
@@ -588,8 +588,8 @@
             <?php
                 $sql = "SELECT SUM(i.principal) AS total_renew FROM inventory AS i
                         INNER JOIN transactions AS t ON i.item_id = t.item_id
-                        WHERE t.created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND t.type_of_pay = 'Interest'
                         AND t.branch_id = 1102";
 
@@ -601,8 +601,8 @@
                 $total_renew_m = $row['total_renew'];
                 
                 $sql = "SELECT SUM(amount) AS debit_transacs FROM transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND method != 'Cash'
                         AND branch_id = 1102";
 
@@ -614,8 +614,8 @@
                 $debit_transacs_m = $row['debit_transacs'];
 
                 $sql = "SELECT SUM(amount) AS debit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Debit'
                         AND branch_id = 1102";
 
@@ -636,8 +636,8 @@
             <p>CREDIT</p>
             <?php 
                 $sql = "SELECT SUM(interest) AS adv_int FROM inventory 
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND branch_id = 1102
                         AND is_omitted != 1";
 
@@ -649,8 +649,8 @@
                 $adv_int_m = $row['adv_int'];
 
                 $sql = "SELECT SUM(amount) AS credit_eb_transacs FROM eb_transactions
-                        WHERE created_at BETWEEN (CURDATE() - INTERVAL (WEEKDAY(CURDATE())) DAY) 
-                        AND (CURDATE() + INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
+                        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
+                        AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
                         AND type_of_transac = 'Credit'
                         AND branch_id = 1102";
 
@@ -687,11 +687,11 @@
     </div>
     <div class="available_reports_cont">
         <button onclick="openReport('Makati City', 1102)"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
-        <button><img src="../resources/img/icons/download_w.png" alt="download">Download Weekly Report</button>
+        <button onclick="downloadPdf('Makati City', 1102)"><img src="../resources/img/icons/download_w.png" alt="download">Download Monthly Report</button>
     </div>
 </div>
 <script>
-    function openReport(branchName, branchId) {
+function openReport(branchName, branchId) {
     const modal = document.getElementById('reportModal');
     const title = document.getElementById('modalBranchName');
     const container = document.getElementById('modalDataContainer');

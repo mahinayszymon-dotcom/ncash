@@ -13,6 +13,7 @@ include("../config/db_conn.php");
     <link rel="stylesheet" href="../resources/css/colors.css">
     <link rel="stylesheet" href="../resources/css/fonts.css">
     <link rel="stylesheet" href="../resources/css/pages/dashboard/reports.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <section class="dashboard">
@@ -36,14 +37,14 @@ include("../config/db_conn.php");
                             <form action="" style="<?php if ($role !== "admin") { echo "justify-content: start !important; gap: 15px;";} ?>">
                                 <div class="form_conts">
                                     <label for="begin_date">Begin Date</label>
-                                    <input type="date" id="begin_date" value="<?php echo date('Y-m-d', strtotime('monday this week')); ?>">
+                                    <input type="date" id="begin_date" name="begin_date" value="<?php echo isset($_GET['begin_date']) ? $_GET['begin_date'] : date('Y-m-d', strtotime('monday this week')); ?>">
                                 </div>
                                 <div class="form_conts">
                                     <label for="end_date">End Date</label>
-                                    <input type="date" id="end_date" value="<?php echo date('Y-m-d'); ?>">
+                                    <input type="date" id="end_date" name="end_date" value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d'); ?>">
                                 </div>
                                 <?php
-                                    $selected = $_GET['branch'] ?? 'all'; 
+                                    $selected = $_GET['branch'] ?? '1100'; 
     
                                     if ($role === "admin") {
                                         echo '<div class="form_conts">
@@ -51,20 +52,38 @@ include("../config/db_conn.php");
                                             <span class="custom-arrow-sort"><img src="../resources/img/icons/filter_w.png" alt="filter"></span>
                                             <select name="branch" id="branch" onchange="this.form.submit()" class="sort">
                                                 
-                                                <option value="pasig" ' . ($selected === 'pasig' ? 'selected' : '') . '>Pasig Branch</option>
+                                                <option value="1100" ' . ($selected === '1100' ? 'selected' : '') . '>Pasig Branch</option>
                                                 
-                                                <option value="quezon" ' . ($selected === 'quezon' ? 'selected' : '') . '>Quezon City Branch</option>
+                                                <option value="1101" ' . ($selected === '1101' ? 'selected' : '') . '>Quezon City Branch</option>
                                                 
-                                                <option value="makati" ' . ($selected === 'makati' ? 'selected' : '') . '>Makati City Branch</option>
+                                                <option value="1102" ' . ($selected === '1102' ? 'selected' : '') . '>Makati City Branch</option>
                                                 
                                             </select>
                                             <span class="custom-arrow"><img src="../resources/img/icons/branch_down.png" alt="sort"></span>
                                         </div>';
+
+                                        $staff_br_id = $selected;
+                                    }
+                                    else 
+                                    {
+                                        $staff_br_id = $_SESSION['branch_id'];
+                                    }
+
+                                    $br_sql = "SELECT branch_name FROM branches WHERE branch_id = ?";
+                                    $br_stmt = $conn->prepare($br_sql);
+                                    $br_stmt->bind_param("i", $staff_br_id);
+                                    $br_stmt->execute();
+                                    $br_res = $br_stmt->get_result();
+
+                                    if($br_res->num_rows > 0)
+                                    {
+                                        $br_row = $br_res->fetch_assoc();
+                                        $staff_br_name = htmlspecialchars($br_row['branch_name']);
                                     }
                                 ?>   
                                 <div class="form_conts">
                                     <label for="generate" style="opacity: 0;">Action</label>
-                                    <button type="" id="generate"><img src="../resources/img/icons/pdf.png" alt="pdf">Generate</button>
+                                    <button type="button" id="generate" data-branch-name="<?php echo $staff_br_name; ?>" data-branch-id="<?php echo $staff_br_id; ?>" onclick="prepReport()"><img src="../resources/img/icons/pdf.png" alt="pdf">Generate</button>
                                 </div>
                             </form>
                         </div>
@@ -82,7 +101,7 @@ include("../config/db_conn.php");
                             </div>
                             <?php
                                 if ($role === "admin") {
-                                    echo '<h2>All Branch Analytics (Weekly)</h2>'; 
+                                    echo '<h2>All Branch Analytics (Monthly)</h2>'; 
                                 } else {
                                     if ($branch === 1100 || $branch === 1101 || $branch === 1102) {
                                         echo '<h2>Report Analytics Data (Weekly)</h2>';
@@ -162,3 +181,4 @@ include("../config/db_conn.php");
     </div>
 </div>
 </html>
+<script src="../resources/js/report_download.js"></script>

@@ -8,6 +8,7 @@ if ($role !== "admin") {
     header("Location: ../../auth/denied.php");
     exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,11 +23,11 @@ if ($role !== "admin") {
         }
         else 
         {
-            header("Location: ../auth/denied.php");
+            header("Location: ../../auth/denied.php");
             exit();
         }
 
-        $sql = "SELECT u.user_id, u.username, u.fullname, u.email, u.role, u.branch_id, b.branch_name, u.created_at, u.status 
+        $sql = "SELECT u.user_id, u.username, u.fullname, u.email, u.role, u.branch_id, b.branch_name, u.created_at, u.status, u.is_readonly
                 FROM users AS u
                 LEFT JOIN branches AS b ON u.branch_id = b.branch_id
                 WHERE u.user_id = ?";
@@ -46,6 +47,7 @@ if ($role !== "admin") {
             $u_branch   = htmlspecialchars($row['branch_id']);
             $u_branch_name   = htmlspecialchars($row['branch_name']);
             $u_status   = htmlspecialchars($row['status']); 
+            $u_readonly   = htmlspecialchars($row['is_readonly']); 
             $u_created_date  = new DateTime($row['created_at']);
             $formatted_date = $u_created_date->format("F j, Y");
 

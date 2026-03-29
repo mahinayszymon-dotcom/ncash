@@ -3,6 +3,8 @@ ob_start();
 include("../../config/session_check.php");
 include("../../config/db_conn.php");
 include("../../db/branch_fetch.php");
+
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -157,12 +159,17 @@ include("../../db/branch_fetch.php");
                                 </div>
                             </div>
                             <hr>
-                            <div class="archive_btn_cont">
-                                <button type="submit" name="submit"><img src="../../resources/img/icons/archive_w.png" alt="archive">Archive this transaction</button>
-                                <div class="archive_text">
-                                    <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Archiving this transaction will move it to a separate list and hide it from active view in this module.</span>
-                                </div>
-                            </div>
+                            <?php  
+                                if($is_readonly == 0)
+                                {
+                                    echo '<div class="archive_btn_cont">
+                                              <button type="submit" name="submit"><img src="../../resources/img/icons/archive_w.png" alt="archive">Archive this transaction</button>
+                                              <div class="archive_text">
+                                                  <span class="message_info"><img src="../../resources/img/icons/info.png" alt="info">Archiving this transaction will move it to a separate list and hide it from active view in this module.</span>
+                                              </div>
+                                          </div>';
+                                }
+                            ?>
                         </div>
                         <div class="details_editable">
                             <form action="" method="POST" class="editable_item_section">
@@ -330,9 +337,14 @@ include("../../db/branch_fetch.php");
                                 <td colspan="2"><textarea style="resize: none; font-size: 15px;" name="custom_reason" rows="4" cols="50" placeholder="If cases above don't apply, type reason here."></textarea></td>
                             </tr>
                         </table>
-                        <div class="modal-actions">
-                            <button type="submit" id="proceed" name="proceed" class="btn-proceed"><img src="../../resources/img/icons/arrow_circle_right.png" alt="proceed">Proceed to Archive</button>
-                        </div>
+                        <?php  
+                            if($is_readonly == 0)
+                            {
+                                echo "<div class=\"modal-actions\">
+                                          <button type=\"submit\" id=\"proceed\" name=\"proceed\" class=\"btn-proceed\"><img src=\"../../resources/img/icons/arrow_circle_right.png\" alt=\"proceed\">Proceed to Archive</button>
+                                      </div>";
+                            }
+                        ?>
                     </form>
                 </div>
                 <?php 

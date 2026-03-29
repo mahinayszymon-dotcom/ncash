@@ -170,7 +170,7 @@ include("../../config/db_conn.php");
 
                             if($role != 'admin')
                             {
-                                $where[] = "i.branch_id = ?"; //If not admin, only display items from that branch
+                                $where[] = "tr.branch_id = ?"; //If not admin, only display items from that branch
                             }
 
                             $where_sql = '';
@@ -296,7 +296,7 @@ include("../../config/db_conn.php");
                                 echo
                                     "
                                         <tr style='height: auto; border: none; cursor: auto;'>
-                                            <td rowspan='5' colspan='7' class='no_records_found'> 
+                                            <td rowspan='5' colspan='3' class='no_records_found'> 
                                                 <br>
                                                 <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                 <h3 style='font-size: 18px;'>No Records Found</h3>

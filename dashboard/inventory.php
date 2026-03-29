@@ -5,6 +5,8 @@ include("../config/db_conn.php");
 include("../db/branch_fetch.php");
 
 date_default_timezone_set('Asia/Manila');
+$is_readonly = $_SESSION['is_readonly'];
+
 $curDate = new DateTime();
 $current = $curDate->format('Y-m-d');
 
@@ -16,6 +18,8 @@ $sql = "UPDATE inventory
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $current);
 $stmt->execute();
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -129,7 +133,12 @@ $stmt->execute();
                                 </select>
                                 <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                             </form>
-                            <button onclick="window.location.href='../dashboard/inventory/add.php'"><img src="../resources/img/icons/add1.png" alt="add_item">Add Item</button>
+                            <?php 
+                                if($is_readonly == 0)
+                                {
+                                    echo "<button onclick=\"window.location.href='../dashboard/inventory/add.php'\"><img src=\"../resources/img/icons/add1.png\" alt=\"add_item\">Add Item</button>";
+                                }
+                            ?>
                             <?php
                                 /*Sorting*/
                                 $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
@@ -257,16 +266,16 @@ $stmt->execute();
 
                                 if($result->num_rows > 0) 
                                 {
-                                    while($row = $result->fetch_assoc())
+                                    while($inv_row = $result->fetch_assoc())
                                     {
-                                        $item_id = htmlspecialchars($row['item_id']);
-                                        $agreement_num = htmlspecialchars($row['agreement_num']);
-                                        $client_name = ucwords(htmlspecialchars($row['fullname']));
-                                        $item = htmlspecialchars($row['item_name']);
-                                        $principal = htmlspecialchars($row['principal']);
-                                        $due_date = htmlspecialchars($row['due_date']);
-                                        $branch = htmlspecialchars($row['branch_name']);
-                                        $status = htmlspecialchars($row['status']);
+                                        $item_id = htmlspecialchars($inv_row['item_id']);
+                                        $agreement_num = htmlspecialchars($inv_row['agreement_num']);
+                                        $client_name = ucwords(htmlspecialchars($inv_row['fullname']));
+                                        $item = htmlspecialchars($inv_row['item_name']);
+                                        $principal = htmlspecialchars($inv_row['principal']);
+                                        $due_date = htmlspecialchars($inv_row['due_date']);
+                                        $branch = htmlspecialchars($inv_row['branch_name']);
+                                        $status = htmlspecialchars($inv_row['status']);
 
                                         $principal_decimal = number_format($principal, 2);
                                         

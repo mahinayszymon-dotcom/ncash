@@ -3,6 +3,8 @@ ob_start();
 include("../config/session_check.php");
 include("../config/db_conn.php");
 include("../db/branch_fetch.php");
+
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -217,7 +219,12 @@ include("../db/branch_fetch.php");
                             <hr>
                             <form action="" method="POST">
                                 <div class="archive_btn_cont">
-                                    <button type="submit" name="submit"><img src="../resources/img/icons/unarchive_w.png" alt="unarchive">Restore</button>
+                                    <?php
+                                        if($is_readonly == 0)
+                                        {
+                                            echo '<button type="submit" name="submit"><img src="../resources/img/icons/unarchive_w.png" alt="unarchive">Restore</button>';
+                                        }
+                                    ?>
                                     <?php 
                                         if (isset($_POST['delete'])) 
                                         {
@@ -242,8 +249,49 @@ include("../db/branch_fetch.php");
                                         } else {
                                             echo '<button type="submit" name="req_delete"><img src="../resources/img/icons/reminder_blue.png" alt="request">Request Deletion</button>';
                                         }
+
+                                        if(isset($_POST['req_delete']))
+                                        {
+                                            $tbl_name = "transactions_archive";
+                                            $rec_id = $transaction_id;
+
+                                            $req_check_sql = "SELECT * FROM deletion_request WHERE table_name = ? AND record_id = ?";
+                                            $req_c_stmt = $conn->prepare($req_check_sql);
+                                            $req_c_stmt->bind_param("si", $tbl_name, $rec_id);
+                                            $req_c_stmt->execute();
+                                            $req_c_res = $req_c_stmt->get_result();
+
+                                            if($req_c_res->num_rows == 0)
+                                            {
+                                                $requester = $_SESSION['username'];
+                                                $req_b_id = $_SESSION['branch_id'];
+                                                $req_reason = $a_transac_reason;
+                                                $req_status = "Pending";
+
+                                                $reqDate = new DateTime();
+                                                $req_date = $reqDate->format('Y-m-d H:i:s');
+
+                                                $req_sql = "INSERT INTO deletion_request (table_name, record_id, requested_by, branch_id, reason, status, requested_at)
+                                                        VALUES (?, ?, ?, ?, ?, ?, ?)";
+                                                $req_stmt = $conn->prepare($req_sql);
+                                                $req_stmt->bind_param("sisisss", $tbl_name, $rec_id, $requester, $req_b_id, $req_reason, $req_status, $req_date);
+                                                if($req_stmt->execute())
+                                                {
+                                                    $_SESSION['req_success_msg'] = "Deletion request sent!";
+
+                                                    header("Location: ../archives/archived_transactions.php");
+                                                    exit(); 
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                $_SESSION['req_error_msg'] = "There is already a pending deletion request for this record.";
+
+                                                header("Location: ../archives/archived_transactions.php");
+                                                exit(); 
+                                            }
+                                        }
                                     ?>
-                                    
                                 </div>
                             </form>
                         </div>
@@ -698,7 +746,7 @@ include("../db/branch_fetch.php");
                                     }
                                     else 
                                     {
-                                        $_SESSION['error_msg'] = "Please unarchive the item.";
+                                        $_SESSION['error_msg'] = "This item has already been redeemed or liquidated.";
 
                                         header("Location: " . $_SERVER['REQUEST_URI']);
                                         exit(); 

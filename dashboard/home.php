@@ -2,65 +2,9 @@
 include("../config/session_check.php");  // pang check ng session
 include("../config/db_conn.php");   // pang connect sa db
 include("../db/branch_fetch.php"); // para kunin ung related sa branch
+include("../db/db_opening_updates.php"); // updates db for several operations
 
-date_default_timezone_set('Asia/Manila');
-$curDate = new DateTime();
-$current = $curDate->format('Y-m-d');
-
-$sql = "UPDATE inventory
-        SET status = 'Overdue'
-        WHERE DATE(due_date) < ?
-        AND status = 'Active'";
-    
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $current);
-$stmt->execute();
-//pwede ilagay dto ung sa pagdelete ng mga may deletion period na clients
-
-$new_date = new DateTime('yesterday');
-
-if ($new_date->format('N') == 7) {
-    $new_date->modify('-1 day');
-}
-
-$date_history = $new_date->format('Y-m-d H:i:s');
-
-//check if existing na si date
-$sql = "SELECT date FROM balance_history WHERE date = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $date_history);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) 
-{
-    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1100";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $mp_branch_bal = htmlspecialchars($row['end_balance']);
-
-    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1101";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $q_branch_bal = htmlspecialchars($row['end_balance']);
-
-    $sql = "SELECT end_balance FROM branches WHERE branch_id = 1102";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $m_branch_bal = htmlspecialchars($row['end_balance']);
-
-    $sql = "INSERT INTO balance_history (date, mp_branch, q_branch, m_branch)
-            VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sddd", $date_history, $mp_branch_bal, $q_branch_bal, $m_branch_bal);
-    $stmt->execute();
-} 
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -94,15 +38,19 @@ if ($result->num_rows === 0)
             ?>
             <div class="central_panelE">
                 <div class="quick_cont">
-                    <a href="../dashboard/inventory/add.php"><span class="img_glass"><img src="../resources/img/icons/add_box2.png" alt="add"></span>Add Item</a>
-                    <a href="../dashboard/transactions/add.php"><span class="img_glass"><img src="../resources/img/icons/payment.png" alt="pay"></span>Add Transaction</a>
                     <?php
+                        if($is_readonly == 0)
+                        {
+                            echo '<a href="../dashboard/inventory/add.php"><span class="img_glass"><img src="../resources/img/icons/add_box2.png" alt="add"></span>Add Item</a>
+                                  <a href="../dashboard/transactions/add.php"><span class="img_glass"><img src="../resources/img/icons/payment.png" alt="pay"></span>Add Transaction</a>';
+                        }
+
                         if($role !== 'admin') {
                             echo '<a href="reports.php"><span class="img_glass"><img src="../resources/img/icons/reports2.png" alt="report"></span>View Reports</a>';
                         }
                     ?>
                     <a href="../archives/archived_items.php"><span class="img_glass"><img src="../resources/img/icons/archives.png" alt="archive"></span>View Archives</a>
-                    <a href="../dashboard/inventory/pending_disposition.php"><span class="img_glass"><img src="../resources/img/icons/list.png" alt="hold"></span>Item Hold List</a>
+                    <a href="../archives/liquidated_items.php"><span class="img_glass"><img src="../resources/img/icons/list.png" alt="hold"></span>Liquidation List</a>
                     <!-- <a href="userhelp.php"><span class="img_glass"><img src="../resources/img/icons/help2.png" alt="help"></span>Help Center</a> -->
                 </div>
                 <div class="main_home">

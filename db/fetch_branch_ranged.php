@@ -3,17 +3,19 @@ include '../config/db_conn.php';
 
 if(isset($_POST['branch_id'])) {
     $branch_id = $_POST['branch_id'];
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
 
-    $sql1 = "SELECT SUM(principal) as total FROM inventory WHERE branch_id = ? AND status != 'Redeemed'";
+    $sql1 = "SELECT SUM(principal) as total FROM inventory WHERE branch_id = ? AND status != 'Redeemed' AND DATE(created_at) BETWEEN ? AND ?";
     $stmt1 = $conn->prepare($sql1);
-    $stmt1->bind_param("i", $branch_id);
+    $stmt1->bind_param("iss", $branch_id, $start_date, $end_date);
     $stmt1->execute();
     $res1 = $stmt1->get_result()->fetch_assoc();
     $principal = number_format($res1['total'] ?? 0, 2);
 
-    $sql2 = "SELECT COUNT(*) as t_count FROM transactions WHERE branch_id = ?";
+    $sql2 = "SELECT COUNT(*) as t_count FROM transactions WHERE branch_id = ? AND DATE(created_at) BETWEEN ? AND ?";
     $stmt2 = $conn->prepare($sql2);
-    $stmt2->bind_param("i", $branch_id);
+    $stmt2->bind_param("iss", $branch_id, $start_date, $end_date);
     $stmt2->execute();
     $res2 = $stmt2->get_result()->fetch_assoc();
     $t_count = $res2['t_count'] ?? 0;
@@ -51,13 +53,12 @@ if(isset($_POST['branch_id'])) {
    //Debit records
    //All Pawns (sanla)
    $sql3 = "SELECT agreement_num, principal, created_at FROM inventory 
-            WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(created_at) BETWEEN ? AND ? 
             AND branch_id = ? 
             AND is_omitted != 1
             ORDER BY created_at ASC";
     $stmt3 = $conn->prepare($sql3);
-    $stmt3->bind_param("i", $branch_id);
+    $stmt3->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt3->execute();
     $res3 = $stmt3->get_result();
     $res3_number = 1;
@@ -115,7 +116,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No pawn(s) this month</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No pawn(s) this period</td>
                     </tr>
                 ";
             }
@@ -126,14 +127,13 @@ if(isset($_POST['branch_id'])) {
     $sql4 = "SELECT t.agreement_num, t.method, t.amount, i.principal, t.created_at 
             FROM transactions AS t 
             INNER JOIN inventory AS i ON t.item_id = i.item_id
-            WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(t.created_at) BETWEEN ? AND ? 
             AND t.type_of_pay = 'Interest'
             AND t.branch_id = ? 
             AND t.method != 'Cash'
             ORDER BY t.created_at ASC";
     $stmt4 = $conn->prepare($sql4);
-    $stmt4->bind_param("i", $branch_id);
+    $stmt4->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt4->execute();
     $res4 = $stmt4->get_result();
     $res4_number = 1;
@@ -199,7 +199,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this month</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this period</td>
                     </tr>
                 ";
             }
@@ -210,14 +210,13 @@ if(isset($_POST['branch_id'])) {
     $sql5 = "SELECT t.agreement_num, t.method, t.amount, i.principal, t.created_at 
             FROM transactions AS t 
             INNER JOIN inventory AS i ON t.item_id = i.item_id
-            WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(t.created_at) BETWEEN ? AND ? 
             AND t.type_of_pay = 'Principal'
             AND t.branch_id = ? 
             AND t.method != 'Cash'
             ORDER BY t.created_at ASC";
     $stmt5 = $conn->prepare($sql5);
-    $stmt5->bind_param("i", $branch_id);
+    $stmt5->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt5->execute();
     $res5 = $stmt5->get_result();
     $res5_number = 1;
@@ -283,7 +282,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this month</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this period</td>
                     </tr>
                 ";
             }
@@ -293,13 +292,12 @@ if(isset($_POST['branch_id'])) {
     //End-bal debit transactions
     $sql6 = "SELECT label, amount, created_at 
             FROM eb_transactions 
-            WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(created_at) BETWEEN ? AND ? 
             AND type_of_transac = 'Debit'
             AND branch_id = ? 
             ORDER BY created_at ASC";
     $stmt6 = $conn->prepare($sql6);
-    $stmt6->bind_param("i", $branch_id);
+    $stmt6->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt6->execute();
     $res6 = $stmt6->get_result();
     $res6_number = 1;
@@ -358,7 +356,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this month</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this period</td>
                     </tr>
                 ";
             }
@@ -374,14 +372,13 @@ if(isset($_POST['branch_id'])) {
     $sql7 = "SELECT t.agreement_num, t.method, t.amount, i.principal, t.created_at 
             FROM transactions AS t 
             INNER JOIN inventory AS i ON t.item_id = i.item_id
-            WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(t.created_at) BETWEEN ? AND ? 
             AND t.type_of_pay = 'Interest'
             AND t.branch_id = ? 
             AND t.method = 'Cash'
             ORDER BY t.created_at ASC";
     $stmt7 = $conn->prepare($sql7);
-    $stmt7->bind_param("i", $branch_id);
+    $stmt7->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt7->execute();
     $res7 = $stmt7->get_result();
     $res7_number = 1;
@@ -443,7 +440,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this month</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this period</td>
                     </tr>
                 ";
             }
@@ -454,14 +451,13 @@ if(isset($_POST['branch_id'])) {
     $sql8 = "SELECT t.agreement_num, t.method, t.amount, i.principal, t.created_at 
             FROM transactions AS t 
             INNER JOIN inventory AS i ON t.item_id = i.item_id
-            WHERE t.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND t.created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(t.created_at) BETWEEN ? AND ? 
             AND t.type_of_pay = 'Principal'
             AND t.branch_id = ? 
             AND t.method = 'Cash'
             ORDER BY t.created_at ASC";
     $stmt8 = $conn->prepare($sql8);
-    $stmt8->bind_param("i", $branch_id);
+    $stmt8->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt8->execute();
     $res8 = $stmt8->get_result();
     $res8_number = 1;
@@ -527,7 +523,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this month</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this period</td>
                     </tr>
                 ";
             }
@@ -537,13 +533,12 @@ if(isset($_POST['branch_id'])) {
     //End-bal credit transactions
     $sql9 = "SELECT label, amount, created_at 
             FROM eb_transactions 
-            WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') 
-            AND created_at <  DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+            WHERE DATE(created_at) BETWEEN ? AND ? 
             AND type_of_transac = 'Credit'
             AND branch_id = ? 
             ORDER BY created_at ASC";
     $stmt9 = $conn->prepare($sql9);
-    $stmt9->bind_param("i", $branch_id);
+    $stmt9->bind_param("ssi", $start_date, $end_date, $branch_id);
     $stmt9->execute();
     $res9 = $stmt9->get_result();
     $res9_number = 1;
@@ -602,29 +597,48 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this month</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this period</td>
                     </tr>
                 ";
             }
     echo "</tbody>
         </table>";
 
+    if($branch_id == "1100")
+    {
+        $sql_column = "mp_branch";
+    }
+    else if($branch_id == "1101")
+    {
+        $sql_column = "q_branch";
+    }
+    else if($branch_id == "1102")
+    {
+        $sql_column = "m_branch";
+    }
+
     //End Balance amount
-    $bal_sql = "SELECT end_balance FROM branches WHERE branch_id = ?";
+    $bal_sql = "SELECT $sql_column FROM balance_history WHERE DATE(date) <= ?
+                ORDER BY date DESC 
+                LIMIT 1";
     $bal_stmt = $conn->prepare($bal_sql);
-    $bal_stmt->bind_param("i", $branch_id);
+    $bal_stmt->bind_param("s", $end_date);
     $bal_stmt->execute();
     $bal_res = $bal_stmt->get_result();
     
     if($bal_res->num_rows > 0)
     {
         $bal_row = $bal_res->fetch_assoc();
-        $br_bal = htmlspecialchars($bal_row['end_balance']);
+        $br_bal = htmlspecialchars($bal_row[$sql_column]);
         $br_bal_deci = number_format((float) $br_bal, 2);
+    }
+    else 
+    {
+        $br_bal_deci = "0.00";
     }
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>End Balance: $br_bal_deci</h4>";
+            <h4 style='font-size: 10px;'>End Balance:₱ $br_bal_deci</h4>";
 }
 ?>

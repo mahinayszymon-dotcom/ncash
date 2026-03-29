@@ -10,8 +10,8 @@ if ($role !== "admin") {
 
  if(isset($_POST['add']))
 {
-    $emp_uName = htmlspecialchars($_POST['emp_uname']);
-    $emp_email = htmlspecialchars($_POST['emp_email']);
+    $emp_uName = trim(htmlspecialchars($_POST['emp_uname']));
+    $emp_email = trim(htmlspecialchars($_POST['emp_email']));
     //check if username already exists
     $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
@@ -45,34 +45,45 @@ if ($role !== "admin") {
         else
         {
             //check if passwords match
-            $emp_pass = htmlspecialchars($_POST['emp_pass']);
-            $emp_cpass = htmlspecialchars($_POST['emp_cpass']);
+            $emp_pass = trim(htmlspecialchars($_POST['emp_pass']));
+            $emp_cpass = trim(htmlspecialchars($_POST['emp_cpass']));
 
             if($emp_pass === $emp_cpass)
             {
                 $hashedEmpPass = password_hash($emp_pass, PASSWORD_DEFAULT);
-                $emp_name = htmlspecialchars($_POST['emp_name']);
-                $emp_branch = htmlspecialchars($_POST['branch_select']);
-                $c_def_pass = htmlspecialchars($_POST['choice_def_pass']);
-                $emp_role = htmlspecialchars($_POST['role_select']);
+                $emp_name = trim(htmlspecialchars($_POST['emp_name']));
+                $emp_branch = trim(htmlspecialchars($_POST['branch_select']));
+                $c_def_pass = trim(htmlspecialchars($_POST['choice_def_pass']));
+                $c_readonly = trim(htmlspecialchars($_POST['choice_readonly']));
+                $emp_role = trim(htmlspecialchars($_POST['role_select']));
                 $emp_status = "active";
 
-                if($c_def_pass === "yes")
+                if(($emp_role === "admin" && $c_readonly === "no") || ($emp_role == "user"))
                 {
-                    $register_status = 0;
-                }
-                else if($c_def_pass === "no")
-                {
-                    $register_status = 1;
-                }
+                    if($c_def_pass === "yes")
+                    {
+                        $register_status = 0;
+                    }
+                    else if($c_def_pass === "no")
+                    {
+                        $register_status = 1;
+                    }
 
+                    if($c_readonly === "yes")
+                    {
+                        $ro_status = 1;
+                    }
+                    else if($c_readonly === "no")
+                    {
+                        $ro_status = 0;
+                    }
 
-                $sql = "INSERT INTO users (username, fullname, password, email, role, branch_id, status, register_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("sssssisi", $emp_uName, $emp_name, $hashedEmpPass, $emp_email, $emp_role, $emp_branch, $emp_status, $register_status);
-                if($stmt->execute())
-                {
-                    $_SESSION['user_add_success_msg'] = "Successfully Added New User!";
+                    $sql = "INSERT INTO users (username, fullname, password, email, role, branch_id, status, register_status, is_readonly) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("sssssisii", $emp_uName, $emp_name, $hashedEmpPass, $emp_email, $emp_role, $emp_branch, $emp_status, $register_status, $ro_status);
+                    if($stmt->execute())
+                    {
+                        $_SESSION['user_add_success_msg'] = "Successfully Added New User!";
 
                         header("Location: " . $_SERVER['PHP_SELF']);
                         exit();
@@ -80,7 +91,15 @@ if ($role !== "admin") {
                 }
                 else 
                 {
-                    $_SESSION['user_add_error_msg'] = "Password and Confirm Password doesn't match.";
+                    $_SESSION['user_add_error_msg'] = "Administrators are not allowed to be readonly.";
+
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
+                }
+            }
+            else 
+            {
+                $_SESSION['user_add_error_msg'] = "Password and Confirm Password doesn't match.";
 
                 header("Location: " . $_SERVER['PHP_SELF']);
                 exit();
@@ -489,12 +508,25 @@ if ($role !== "admin") {
                             </div>
                             <div class="input_cont rad">
                                 <div>
-                                    <input type="radio" name="choice_def_pass" id="yes_choice_def_pass" value="yes">
+                                    <input type="radio" name="choice_def_pass" id="yes_choice_def_pass" value="yes" required>
                                     <label for="yes_choice_def_pass">Yes</label>
                                 </div>
                                 <div>
-                                    <input type="radio" name="choice_def_pass" id="no_choice_def_pass" value="no">
+                                    <input type="radio" name="choice_def_pass" id="no_choice_def_pass" value="no" required>
                                     <label for="no_choice_def_pass">No</label>
+                                </div>
+                            </div>
+                            <div class="input_cont" style="opacity: 0.9;">
+                                <label for="choice_readonly">Read Only</label>
+                            </div>
+                            <div class="input_cont rad">
+                                <div>
+                                    <input type="radio" name="choice_readonly" id="yes_choice_readonly" value="yes" required>
+                                    <label for="yes_choice_readonly">Yes</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="choice_readonly" id="no_choice_readonly" value="no" required>
+                                    <label for="no_choice_readonly">No</label>
                                 </div>
                             </div>
                             <div class="fullwidth">       
@@ -502,8 +534,8 @@ if ($role !== "admin") {
                             </div>
                             <div class="input_cont">
                                 <label for="role_select">Role<i style="color:red;">*</i></label>
-                                <select name="role_select" id="role_select" required">
-                                    <option value="user">User</option>
+                                <select name="role_select" id="role_select" required>
+                                    <option value="user" selected>User</option>
                                     <option value="admin">Administrator</option>
                                 </select>
                             </div>

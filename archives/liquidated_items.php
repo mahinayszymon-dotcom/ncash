@@ -4,6 +4,8 @@ include("../config/db_conn.php");   // pang connect sa db
 include("../db/branch_fetch.php"); // para kunin ung related sa branch
 
 $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
+
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +19,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
     <link rel="stylesheet" href="../resources/css/fonts.css">
     <link rel="stylesheet" href="../resources/css/pages/dashboard/inventory.css">
     <link rel="stylesheet" href="../resources/css/pages/archives/archive.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .nav_links ul li:nth-child(3) {
             background-color: transparent;
@@ -128,8 +131,6 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                         <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
                                         <option value="price_increasing" <?= $selected === 'price_increasing' ? 'selected' : '' ?>>Price (Increasing)</option>
                                         <option value="price_decreasing" <?= $selected === 'price_decreasing' ? 'selected' : '' ?>>Price (Decreasing)</option>
-                                        <option value="renewal" <?= $selected === 'renewal' ? 'selected' : '' ?>>Renewals</option>
-                                        <option value="redeem" <?= $selected === 'redeem' ? 'selected' : '' ?>>Redemptions</option>
                                     </select>
                                     <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                                 </form>
@@ -143,19 +144,19 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     {
                                         case 'all':
                                         case 'default':
-                                            $orderBy = " ORDER BY ta.edited_at DESC";
+                                            $orderBy = " ORDER BY il.updated_at DESC";
                                             break;
                                         case 'pasig':
                                             $where[] = "b.branch_name = 'Marikina-Pasig'";
-                                            $orderBy = " ORDER BY ta.edited_at DESC";
+                                            $orderBy = " ORDER BY il.updated_at DESC";
                                             break;
                                         case 'quezon':
                                             $where[] = "b.branch_name = 'Quezon City'";
-                                            $orderBy = " ORDER BY ta.edited_at DESC";
+                                            $orderBy = " ORDER BY il.updated_at DESC";
                                             break;
                                         case 'makati': 
                                             $where[] = "b.branch_name = 'Makati'";
-                                            $orderBy = " ORDER BY ta.edited_at DESC";
+                                            $orderBy = " ORDER BY il.updated_at DESC";
                                             break;
                                         case 'nameAZ': 
                                             $orderBy = " ORDER BY COALESCE(c.fullname, ca.fullname) ASC";
@@ -164,16 +165,10 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                             $orderBy = " ORDER BY COALESCE(c.fullname, ca.fullname) DESC";
                                             break;
                                         case 'price_increasing': 
-                                            $orderBy = " ORDER BY ta.amount ASC";
+                                            $orderBy = " ORDER BY il.amount ASC";
                                             break;
                                         case 'price_decreasing': 
-                                            $orderBy = " ORDER BY ta.amount DESC";
-                                            break;
-                                        case 'renewal':
-                                            $where[] = "ta.type_of_pay = 'Interest'";
-                                            break;
-                                        case 'redeem':
-                                            $where[] = "ta.type_of_pay = 'Principal'";
+                                            $orderBy = " ORDER BY il.amount DESC";
                                             break;
                                         default:
                                             $orderBy = '';
@@ -182,7 +177,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
 
                                     if($role != 'admin')
                                     {
-                                        $where[] = "i.branch_id = ?"; //If not admin, only display items from that branch
+                                        $where[] = "il.branch_id = ?"; //If not admin, only display items from that branch
                                     }
 
                                     $where_sql = '';
@@ -197,24 +192,20 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     $limit = 12;
                                     $offset = ($page - 1) * $limit;
 
-                                    $sql = "SELECT ta.transaction_id, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_name, ia.item_name) AS item_name, b.branch_name, ta.amount, ta.type_of_pay, ta.method
-                                        FROM transactions_archive AS ta
-                                        LEFT JOIN clients AS c ON ta.client_id = c.client_id
-                                        LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
-                                        LEFT JOIN inventory AS i ON ta.item_id = i.item_id
-                                        LEFT JOIN items_archive AS ia ON ta.item_id = ia.item_id
-                                        INNER JOIN branches AS b ON ta.branch_id = b.branch_id
+                                    $sql = "SELECT il.liquidation_id, il.liquidated_at, il.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, il.item_id, il.client_id, il.item_name, il.principal, b.branch_name, il.status, il.due_date, il.created_at
+                                        FROM items_liquidated AS il
+                                        LEFT JOIN clients AS c ON il.client_id = c.client_id
+                                        LEFT JOIN clients_archive AS ca ON il.client_id = ca.client_id
+                                        INNER JOIN branches AS b ON il.branch_id = b.branch_id
                                         $where_sql
                                         $orderBy
                                         LIMIT $limit OFFSET $offset";
 
                                     $count_sql = "SELECT COUNT(*) AS total
-                                        FROM transactions_archive AS ta
-                                        LEFT JOIN clients AS c ON ta.client_id = c.client_id
-                                        LEFT JOIN clients_archive AS ca ON ta.client_id = ca.client_id
-                                        LEFT JOIN inventory AS i ON ta.item_id = i.item_id
-                                        LEFT JOIN items_archive AS ia ON ta.item_id = ia.item_id
-                                        INNER JOIN branches AS b ON ta.branch_id = b.branch_id
+                                        FROM items_liquidated AS il
+                                        LEFT JOIN clients AS c ON il.client_id = c.client_id
+                                        LEFT JOIN clients_archive AS ca ON il.client_id = ca.client_id
+                                        INNER JOIN branches AS b ON il.branch_id = b.branch_id
                                         $where_sql";
 
                                     // $sql .= " $orderBy LIMIT $limit OFFSET $offset";
@@ -243,11 +234,11 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     <tr>
                                         <th>#</th>
                                         <th>AN Code</th>
-                                        <th>Client Name</th>
                                         <th>Item Name</th>
-                                        <th>Amount</th>
-                                        <th>Type</th>
-                                        <th>Method</th>
+                                        <th>Client Name</th>
+                                        <th>Due Date</th>
+                                        <th>Principal</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -259,17 +250,32 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     {
                                         while($row = $result->fetch_assoc())
                                         {
-                                            $transaction_id = htmlspecialchars($row['transaction_id']);
+                                            $item_id = htmlspecialchars($row['item_id']);
                                             $agreement_num = htmlspecialchars($row['agreement_num']);
                                             $client_name = htmlspecialchars($row['fullname']);
+                                            $client_id = htmlspecialchars($row['client_id']);
                                             $item = htmlspecialchars($row['item_name']);
+                                            $principal = htmlspecialchars($row['principal']);
+                                            $due_date = htmlspecialchars($row['due_date']);
                                             $branch = htmlspecialchars($row['branch_name']);
-                                            $amount = htmlspecialchars($row['amount']);
-                                            $pay_type = htmlspecialchars($row['type_of_pay']);
-                                            $method = htmlspecialchars($row['method']);
+                                            $status = htmlspecialchars($row['status']);
+
+                                            $principal_decimal = number_format($principal, 2);
+                                            
+                                            $status_style = "font-size: 15px;";
+
+                                            if ($status == 'Active') {
+                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400; padding: 5px 8px; border-radius: 5px; background-color: #d2e8ce; color: #739667;";
+                                            } else if ($status == 'Redeemed') {
+                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #d1d8ed; color: #6c799d;";
+                                            } else if ($status == "Overdue") {
+                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f8dfbf; color: #b68b53;";
+                                            } else {
+                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f1eceb; color: #a6a094;";
+                                            }
             
-                                            $amount_decimal = number_format($amount, 2);
-                
+                                            $format_date = date("d M Y", strtotime($due_date));
+                                            
                                             if ($branch === "Marikina-Pasig") {
                                                 $final_agreement_num = "MP" . $agreement_num;
                                             } else if ($branch === "Quezon City") {
@@ -280,21 +286,28 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                                 $final_agreement_num = "-" . $agreement_num;
                                             }
 
-                                            echo 
-                                            "
-                                            <tr>
-                                                <td> $number </td>
-                                                <td> $final_agreement_num </td>
-                                                <td> $client_name </td>
-                                                <td> $item </td>
-                                                <td>₱ $amount_decimal</td>
-                                                <td> $pay_type </td>
-                                                <td> $method </td>
-                                                <td>
-                                                    <a href=\"../archives/archived_transaction_details.php?id=" . $transaction_id . "\"><button type=\"submit\"><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
-                                                </td>
-                                            </tr>
-                                            ";
+                                                if (isset($_SESSION['error_msg'])) {
+                                                    echo '<div class="result_cont">';
+                                                    echo "<span class=\"message_error\"><img src=\"../resources/img/icons/error.png\" alt=\"error\">" . $_SESSION['error_msg'] . "</span>";
+                                                    unset($_SESSION['error_msg']);
+                                                    echo '</div>';
+                                                } else {
+                                                    echo 
+                                                    "
+                                                    <tr>
+                                                        <td>$number</td>
+                                                        <td>$final_agreement_num</td>
+                                                        <td>$item</td>
+                                                        <td>$client_name</td>
+                                                        <td>$format_date</td>
+                                                        <td>₱ $principal_decimal</td>
+                                                        <td><span style=\"$status_style\">$status</span></td>  
+                                                        <td>
+                                                            <a href=\"../archives/liquidated_details.php?id=" . $item_id . "\"><button><img src=\"../resources/img/icons/open.png\" alt=\"open\"></button></a>
+                                                        </td>
+                                                    </tr>
+                                                    ";
+                                                }
 
                                             $number++;
                                         }
@@ -302,18 +315,18 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     else
                                     {
                                         echo
-                                            "
-                                                <tr style='height: 43vh; border: none; cursor: auto;'>
-                                                    <td rowspan='5' colspan='7' class='no_records_found'> 
-                                                        <br>
-                                                        <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
-                                                        <h3 style='font-size: 18px;'>No Records Found</h3>
-                                                        <br>
-                                                        <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
-                                                        <br>
-                                                    </td>
-                                                </tr>
-                                            ";
+                                        "
+                                            <tr style='height: 43vh; border: none; cursor: auto;'>
+                                                <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                    <br>
+                                                    <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
+                                                    <h3 style='font-size: 18px;'>No Records Found</h3>
+                                                    <br>
+                                                    <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
+                                                    <br>
+                                                </td>
+                                            </tr>
+                                        ";
                                     }
                                 ?> 
                                 </tbody>
@@ -346,13 +359,47 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     <span style="font-size: 1rem; color: var(--success); background-color: #e1ede2; padding: 0.6rem 0.5rem; border-radius: 0.5rem; font-weight: 400;">
                                         Total Amount: ₱ 
                                         <?php
-                                            # ilipat pag may logic na
-                                            $total_liquidated = 0.00;
+                                            $sql = "SELECT SUM(principal) AS total_principal FROM items_liquidated";
+                                            $sum_stmt = $conn->prepare($sql);
+                                            $sum_stmt->execute();
+                                            $sum_result = $sum_stmt->get_result();
+                                            $sum_row = $sum_result->fetch_assoc();
+                                            $total_liquidated = htmlspecialchars($sum_row['total_principal']);
 
                                             echo $total_liquidated;
                                         ?>
                                     </span>
-                                    <button style="background-color: var(--purple); color: var(--main-content);"><img src="../resources/img/icons/archive_w.png" alt="turnover"><p style="color: var(--main-content);">Turnover</p></button>
+                                    <?php  
+                                        $lq_role = $role;
+                                        if($lq_role === "admin")
+                                        {
+                                            $lq_branch = $selected;
+                                        }
+                                        else 
+                                        {
+                                            $lq_b_id = $_SESSION['branch_id'];
+                                            switch ($lq_b_id)
+                                            {
+                                                case 1100:
+                                                    $lq_branch = "pasig";
+                                                    break;
+                                                case 1101:
+                                                    $lq_branch = "quezon";
+                                                    break;
+                                                case 1102:
+                                                    $lq_branch = "makati";
+                                                    break;
+                                            }
+                                        }
+
+                                        if($is_readonly == 0)
+                                        {
+                                            echo '<button id="turnover" onclick="prepLiquid()" 
+                                                   data-role="' . $lq_role . '" 
+                                                   data-branch="' . $lq_branch . '" 
+                                                   style="background-color: var(--purple); color: var(--main-content);"><img src="../resources/img/icons/archive_w.png" alt="turnover"><p style="color: var(--main-content);">Turnover</p></button>';
+                                        }
+                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -361,6 +408,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
             </section>
         </section>
     </main>
+    <script src="../resources/js/report_download.js"></script>
     <div class="result_cont_bar">
         <?php
             //$_SESSION['archive_success_msg'] = 'Test';
@@ -398,4 +446,20 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
         ?>
     </div>
 </body>
+<div id="reportModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalBranchName">Branch Report</h2>
+            <button class="close_button" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="modalDataContainer">
+                <p>Loading report data...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="window.print()" class="print_button"><img src="../resources/img/icons/print.png" alt="print">Print Report</button>
+        </div>
+    </div>
+</div>
 </html>

@@ -85,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['status'] = $user['status'];
                 $_SESSION['register_status'] = $user['register_status'];
                 $_SESSION['created_at'] = $user['created_at'];
+                $_SESSION['is_readonly'] = $user['is_readonly'];
 
                 if ($user['register_status'] == 1) {
                     header("Location: register.php");

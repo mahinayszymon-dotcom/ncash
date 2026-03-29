@@ -3,6 +3,14 @@ ob_start();
 include("../../config/session_check.php");
 include("../../config/db_conn.php");
 include("../../db/branch_fetch.php");
+
+$is_readonly = $_SESSION['is_readonly'];
+
+if($is_readonly == '1')
+{
+    header("Location: ../transactions.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
