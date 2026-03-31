@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../config/db_conn.php';
 $_SESSION = [];
 session_unset();
 session_destroy();
@@ -10,6 +11,6 @@ header("Expires: 0");
 
 header("Clear-Site-Data: \"cache\", \"cookies\", \"storage\", \"executionContexts\"");
 
-header("Location: ../auth/login.php");
+header("Location: " . BASE_URL . "auth/login.php");
 exit();
 ?>

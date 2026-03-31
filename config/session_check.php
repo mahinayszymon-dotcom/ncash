@@ -9,7 +9,7 @@ header("Pragma: no-cache");
 header("Expires: 0");
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || !isset($_SESSION['username'])) {
-    header("Location: ../auth/login.php");
+    header("Location: " . BASE_URL . "auth/login.php");
     exit();
 }
 

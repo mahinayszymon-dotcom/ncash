@@ -27,11 +27,12 @@ async function downloadPdf(branchName, branchId) {
         const originalContentStyle = modalContent.style.cssText;
         // Target the body specifically – this is often the culprit!
         const modalBody = modal.querySelector('.modal-body');
+        const originalBodyStyle = modalBody.style.cssText;
 
         // Force the OUTER modal to be a regular block that expands
         modal.style.cssText = `
             display: block !important; 
-            visibility: hidden; 
+            opacity: 1 !important;
             position: absolute; 
             left: 0; 
             top: 0; 
@@ -40,6 +41,7 @@ async function downloadPdf(branchName, branchId) {
             min-height: auto !important;
             overflow: visible !important; 
             z-index: -1000;
+            background: #ffffff !important; /* Ensure background is solid */
         `;
 
         // Force the CONTENT to expand
@@ -69,13 +71,51 @@ async function downloadPdf(branchName, branchId) {
         if (closeBtn) closeBtn.style.display = 'none';
         if (footer) footer.style.display = 'none';
 
+        //Forcing the opacity and prevent any animation
+        modalContent.style.setProperty('animation', 'none', 'important');
+        modalContent.style.setProperty('opacity', '1', 'important');
+        modalContent.style.setProperty('background-color', '#ffffff', 'important');
+
+        //Forcing the styles so that it doesn't look faded
+        container.querySelectorAll('*').forEach(el => {
+            el.style.setProperty('opacity', '1', 'important');
+
+            //Targets the top_analytics text to make it appear white
+            if (el.classList.contains('top_analytics') || 
+                el.classList.contains('top_analytics_title') || 
+                el.classList.contains('top_analytics_value') ||
+                el.closest('.top_analytics')) 
+            {
+                
+                el.style.setProperty('color', '#ffffff', 'important');
+            } 
+            
+            //Targets the table headers
+            else if (el.tagName === 'TH' || el.tagName === 'THEAD') 
+            {
+                el.style.setProperty('background-color', '#f1eded', 'important');
+                el.style.setProperty('color', '#000000', 'important');
+                el.style.setProperty('-webkit-print-color-adjust', 'exact', 'important');
+            } 
+            
+            //Targets all the other text
+            else {
+                el.style.setProperty('color', '#000000', 'important');
+            }
+        });
+
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const opt = {
             margin: 0.5,
             filename: `${branchName}_Report.pdf`,
             image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            html2canvas: { 
+                scale: 4,              
+                useCORS: true, 
+                letterRendering: true,
+                backgroundColor: '#ffffff' // ADD THIS: Prevents grey/transparent tints
+            },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
             pagebreak: { mode: 'css', avoid: 'tr' }
         };
@@ -86,6 +126,7 @@ async function downloadPdf(branchName, branchId) {
         //restoring the original stylings
         modal.style.cssText = originalModalStyle;
         modalContent.style.cssText = originalContentStyle;
+        modalBody.style.cssText = originalBodyStyle;
         if (closeBtn) closeBtn.style.display = 'block';
         if (footer) footer.style.display = 'flex';
 
@@ -137,6 +178,7 @@ async function generateCustom(branchName, branchId, startDate, endDate) {
         // 1. Save original styles
         const originalModalStyle = modal.style.cssText;
         const originalContentStyle = modalContent.style.cssText;
+        const originalBodyStyle = modalBody.style.cssText;
 
         // 2. The "Ghost" Setup (Visible to script, hidden from user)
         // We use left: -9999px instead of visibility:hidden to avoid blank pages.
@@ -195,6 +237,7 @@ async function generateCustom(branchName, branchId, startDate, endDate) {
         // 4. Restore original styles
         modal.style.cssText = originalModalStyle;
         modalContent.style.cssText = originalContentStyle;
+        modalBody.style.cssText = originalBodyStyle;
         if (closeBtn) closeBtn.style.display = 'block';
         if (footer) footer.style.display = 'flex';
 
@@ -252,6 +295,7 @@ async function generateLiquid(userRole, liquidBranch) {
         const originalContentStyle = modalContent.style.cssText;
         // Target the body specifically – this is often the culprit!
         const modalBody = modal.querySelector('.modal-body');
+        const originalBodyStyle = modalBody.style.cssText;
 
         // Force the OUTER modal to be a regular block that expands
         modal.style.cssText = `
@@ -311,6 +355,7 @@ async function generateLiquid(userRole, liquidBranch) {
         //restoring the original stylings
         modal.style.cssText = originalModalStyle;
         modalContent.style.cssText = originalContentStyle;
+        modalBody.style.cssText = originalBodyStyle;
         if (closeBtn) closeBtn.style.display = 'block';
         if (footer) footer.style.display = 'flex';
 

@@ -50,19 +50,8 @@
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("ssi", $hashedNewPass, $current, $user_id);
                         
-                        if($stmt->execute())
-                        {
-                            $_SESSION = [];
-                            session_unset();
-                            session_destroy();
-
-                            header("Cache-Control: no-cache, no-store, must-revalidate");
-                            header("Pragma: no-cache");
-                            header("Expires: 0");
-
-                            header("Clear-Site-Data: \"cache\", \"cookies\", \"storage\", \"executionContexts\"");
-
-                            header("Location: ../../auth/login.php");
+                        if($stmt->execute()) {
+                            header("Location: " . BASE_URL . "auth/logout.php");
                             exit();
                         }
                         else 

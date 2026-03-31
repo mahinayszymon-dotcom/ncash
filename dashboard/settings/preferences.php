@@ -1,6 +1,6 @@
 <?php
-include("../../config/session_check.php");
 include("../../config/db_conn.php");
+include("../../config/session_check.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">

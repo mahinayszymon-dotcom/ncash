@@ -1,6 +1,6 @@
 <?php
-include("../../config/session_check.php");
 include("../../config/db_conn.php");
+include("../../config/session_check.php");
 
 if ($role !== "admin") {
     header("Location: ../../auth/denied.php");
@@ -68,13 +68,7 @@ if ($role !== "admin") {
                         <div class="settings_help_info">
                             <div class="info_in_settings">
                                 <?php
-                                    $current_page = $_SERVER['PHP_SELF'];
-
-                                    if ($current_page === BASE_URL . "dashboard/settings/account.php" || $current_page === BASE_URL . "dashboard/settings/activity_logs.php" || $current_page === BASE_URL . "dashboard/settings/preferences.php" || $current_page === BASE_URL . "dashboard/settings/security.php" || $current_page === BASE_URL . "dashboard/settings/system.php") { 
-                                        echo "<span class=\"message_info\"><img src=\"../../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
-                                    } else {
-                                        echo "<span class=\"message_info\"><img src=\"../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
-                                    }
+                                    echo "<span class=\"message_info\"><img src=\"../../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
                                 ?>
                             </div>
                         </div>

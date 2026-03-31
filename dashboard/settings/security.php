@@ -1,7 +1,7 @@
 <?php
 ob_start();
-include("../../config/session_check.php");
 include("../../config/db_conn.php");
+include("../../config/session_check.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,13 +64,7 @@ include("../../config/db_conn.php");
                         <div class="settings_help_info">
                             <div class="info_in_settings">
                                 <?php
-                                    $current_page = $_SERVER['PHP_SELF'];
-
-                                    if ($current_page === BASE_URL . "dashboard/settings/account.php" || $current_page === BASE_URL . "dashboard/settings/activity_logs.php" || $current_page === BASE_URL . "dashboard/settings/preferences.php" || $current_page === BASE_URL . "dashboard/settings/security.php" || $current_page === BASE_URL . "dashboard/settings/system.php") { 
-                                        echo "<span class=\"message_info\"><img src=\"../../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
-                                    } else {
-                                        echo "<span class=\"message_info\"><img src=\"../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
-                                    }
+                                    echo "<span class=\"message_info\"><img src=\"../../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
                                 ?>
                             </div>
                         </div>
@@ -95,9 +89,14 @@ include("../../config/db_conn.php");
                         </div>
                         <hr>
                         <div class="settings_main_central_panel">
-                            <div class="card_general">
-                                <?php include("../../includes/change_pass_form.php") ?> 
-                            </div>
+                            <?php
+                                if ($user_id != 1) {
+                                    echo '<div class="card_general">';
+                                      include("../../includes/change_pass_form.php"); 
+                                    echo '</div>';
+                                }
+                            ?>
+                            
                             <?php
                                 $user_id = $_SESSION['user_id']; 
 

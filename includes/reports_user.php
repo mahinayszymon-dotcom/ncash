@@ -244,7 +244,7 @@
         </div>
     </div>
     <div class="available_reports_cont">
-        <button style="display: none;"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
+        <button onclick="openReport('<?php echo $branch_name; ?>', <?php echo $branch_id; ?>)"><img src="../resources/img/icons/more_p.png" alt="see_more">View detailed report</button>
         <button onclick="downloadPdf('<?php echo $branch_name; ?>', <?php echo $branch_id; ?>)"><img src="../resources/img/icons/download_w.png" alt="download">Download Monthly Report</button>
     </div>
 </div>
@@ -357,10 +357,45 @@
         </div>
     </div>
 </div>
-<div class="branch-card-a">
-    <div class="card-header">
-        <div class="branch-ident"> 
-            <h3>Detailed Report</h3>
-        </div>
-    </div>
-</div>
+<script>
+function openReport(branchName, branchId) {
+    const modal = document.getElementById('reportModal');
+    const title = document.getElementById('modalBranchName');
+    const container = document.getElementById('modalDataContainer');
+
+    // Show modal and set loading text
+    modal.style.display = 'flex';
+    title.innerText = branchName + " Detailed Report";
+    container.innerHTML = "<p>Loading live data...</p>";
+
+    // FETCH DATA FROM PHP
+    const formData = new FormData();
+    formData.append('branch_id', branchId);
+
+    fetch('../db/fetch_branch_data.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Inject the HTML from PHP into the modal
+        container.innerHTML = html;
+    })
+    .catch(error => {
+        container.innerHTML = "<p style='color:red;'>Error loading data.</p>";
+        console.error('Error:', error);
+    });
+}
+
+function closeModal() {
+    document.getElementById('reportModal').style.display = 'none';
+}
+
+// Close if they click outside the box
+window.onclick = function(event) {
+    let modal = document.getElementById('reportModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>

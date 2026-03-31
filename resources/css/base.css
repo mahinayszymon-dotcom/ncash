@@ -386,6 +386,7 @@ input[type="checkbox"] {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: .75rem;
           }
 
             .account_cont_actions button {
