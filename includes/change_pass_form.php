@@ -52,8 +52,18 @@
                         
                         if($stmt->execute())
                         {
-                            $_SESSION['success_msg'] = "Password changed successfully!";
-                            $_SESSION['open_pass_card'] = true;
+                            $_SESSION = [];
+                            session_unset();
+                            session_destroy();
+
+                            header("Cache-Control: no-cache, no-store, must-revalidate");
+                            header("Pragma: no-cache");
+                            header("Expires: 0");
+
+                            header("Clear-Site-Data: \"cache\", \"cookies\", \"storage\", \"executionContexts\"");
+
+                            header("Location: ../../auth/login.php");
+                            exit();
                         }
                         else 
                         {

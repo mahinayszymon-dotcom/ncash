@@ -79,6 +79,7 @@
                 $_SESSION['email'] = $user_data['email'];
                 $_SESSION['status'] = $user_data['status'];
                 $_SESSION['created_at'] = $user_data['created_at'];
+                $_SESSION['is_readonly'] = $user['is_readonly'];
                 
                 unset($_SESSION['temp_user_id'], $_SESSION['temp_email'], $_SESSION['otp_action']);
 
