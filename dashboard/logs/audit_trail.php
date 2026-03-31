@@ -170,7 +170,7 @@ include("../../config/db_conn.php");
 
                             if($role != 'admin')
                             {
-                                $where[] = "tr.branch_id = ?"; //If not admin, only display items from that branch
+                                $where[] = "tr.user_id = ?"; //If not admin, only display logs from self
                             }
 
                             $where_sql = '';
@@ -206,8 +206,9 @@ include("../../config/db_conn.php");
 
                             if($role != 'admin')
                             {
-                                $stmt->bind_param("i", $branch_id);
-                                $count_stmt->bind_param("i", $branch_id);
+                                $self_id = $_SESSION['user_id'];
+                                $stmt->bind_param("i", $self_id);
+                                $count_stmt->bind_param("i", $self_id);
                             }
 
                             $stmt->execute();

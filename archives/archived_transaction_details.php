@@ -226,7 +226,7 @@ $is_readonly = $_SESSION['is_readonly'];
                                         }
                                     ?>
                                     <?php 
-                                        if (isset($_POST['delete']))
+                                        if (isset($_POST['delete'])) 
                                         {
                                             if($a_is_linked == 0)
                                             {
@@ -234,67 +234,70 @@ $is_readonly = $_SESSION['is_readonly'];
                                                 $stmt = $conn->prepare($sql);
                                                 $stmt->bind_param("i", $transaction_id);
                                                 if($stmt->execute())
-                                                {
+ 						                        {
                                                     $audit_u_id = $_SESSION['user_id'];
                                                     $audit_action = "Deleted";
                                                     $audit_obj = "Archived Transaction";
-                                                    $audit_desc= "Deleted archived transaction for agreement no. $a_agreement";
-                                                    
+                                                    $audit_desc = "Deleted archived transaction for agreement no. $a_agreement";
+
                                                     $curDate = new DateTime();
                                                     $current = $curDate->format('Y-m-d H:i:s');
-                                                    
-                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp) 
+
+                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
                                                             VALUES (?, ?, ?, ?, ?, ?)";
                                                     $stmt = $conn->prepare($sql);
-                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $fetch_b_id, $current);
-                                                    if($stmt->execute())
-                                                    {
-                                                        $_SESSION['renew_success_msg'] = "Archived Transaction has been deleted.";
-                                                        
-                                                        header("Location: ../archives/archived_transactions.php");
-                                                        exit();
-                                                    }
-                                                }
-                                            } 
+                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $a_fetch_br_id, $current);
+ 						                            if($stmt->execute())
+						                            {
+                                                    	$_SESSION['renew_success_msg'] = "Archived Transaction has been deleted.";
+
+                                                    	header("Location: ../archives/archived_transactions.php");
+                                                    	exit(); 
+						                            }
+						                        }
+                                            }
                                             else if($a_is_linked == 1)
                                             {
                                                 $sql = "DELETE FROM transactions_archive WHERE item_id = ? AND archived_date = ? AND is_linked = ?";
                                                 $stmt = $conn->prepare($sql);
-                                                $stmt->bind_param("isi", $a_fetch_item_id, $arch_date, $a_is_linked); 
+                                                $stmt->bind_param("isi", $a_fetch_item_id, $arch_date, $a_is_linked);
                                                 if($stmt->execute())
-                                                {
+						                        {
                                                     $audit_u_id = $_SESSION['user_id'];
                                                     $audit_action = "Deleted";
                                                     $audit_obj = "Archived Transaction";
-                                                    $audit_desc= "Deleted archived split transaction for agreement no. $a_agreement";
-                                                    
+                                                    $audit_desc = "Deleted archived split transaction for agreement no. $a_agreement";
+
                                                     $curDate = new DateTime();
                                                     $current = $curDate->format('Y-m-d H:i:s');
-                                                    
-                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp) 
+
+                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
                                                             VALUES (?, ?, ?, ?, ?, ?)";
                                                     $stmt = $conn->prepare($sql);
                                                     $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $a_fetch_br_id, $current);
-                                                    if($stmt->execute())
-                                                    {
-                                                        $_SESSION['renew_success_msg'] = "Archived Split Transaction has been deleted.";
-                                                        
-                                                        header("Location: ../archives/archived_transactions.php");
-                                                        exit();
-                                                    }
-                                                }
+ 						                            if($stmt->execute())
+						                            {
+                                                    	$_SESSION['renew_success_msg'] = "Archived Split Transaction has been deleted.";
+
+                                                    	header("Location: ../archives/archived_transactions.php");
+                                                    	exit(); 
+						                            }
+						                        }
                                             }
                                         }
-                                        
-                                        if ($role === "admin")
+
+                                        if($a_status != "Redeemed")
                                         {
-                                            echo '<br><hr>
-                                                <button type="submit" name="delete" onclick="return confirm(\'This process cannot be undone. Are you sure you want to proceed?\');"><img src="../resources/img/icons/delete_forever_w.png" alt="delete">Delete Permanently</button>
-                                                <div class="archive_text">
-                                                    <span class="message_warning"><img src="../resources/img/icons/warning.png" alt="warning">Deleting this data cannot be undone.</span>
-                                                </div>';
-                                        } else {
-                                            echo '<button type="submit" name="req_delete"><img src="../resources/img/icons/reminder_blue.png" alt="request">Request Deletion</button>';
+                                            if ($role === "admin")
+                                            {
+                                                echo '<br><hr>
+                                                    <button type="submit" name="delete" onclick="return confirm(\'This process cannot be undone. Are you sure you want to proceed?\');"><img src="../resources/img/icons/delete_forever_w.png" alt="delete">Delete Permanently</button>
+                                                    <div class="archive_text">
+                                                        <span class="message_warning"><img src="../resources/img/icons/warning.png" alt="warning">Deleting this data cannot be undone.</span>
+                                                    </div>';
+                                            } else {
+                                                echo '<button type="submit" name="req_delete"><img src="../resources/img/icons/reminder_blue.png" alt="request">Request Deletion</button>';
+                                            }
                                         }
 
                                         if(isset($_POST['req_delete']))

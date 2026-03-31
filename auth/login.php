@@ -3,7 +3,7 @@ session_start();
 include("../config/db_conn.php");
 
 if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-    header("Location: ../dashboard/home.php"); 
+    header("Location: " . BASE_URL . "dashboard/home.php"); 
     exit();
 }
 
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($user['register_status'] == 0) {
             $_SESSION['register_id'] = $user['user_id'];
-            header("Location: register.php");
+            header("Location: " . BASE_URL . "auth/register.php");
             exit();
         }
 
@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['otp_action'] = '2fa_login';
 
                 // 5. Send them to the OTP page
-                header("Location: verify_otp.php");
+                header("Location: " . BASE_URL . "auth/verify_otp.php");
                 exit();
                 
             } else {
@@ -88,13 +88,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['is_readonly'] = $user['is_readonly'];
 
                 if ($user['register_status'] == 1) {
-                    header("Location: register.php");
+                    header("Location: " . BASE_URL . "auth/register.php");
                     exit();
                 } else if ($user['register_status'] == 0) {
-                    header("Location: ../dashboard/home.php");
+                    header("Location: " . BASE_URL . "dashboard/home.php");
                     exit();
                 } else {
-                    header("Location: ../auth/denied.php");
+                    header("Location: " . BASE_URL . "auth/denied.php");
                     exit();
                 }
             }

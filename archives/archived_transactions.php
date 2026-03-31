@@ -182,7 +182,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
 
                                     if($role != 'admin')
                                     {
-                                        $where[] = "i.branch_id = ?"; //If not admin, only display items from that branch
+                                        $where[] = "ta.branch_id = ?"; //If not admin, only display items from that branch
                                     }
 
                                     $where_sql = '';

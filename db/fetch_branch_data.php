@@ -366,7 +366,8 @@ if(isset($_POST['branch_id'])) {
 
     //Credit Records
     //All cash renewals
-    echo "
+    echo "  <hr>
+            <br>
             <h2 style='font-size: 1rem;'>Credits</h2>
             <h4 style='font-size: 0.90rem;'>Total Cash Renewals </h4>";
 
@@ -622,8 +623,8 @@ if(isset($_POST['branch_id'])) {
         $br_bal_deci = number_format((float) $br_bal, 2);
     }
 
-    echo "
+    echo "  <hr>
             <br>
-            <h2 style='font-size: 1rem;'>End Balance: $br_bal_deci</h2>";
+            <h2 style='font-size: 1rem;'>End Balance: ₱ $br_bal_deci</h2>";
 }
 ?>

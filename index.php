@@ -1,18 +1,26 @@
 <?php
-session_start();
+include_once 'config/db_conn.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (isset($_SESSION['user_id'])) {
     $_SESSION['main_animation_played'] = null;
-    $redirect_url = "../ncash-tracemo/dashboard/"; 
+    $redirect_url = BASE_URL . "dashboard/"; 
 } else {
-    $redirect_url = "../ncash-tracemo/auth/login.php"; 
+    $redirect_url = BASE_URL . "auth/login.php"; 
 }
+
+header("Location: " . $redirect_url);
+exit();
 ?>
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="2;url=<?php echo $redirect_url; ?>">
+    <meta http-equiv="refresh" content="2;url=<?php // echo $redirect_url; ?>">
     <title>Welcome to TraceMo</title>
     <link rel="icon" type="image/png" href="/resources/img/favicon.png">
     <link rel="stylesheet" href="../ncash-tracemo/resources/css/colors.css">

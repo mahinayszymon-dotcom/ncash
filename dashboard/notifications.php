@@ -1,4 +1,5 @@
 <?php
+ob_start();
 include("../config/session_check.php");  // pang check ng session
 include("../config/db_conn.php");   // pang connect sa db
 include("../db/branch_fetch.php"); // para kunin ung related sa branch
@@ -84,38 +85,19 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                                 
                             $result = $stmt->get_result();
                         ?>
-                        <form action="audit_trail.php" method="GET">
+                        <form action="notifications.php" method="GET">
                             <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
                             <select name="branch" id="branch" onchange="this.form.submit()" class="sort">
-                                <?php
-                                    $selected = $_GET['branch'] ?? 'all'; 
-
-                                    if ($role == 'admin') 
-                                    {
-                                        echo "
-                                        <option value='all' " . ($selected === 'all' ? 'selected' : '') . ">All Branch</option>
-                                        <option value='pasig' " . ($selected === 'pasig' ? 'selected' : '') . ">Pasig City Branch</option>
-                                        <option value='quezon' " . ($selected === 'quezon' ? 'selected' : '') . ">Quezon City Branch</option>
-                                        <option value='makati' " . ($selected === 'makati' ? 'selected' : '') . ">Makati City Branch</option>
-                                        ";
-                                    }
-                                    else if ($role == 'user')
-                                    {
-                                        echo "
-                                        <option value='default' " . ($selected === 'default' ? 'selected' : '') . ">Default Sorting</option>
-                                        ";
-                                    }
-                                ?>
-                                <option value="nameAZ" <?= $selected === 'nameAZ' ? 'selected' : '' ?>>Name (A-Z)</option>
-                                <option value="nameZA" <?= $selected === 'nameZA' ? 'selected' : '' ?>>Name (Z-A)</option>
-                                <option value="nameZA" <?= $selected === 'datetimeold' ? 'selected' : '' ?>>Date & Time (Old)</option>
-                                <option value="nameZA" <?= $selected === 'datetimenew' ? 'selected' : '' ?>>Date & Time (New)</option>
-                                <option value="nameZA" <?= $selected === 'groupedactions' ? 'selected' : '' ?>>Grouped Actions</option>
+                                <?php $selected = $_GET['branch'] ?? 'all';  ?>
+                                <option value="default" <?= $selected === 'default' ? 'selected' : '' ?>>Default Sorting</option>
+                                <option value="pending" <?= $selected === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="approved" <?= $selected === 'approved' ? 'selected' : '' ?>>Approved</option>
+                                <option value="rejected" <?= $selected === 'rejected' ? 'selected' : '' ?>>Rejeceted</option>
                             </select>
                             <span class="custom-arrow"><img src="../resources/img/icons/arrow_drop_down_bb.png" alt="sort"></span>
                         </form>
                         <?php
-                            /*Sorting*/
+                            /*Where clause*/
                             $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
                             $where = [];
                             $orderBy = '';
@@ -124,46 +106,28 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                             {
                                 case 'all':
                                 case 'default':
-                                    $orderBy = " ORDER BY t.created_at DESC";
+                                    $orderBy = "ORDER BY dr.requested_at ASC";
                                     break;
-                                // case 'pasig':
-                                //     $where[] = "b.branch_name = 'Marikina-Pasig'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
-                                // case 'quezon':
-                                //     $where[] = "b.branch_name = 'Quezon City'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
-                                // case 'makati': 
-                                //     $where[] = "b.branch_name = 'Makati'";
-                                //     $orderBy = " ORDER BY t.edited_at DESC";
-                                //     break;
-                                case 'nameAZ': 
-                                    $orderBy = " ORDER BY c.fullname ASC";
+                                case 'pending': 
+                                    $where[] = "dr.status = 'Pending'";
+                                    $orderBy = "ORDER BY dr.requested_at ASC";
                                     break;
-                                case 'nameZA': 
-                                    $orderBy = " ORDER BY c.fullname DESC";
+                                case 'approved': 
+                                    $where[] = "dr.status = 'Approved'";
+                                    $orderBy = "ORDER BY dr.resolved_at ASC";
                                     break;
-                                // case 'price_increasing': 
-                                //     $orderBy = " ORDER BY t.amount ASC";
-                                //     break;
-                                // case 'price_decreasing': 
-                                //     $orderBy = " ORDER BY t.amount DESC";
-                                //     break;
-                                // case 'renewal':
-                                //     $where[] = "t.type_of_pay = 'Interest'";
-                                //     break;
-                                // case 'redeem':
-                                //     $where[] = "t.type_of_pay = 'Principal'";
-                                //     break;
+                                case 'rejected': 
+                                    $where[] = "dr.status = 'Rejected'";
+                                    $orderBy = "ORDER BY dr.resolved_at ASC";
+                                    break;
                                 default:
-                                    $orderBy = '';
+                                    $orderBy = "ORDER BY dr.requested_at ASC";
                                     break;
                             }
 
                             if($role != 'admin')
                             {
-                                $where[] = "i.branch_id = ?"; //If not admin, only display items from that branch
+                                $where[] = "dr.requested_by = ?"; //If not admin, only display items from that branch
                             }
 
                             $where_sql = '';
@@ -178,20 +142,18 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                             $limit = 12;
                             $offset = ($page - 1) * $limit;
 
-                            $sql = "SELECT t.transaction_id, t.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, t.amount, t.type_of_pay, t.method
-                                FROM transactions AS t
-                                INNER JOIN clients AS c ON t.client_id = c.client_id
-                                INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                INNER JOIN branches AS b ON t.branch_id = b.branch_id
+                            $sql = "SELECT dr.request_id, dr.table_name, dr.record_id, u.fullname, dr.branch_id, b.branch_name, dr.reason, dr.status, dr.approved_by, dr.requested_at, dr.resolved_at 
+                                FROM deletion_request AS dr
+                                INNER JOIN users AS u ON dr.requested_by = u.username
+                                INNER JOIN branches AS b ON dr.branch_id = b.branch_id
                                 $where_sql
                                 $orderBy
                                 LIMIT $limit OFFSET $offset";
 
                             $count_sql = "SELECT COUNT(*) AS total
-                                FROM transactions AS t
-                                INNER JOIN clients AS c ON t.client_id = c.client_id
-                                INNER JOIN inventory AS i ON t.item_id = i.item_id
-                                INNER JOIN branches AS b ON t.branch_id = b.branch_id
+                                FROM deletion_request AS dr
+                                INNER JOIN users AS u ON dr.requested_by = u.username
+                                INNER JOIN branches AS b ON dr.branch_id = b.branch_id
                                 $where_sql";
 
                             // $sql .= " $orderBy LIMIT $limit OFFSET $offset";
@@ -201,8 +163,9 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
 
                             if($role != 'admin')
                             {
-                                $stmt->bind_param("i", $branch_id);
-                                $count_stmt->bind_param("i", $branch_id);
+                                $self_req = $_SESSION['username'];
+                                $stmt->bind_param("s", $self_req);
+                                $count_stmt->bind_param("s", $self_req);
                             }
 
                             $stmt->execute();
@@ -220,112 +183,245 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                         <?php
                             $number = (($page - 1) * $limit) + 1;
 
-                            // if($result->num_rows > 0) 
-                            // {
-                            //     while($row = $result->fetch_assoc())
-                            //     {
-                            //         $transaction_id = htmlspecialchars($row['transaction_id']);
-                            //         $agreement_num = htmlspecialchars($row['agreement_num']);
-                            //         $client_name = htmlspecialchars($row['fullname']);
-                            //         $item = htmlspecialchars($row['item_name']);
-                            //         $item_principal = htmlspecialchars($row['principal']);
-                            //         $branch = htmlspecialchars($row['branch_name']);
-                            //         $amount = htmlspecialchars($row['amount']);
-                            //         $pay_type = htmlspecialchars($row['type_of_pay']);
-                            //         $method = htmlspecialchars($row['method']);
+                            if($result->num_rows > 0) 
+                            {
+                                while($dr_row = $result->fetch_assoc())
+                                {
+                                    $req_id = htmlspecialchars($dr_row['request_id']);
+                                    $table_name = htmlspecialchars($dr_row['table_name']);
+                                    $record_id = htmlspecialchars($dr_row['record_id']);
+                                    $req_by = htmlspecialchars($dr_row['fullname']);
+                                    $req_b_id = htmlspecialchars($dr_row['branch_id']);
+                                    $req_branch = htmlspecialchars($dr_row['branch_name']);
+                                    $req_reason = htmlspecialchars($dr_row['reason']);
+                                    $req_status = htmlspecialchars($dr_row['status']);
+                                    $req_apprv_by = htmlspecialchars($dr_row['approved_by']);
+                                    $requested_at = htmlspecialchars($dr_row['requested_at']);
+                                    $resolved_at = htmlspecialchars($dr_row['resolved_at']);
 
-                            //         $principal_decimal = number_format($item_principal, 2);
-                            //         $amount_decimal = number_format($amount, 2);
-    
-                            //         if ($branch === "Marikina-Pasig") {
-                            //             $final_agreement_num = "MP" . $agreement_num;
-                            //         } else if ($branch === "Quezon City") {
-                            //             $final_agreement_num = "Q" . $agreement_num;
-                            //         } else if ($branch === "Makati") {
-                            //             $final_agreement_num = "M" . $agreement_num;
-                            //         } else {
-                            //             $final_agreement_num = "-" . $agreement_num;
-                            //         }
+                                    $req_formatted = date("M d, Y | h:i A", strtotime($requested_at));
+                                    $rslv_formatted = date("M d, Y | h:i A", strtotime($resolved_at));
 
-                            //         echo 
-                            //         "
-                            //         <tr>
-                            //             <td> $number </td>
-                            //             <td> $final_agreement_num </td>
-                            //             <td> $client_name </td>
-                            //             <td> $item </td>
-                            //             <td>₱ $principal_decimal</td>
-                            //             <td>₱ $amount_decimal</td>
-                            //         </tr>
-                            //         ";
+                                    if($req_status == 'Pending')
+                                    {
+                                        $req_sql = "SELECT archived_date, agreement_num, item_id, amount, is_linked FROM $table_name WHERE transaction_id = ?";
+                                        $req_stmt = $conn->prepare($req_sql);
+                                        $req_stmt->bind_param("i", $record_id);
+                                        $req_stmt->execute();
+                                        $req_res = $req_stmt->get_result();
+                                        if($req_res->num_rows > 0)
+                                        {
+                                            $req_ta_row = $req_res->fetch_assoc();
+                                            $req_ta_arch_date = htmlspecialchars($req_ta_row['archived_date']);
+                                            $req_ta_agreement = htmlspecialchars($req_ta_row['agreement_num']);
+                                            $req_ta_i_id = htmlspecialchars($req_ta_row['item_id']);
+                                            $req_ta_amt = htmlspecialchars($req_ta_row['amount']);
+                                            $req_ta_is_linked = htmlspecialchars($req_ta_row['is_linked']);
+                                        }
 
-                            //         $number++;
-                            //     }
-                            // }
-                            // else
-                            // {
-                            //     echo
-                            //         "
-                            //             <tr style='height: auto; border: none; cursor: auto;'>
-                            //                 <td rowspan='5' colspan='7' class='no_records_found'> 
-                            //                     <br>
-                            //                     <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
-                            //                     <h3 style='font-size: 18px;'>No Records Found</h3>
-                            //                     <br>
-                            //                     <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
-                            //                     <br>
-                            //                 </td>
-                            //             </tr>
-                            //         ";
-                            // }
+                                        $req_ta_amt_deci = number_format($req_ta_amt, 2);
+
+                                        if($req_ta_is_linked == 0)
+                                        {
+                                            $req_str = "a transaction with amount: ₱ $req_ta_amt_deci for agreement no. $req_ta_agreement";
+                                        }
+                                        else 
+                                        {
+                                            $req_str = "a split transaction with amount: ₱ $req_ta_amt_deci for agreement no. $req_ta_agreement";
+                                        }
+                                    }
+
+                                    $notif_type = "Deletion Request";
+                                    if($req_status == 'Pending')
+                                    {
+                                        $notif_title = "Request Deletion for Record in Transaction Archives | $req_status";
+                                        $notif_cont = " User '$req_by' has made a deletion request for $req_str in $req_branch with reason: '$req_reason'";
+                                    }
+                                    else 
+                                    {
+                                        $notif_title = "Request Deletion for Record in Transaction Archives | $req_status";
+                                        $notif_cont = " The request by user '$req_by' has been $req_status by $req_apprv_by";
+                                    }
+
+                                    if($req_status != "Pending")
+                                    {
+                                        echo "
+                                            <tr>
+                                                <td>
+                                                    <!--normal notif like na accept na yung request etc.(papakita sa user)-->
+                                                    <div class=\"notif_card\">
+                                                        <div class=\"notif_card_header\">
+                                                            <div class=\"notif_type\">
+                                                                <p>$notif_type</p>
+                                                            </div>
+                                                            <div class=\"notif_timestamp\">
+                                                                <p>$rslv_formatted</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class=\"notif_card_description\">
+                                                            <h3>$notif_title</h3>
+                                                            <p>$notif_cont</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>";
+                                    }
+                                    else if($req_status == "Pending")
+                                    {
+                                        echo "<tr>
+                                                <td>
+                                                    <div class=\"notif_card\">
+                                                        <div class=\"notif_card_header\">
+                                                            <div class=\"notif_type\">
+                                                                <p>$notif_type</p>
+                                                            </div>
+                                                            <div class=\"notif_timestamp\">
+                                                                <p>$req_formatted</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class=\"notif_card_description\">
+                                                            <h3>$notif_title</h3>
+                                                            <p>$notif_cont</p>
+                                                        </div>";
+                                                        if($role == "admin")
+                                                        {
+                                                            echo "
+                                                                <form method=\"POST\" action=\"\" onsubmit=\"return confirm('Are you sure you want to proceed?');\">
+                                                                    <input type=\"hidden\" name=\"request_id\" value=\"$req_id\">
+                                                                    
+                                                                    <div class=\"notif_card_actions\">
+                                                                        <button type=\"submit\" name=\"user_action\" value=\"accept\" id=\"accept\">Accept</button>
+                                                                        <button type=\"submit\" name=\"user_action\" value=\"reject\" id=\"reject\">Reject</button>
+                                                                    </div>
+                                                                </form>";
+                                                        }
+                                                echo "</div>
+                                                </td>
+                                            </tr>";
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                echo
+                                    "
+                                        <tr style='height: auto; border: none; cursor: auto;'>
+                                            <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                <br>
+                                                <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
+                                                <h3 style='font-size: 18px;'>No Records Found</h3>
+                                                <br>
+                                                <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
+                                                <br>
+                                            </td>
+                                        </tr>
+                                    ";
+                            }
+
+                            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['user_action'])) 
+                            {
+                                $del_id = $_POST['request_id'];
+                                $del_action = $_POST['user_action'];
+                                
+                                $req_new_stat = ($del_action === 'accept') ? 'Approved' : 'Rejected';
+
+                                if($req_new_stat == 'Approved')
+                                {
+                                    if($req_ta_is_linked == 0)
+                                    {
+                                        $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
+                                        $stmt = $conn->prepare($sql);
+                                        $stmt->bind_param("i", $record_id);
+                                        if($stmt->execute())
+ 						                {
+                                            $approver = $_SESSION['username'];
+                                            $curDate = new DateTime();
+                                            $current = $curDate->format('Y-m-d H:i:s');
+
+                                            $sql = "UPDATE deletion_request 
+                                                    SET status = ?, approved_by = ?, resolved_at = ?
+                                                    WHERE request_id = ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param("sssi", $req_new_stat, $approver, $current, $del_id);
+                                            $stmt->execute();
+
+                                            $audit_u_id = $_SESSION['user_id'];
+                                            $audit_action = "Deleted";
+                                            $audit_obj = "Archived Transaction";
+                                            $audit_desc = "Approved a deletion requestion for archived transaction for agreement no. $req_ta_agreement";
+
+                                            $au_sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                    VALUES (?, ?, ?, ?, ?, ?)";
+                                            $au_stmt = $conn->prepare($au_sql);
+                                            $au_stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $req_b_id, $current);
+ 						                    if($au_stmt->execute())
+						                    {
+                                            	$_SESSION['action_success_msg'] = "Deletion request has been successfully approved.";
+
+                                            	header("Location: " . $_SERVER['REQUEST_URI']);
+                                            	exit(); 
+						                    }
+						                }
+                                    }
+                                    else if($req_ta_is_linked == 1)
+                                    {
+                                        $sql = "DELETE FROM transactions_archive WHERE item_id = ? AND archived_date = ? AND is_linked = ?";
+                                        $stmt = $conn->prepare($sql);
+                                        $stmt->bind_param("isi", $req_ta_i_id, $req_ta_arch_date, $req_ta_is_linked);
+                                        if($stmt->execute())
+                                        {
+                                            $approver = $_SESSION['username'];
+                                            $curDate = new DateTime();
+                                            $current = $curDate->format('Y-m-d H:i:s');
+
+                                            $sql = "UPDATE deletion_request 
+                                                    SET status = ?, approved_by = ?, resolved_at = ?
+                                                    WHERE request_id = ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param("sssi", $req_new_stat, $approver, $current, $del_id);
+                                            $stmt->execute();
+
+                                            $audit_u_id = $_SESSION['user_id'];
+                                            $audit_action = "Deleted";
+                                            $audit_obj = "Archived Transaction";
+                                            $audit_desc = "Approved a deletion requestion for archived split transaction for agreement no. $req_ta_agreement";
+
+                                            $au_sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp)
+                                                    VALUES (?, ?, ?, ?, ?, ?)";
+                                            $au_stmt = $conn->prepare($au_sql);
+                                            $au_stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $req_b_id, $current);
+                                            if($stmt->execute())
+                                            {
+                                                $_SESSION['action_success_msg'] = "Deletion request has been successfully approved.";
+
+                                                header("Location: " . $_SERVER['REQUEST_URI']);
+                                                exit(); 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if($req_new_stat == 'Rejected')
+                                {
+                                    $approver = $_SESSION['username'];
+                                    $curDate = new DateTime();
+                                    $current = $curDate->format('Y-m-d H:i:s');
+
+                                    $sql = "UPDATE deletion_request 
+                                            SET status = ?, approved_by = ?, resolved_at = ?
+                                            WHERE request_id = ?";
+                                    $stmt = $conn->prepare($sql);
+                                    $stmt->bind_param("sssi", $req_new_stat, $approver, $current, $del_id);
+                                    if ($stmt->execute()) 
+                                    {
+                                        $_SESSION['action_success_msg'] = "Deletion request has been successfully rejected.";
+
+                                        header("Location: " . $_SERVER['REQUEST_URI']);
+                                        exit();
+                                    } 
+                                }
+                            }
                         ?>
-                            <tr>
-                                <td>
-                                    <!--normal notif like na accept na yung request etc.(papakita sa user)-->
-                                    <div class="notif_card">
-                                        <div class="notif_card_header">
-                                            <div class="notif_type">
-                                                <p>Notification Type</p>
-                                            </div>
-                                            <div class="notif_timestamp">
-                                                <p>06 Mar 2026 at 12:00 PM</p>
-                                            </div>
-                                        </div>
-                                        <div class="notif_card_description">
-                                            <h3>Notification Title</h3>
-                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                                        </div>
-                                        <!--optional lang magpapakita yung actions; implement nalang sa next version-->
-                                        <div class="notif_card_actions">
-                                            <!--either buttons or anchor tags nandito, diko pa sure kung ano lalagay kasi iba sa user iba rin sa admin yung dito-->
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <!--normal notif like na accept na yung request etc.-->
-                                    <div class="notif_card">
-                                        <div class="notif_card_header">
-                                            <div class="notif_type">
-                                                <p>Notification Type</p>
-                                            </div>
-                                            <div class="notif_timestamp">
-                                                <p>06 Mar 2026 at 12:00 PM</p>
-                                            </div>
-                                        </div>
-                                        <div class="notif_card_description">
-                                            <h3>Notification Title</h3>
-                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                                        </div>
-                                        <!--optional lang magpapakita yung actions; implement nalang sa next version-->
-                                        <div class="notif_card_actions">
-                                            <button id="accept">Accept</button>
-                                            <button id="reject">Reject</button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>
@@ -386,5 +482,42 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
             </div>
         </section>
     </main>
+    <div class="result_cont_bar">
+        <?php
+            //$_SESSION['archive_success_msg'] = 'Test';
+
+            if (isset($_SESSION['action_success_msg'])) {
+                echo "<span id=\"action_success\" class=\"message_success_d\"><img src=\"../resources/img/icons/check_g2.png\" alt=\"success\">" . $_SESSION['action_success_msg'] . "</span>";
+    
+                echo "
+                <script>
+                    // Function to hide the element
+                    function hideMessage() {
+                        var element = document.getElementById('action_success');
+                        if (element) {
+                            // Use CSS opacity/transition for a smooth fade out (optional)
+                            element.style.transition = 'opacity 0.5s ease-out';
+                            element.style.opacity = '0';
+
+                            // Remove the element completely after the fade out is complete
+                            setTimeout(function() {
+                                element.style.display = 'none';
+                                // Or remove it from the DOM entirely:
+                                // element.parentNode.removeChild(element);
+                            }, 500); // 500ms should match your CSS transition time if you add one
+                        }
+                    }
+
+                    // Call the hideMessage function after 3000 milliseconds (3 seconds)
+                    setTimeout(hideMessage, 5000);
+                </script>
+                ";
+
+                unset($_SESSION['action_success_msg']);
+            } else {
+                unset($_SESSION['action_success_msg']);
+            }
+        ?>
+    </div>
 </body>
 </html>
