@@ -56,10 +56,10 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                         <div class="text_cont">
                             <h1>Pending Disposition</h1>
                         </div>
-                        <div class="search_cont">
-                            <input type="text" placeholder="<?php echo "What would you like to search this " . date('l') . "?";?>">
+                        <!-- <div class="search_cont">
+                            <input type="text" placeholder="<?php # echo "What would you like to search this " . date('l') . "?";?>">
                             <img src="../../resources/img/icons/search.png" alt="search">
-                        </div>
+                        </div> -->
                         <div class="account_cont">       
                             <div class="profile_circle">
                                 <?php

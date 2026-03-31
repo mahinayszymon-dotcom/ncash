@@ -334,7 +334,7 @@ $stmt->execute();
                                     echo
                                     "
                                         <tr style='height: 43vh; border: none; cursor: auto;'>
-                                            <td rowspan='5' colspan='7' class='no_records_found'> 
+                                            <td rowspan='5' colspan='8' class='no_records_found'> 
                                                 <br>
                                                 <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                 <h3 style='font-size: 18px;'>No Records Found</h3>

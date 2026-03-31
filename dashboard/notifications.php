@@ -281,6 +281,7 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                         ?>
                             <tr>
                                 <td>
+                                    <!--normal notif like na accept na yung request etc.(papakita sa user)-->
                                     <div class="notif_card">
                                         <div class="notif_card_header">
                                             <div class="notif_type">
@@ -297,6 +298,30 @@ include("../db/branch_fetch.php"); // para kunin ung related sa branch
                                         <!--optional lang magpapakita yung actions; implement nalang sa next version-->
                                         <div class="notif_card_actions">
                                             <!--either buttons or anchor tags nandito, diko pa sure kung ano lalagay kasi iba sa user iba rin sa admin yung dito-->
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <!--normal notif like na accept na yung request etc.-->
+                                    <div class="notif_card">
+                                        <div class="notif_card_header">
+                                            <div class="notif_type">
+                                                <p>Notification Type</p>
+                                            </div>
+                                            <div class="notif_timestamp">
+                                                <p>06 Mar 2026 at 12:00 PM</p>
+                                            </div>
+                                        </div>
+                                        <div class="notif_card_description">
+                                            <h3>Notification Title</h3>
+                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                                        </div>
+                                        <!--optional lang magpapakita yung actions; implement nalang sa next version-->
+                                        <div class="notif_card_actions">
+                                            <button id="accept">Accept</button>
+                                            <button id="reject">Reject</button>
                                         </div>
                                     </div>
                                 </td>

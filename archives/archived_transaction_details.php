@@ -226,19 +226,66 @@ $is_readonly = $_SESSION['is_readonly'];
                                         }
                                     ?>
                                     <?php 
-                                        if (isset($_POST['delete'])) 
+                                        if (isset($_POST['delete']))
                                         {
-                                            $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
-                                            $stmt = $conn->prepare($sql);
-                                            $stmt->bind_param("i", $transaction_id);
-                                            $stmt->execute();
-
-                                            $_SESSION['renew_success_msg'] = "Transaction has been deleted.";
-
-                                            header("Location: ../archives/archived_transactions.php");
-                                            exit(); 
+                                            if($a_is_linked == 0)
+                                            {
+                                                $sql = "DELETE FROM transactions_archive WHERE transaction_id = ?";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("i", $transaction_id);
+                                                if($stmt->execute())
+                                                {
+                                                    $audit_u_id = $_SESSION['user_id'];
+                                                    $audit_action = "Deleted";
+                                                    $audit_obj = "Archived Transaction";
+                                                    $audit_desc= "Deleted archived transaction for agreement no. $a_agreement";
+                                                    
+                                                    $curDate = new DateTime();
+                                                    $current = $curDate->format('Y-m-d H:i:s');
+                                                    
+                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp) 
+                                                            VALUES (?, ?, ?, ?, ?, ?)";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $fetch_b_id, $current);
+                                                    if($stmt->execute())
+                                                    {
+                                                        $_SESSION['renew_success_msg'] = "Archived Transaction has been deleted.";
+                                                        
+                                                        header("Location: ../archives/archived_transactions.php");
+                                                        exit();
+                                                    }
+                                                }
+                                            } 
+                                            else if($a_is_linked == 1)
+                                            {
+                                                $sql = "DELETE FROM transactions_archive WHERE item_id = ? AND archived_date = ? AND is_linked = ?";
+                                                $stmt = $conn->prepare($sql);
+                                                $stmt->bind_param("isi", $a_fetch_item_id, $arch_date, $a_is_linked); 
+                                                if($stmt->execute())
+                                                {
+                                                    $audit_u_id = $_SESSION['user_id'];
+                                                    $audit_action = "Deleted";
+                                                    $audit_obj = "Archived Transaction";
+                                                    $audit_desc= "Deleted archived split transaction for agreement no. $a_agreement";
+                                                    
+                                                    $curDate = new DateTime();
+                                                    $current = $curDate->format('Y-m-d H:i:s');
+                                                    
+                                                    $sql = "INSERT INTO audit_trail (user_id, action, object_type, description, branch_id, timestamp) 
+                                                            VALUES (?, ?, ?, ?, ?, ?)";
+                                                    $stmt = $conn->prepare($sql);
+                                                    $stmt->bind_param("isssis", $audit_u_id, $audit_action, $audit_obj, $audit_desc, $a_fetch_br_id, $current);
+                                                    if($stmt->execute())
+                                                    {
+                                                        $_SESSION['renew_success_msg'] = "Archived Split Transaction has been deleted.";
+                                                        
+                                                        header("Location: ../archives/archived_transactions.php");
+                                                        exit();
+                                                    }
+                                                }
+                                            }
                                         }
-
+                                        
                                         if ($role === "admin")
                                         {
                                             echo '<br><hr>

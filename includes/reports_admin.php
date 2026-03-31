@@ -39,7 +39,7 @@
                 }
                 // output
                 echo "<p>₱ $formatted_principal </p>";
-                echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
+                // echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
             ?>
         </div>
     </div>
@@ -280,7 +280,7 @@
                 }
                 // output
                 echo "<p>₱ $formatted_principal </p>";
-                echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
+                // echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
             ?>
         </div>
     </div>
@@ -514,7 +514,7 @@
                 }
                 // output
                 echo "<p>₱ $formatted_principal </p>";
-                echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
+                // echo "<p class=\"$trend_class\"> $trend_output_principal </p>";
             ?>
         </div>
     </div>

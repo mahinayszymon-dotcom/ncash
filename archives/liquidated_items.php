@@ -189,7 +189,7 @@ $is_readonly = $_SESSION['is_readonly'];
                                     /*Count*/
                                     
                                     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                                    $limit = 12;
+                                    $limit = 9;
                                     $offset = ($page - 1) * $limit;
 
                                     $sql = "SELECT il.liquidation_id, il.liquidated_at, il.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, il.item_id, il.client_id, il.item_name, il.principal, b.branch_name, il.status, il.due_date, il.created_at
@@ -366,7 +366,7 @@ $is_readonly = $_SESSION['is_readonly'];
                                             $sum_row = $sum_result->fetch_assoc();
                                             $total_liquidated = htmlspecialchars($sum_row['total_principal']);
 
-                                            echo $total_liquidated;
+                                            echo number_format($total_liquidated, 2, '.', ',');
                                         ?>
                                     </span>
                                     <?php  

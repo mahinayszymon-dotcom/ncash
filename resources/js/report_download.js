@@ -25,19 +25,45 @@ async function downloadPdf(branchName, branchId) {
         //saving original styles
         const originalModalStyle = modal.style.cssText;
         const originalContentStyle = modalContent.style.cssText;
+        // Target the body specifically – this is often the culprit!
+        const modalBody = modal.querySelector('.modal-body');
 
-        //make the modal visible to the system but not the user
-        modal.style.cssText = "display: flex; visibility: hidden; position: fixed; z-index: -1000; pointer-events: none;";
-        
-        //styling the modal's size (to closely match letter size) and visibility
-        modalContent.style.cssText += `
-            opacity: 1 !important; 
-            filter: none !important; 
-            box-shadow: none !important;
-            width: 7.5in !important;
-            margin: 0 auto !important;
-            display: block !important;
+        // Force the OUTER modal to be a regular block that expands
+        modal.style.cssText = `
+            display: block !important; 
+            visibility: hidden; 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: auto !important; 
+            min-height: auto !important;
+            overflow: visible !important; 
+            z-index: -1000;
         `;
+
+        // Force the CONTENT to expand
+        modalContent.style.cssText += `
+            display: block !important;
+            width: 7.5in !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+        `;
+
+        // THE CRITICAL STEP: Reset the Modal Body
+        if (modalBody) {
+            modalBody.style.cssText = `
+                display: block !important;
+                height: auto !important; 
+                max-height: none !important; 
+                overflow: visible !important;
+                padding: 0 !important;
+            `;
+        }
+
 
         //hiding the targeted elements earlier
         if (closeBtn) closeBtn.style.display = 'none';
@@ -88,8 +114,7 @@ async function generateCustom(branchName, branchId, startDate, endDate) {
     const title = document.getElementById('modalBranchName');
     const container = document.getElementById('modalDataContainer');
     const modalContent = modal.querySelector('.modal-content');
-    
-    //Choose the elements that need to be hidden
+    const modalBody = modal.querySelector('.modal-body');
     const closeBtn = modal.querySelector('.close_button');
     const footer = modal.querySelector('.modal-footer');
 
@@ -109,42 +134,65 @@ async function generateCustom(branchName, branchId, startDate, endDate) {
         const html = await response.text();
         container.innerHTML = html;
 
-        //saving original styles
+        // 1. Save original styles
         const originalModalStyle = modal.style.cssText;
         const originalContentStyle = modalContent.style.cssText;
 
-        //make the modal visible to the system but not the user
-        modal.style.cssText = "display: flex; visibility: hidden; position: fixed; z-index: -1000; pointer-events: none;";
-        
-        //styling the modal's size (to closely match letter size) and visibility
-        modalContent.style.cssText += `
-            opacity: 1 !important; 
-            filter: none !important; 
-            box-shadow: none !important;
-            width: 7.5in !important;
-            margin: 0 auto !important;
-            display: block !important;
+        // 2. The "Ghost" Setup (Visible to script, hidden from user)
+        // We use left: -9999px instead of visibility:hidden to avoid blank pages.
+        modal.style.cssText = `
+            display: block !important; 
+            position: fixed !important; 
+            left: -9999px !important; 
+            top: 0 !important; 
+            width: 8.5in !important; 
+            height: auto !important; 
+            overflow: visible !important; 
+            z-index: -1000;
+            background: white !important;
+            opacity: 1 !important;
         `;
 
-        //hiding the targeted elements earlier
+        modalContent.style.cssText = `
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
+            opacity: 1 !important;
+            box-shadow: none !important;
+        `;
+
+        if (modalBody) {
+            modalBody.style.cssText = "display: block !important; height: auto !important; max-height: none !important; overflow: visible !important;";
+        }
+
         if (closeBtn) closeBtn.style.display = 'none';
         if (footer) footer.style.display = 'none';
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Small wait for the layout to settle
+        await new Promise(resolve => setTimeout(resolve, 1200));
 
         const opt = {
             margin: 0.5,
             filename: `${branchName}_Report.pdf`,
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                letterRendering: true,
+                backgroundColor: '#ffffff', // FIXES SEMI-TRANSPARENCY
+                scrollY: 0,
+                scrollX: 0
+            },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-            pagebreak: { mode: 'css', avoid: 'tr' }
+            pagebreak: { mode: ['avoid-all', 'css'], avoid: 'tr' }
         };
 
-        //generating the pdf file
+        // 3. Generate from modalContent
         await html2pdf().set(opt).from(modalContent).save();
 
-        //restoring the original stylings
+        // 4. Restore original styles
         modal.style.cssText = originalModalStyle;
         modalContent.style.cssText = originalContentStyle;
         if (closeBtn) closeBtn.style.display = 'block';
@@ -202,19 +250,45 @@ async function generateLiquid(userRole, liquidBranch) {
         //saving original styles
         const originalModalStyle = modal.style.cssText;
         const originalContentStyle = modalContent.style.cssText;
+        // Target the body specifically – this is often the culprit!
+        const modalBody = modal.querySelector('.modal-body');
 
-        //make the modal visible to the system but not the user
-        modal.style.cssText = "display: flex; visibility: hidden; position: fixed; z-index: -1000; pointer-events: none;";
-        
-        //styling the modal's size (to closely match letter size) and visibility
-        modalContent.style.cssText += `
-            opacity: 1 !important; 
-            filter: none !important; 
-            box-shadow: none !important;
-            width: 7.5in !important;
-            margin: 0 auto !important;
-            display: block !important;
+        // Force the OUTER modal to be a regular block that expands
+        modal.style.cssText = `
+            display: block !important; 
+            visibility: hidden; 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: auto !important; 
+            min-height: auto !important;
+            overflow: visible !important; 
+            z-index: -1000;
         `;
+
+        // Force the CONTENT to expand
+        modalContent.style.cssText += `
+            display: block !important;
+            width: 7.5in !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+        `;
+
+        // THE CRITICAL STEP: Reset the Modal Body
+        if (modalBody) {
+            modalBody.style.cssText = `
+                display: block !important;
+                height: auto !important; 
+                max-height: none !important; 
+                overflow: visible !important;
+                padding: 0 !important;
+            `;
+        }
+
 
         //hiding the targeted elements earlier
         if (closeBtn) closeBtn.style.display = 'none';

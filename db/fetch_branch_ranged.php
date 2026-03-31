@@ -44,7 +44,6 @@ if(isset($_POST['branch_id'])) {
         </div>
         <div class='top_analytics_value'>
             <p>₱ $principal </p>
-            <p class=\"$trend_class\"> $trend_output_principal </p>
         </div>
     </div>
     
@@ -64,17 +63,17 @@ if(isset($_POST['branch_id'])) {
     $res3_number = 1;
 
     echo "<br>
-            <h2 style='font-size: 14px;'>Debits</h2>
-            <h4 style='font-size: 10px;'>Total Pawns (Sanla)</h4>";
+            <h2 style='font-size: 1rem;'>Debits</h2>
+            <h4 style='font-size: 0.90rem;'>Total Pawns (Sanla)</h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>AN</th>
-                    <th style='font-size: 10px;'>Principal</th>
-                    <th style='font-size: 10px;'>Date of Pawn</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>AN</th>
+                    <th style='font-size: 0.90rem;'>Principal</th>
+                    <th style='font-size: 0.90rem;'>Date of Pawn</th>
+                </tr>
             </thead>
             <tbody>";
             if($res3->num_rows > 0)
@@ -92,10 +91,10 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res3_number</td>
-                        <td style='font-size: 10px;'>$res3_agreement_num</td>
-                        <td style='font-size: 10px;'>₱ $res3_p_deci</td>
-                        <td style='font-size: 10px;'>$res3_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res3_number</td>
+                        <td style='font-size: 0.90rem;'>$res3_agreement_num</td>
+                        <td style='font-size: 0.90rem;'>₱ $res3_p_deci</td>
+                        <td style='font-size: 0.90rem;'>$res3_format_date</td>
                     </tr>
                     ";
 
@@ -107,7 +106,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='4' style='font-size: 10px;'><b>Total:</b> ₱ $res3_ttl_deci</td>
+                    <td colspan='4' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res3_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -116,7 +115,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No pawn(s) this period</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 0.90rem;'> No pawn(s) this period</td>
                     </tr>
                 ";
             }
@@ -140,18 +139,18 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>Total Online / Bank Renewals </h4>";
+            <h4 style='font-size: 0.90rem;'>Total Online / Bank Renewals </h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>AN</th>
-                    <th style='font-size: 10px;'>Method</th>
-                    <th style='font-size: 10px;'>Principal</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>AN</th>
+                    <th style='font-size: 0.90rem;'>Method</th>
+                    <th style='font-size: 0.90rem;'>Principal</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res4->num_rows > 0)
@@ -172,12 +171,12 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res4_number</td>
-                        <td style='font-size: 10px;'>$res4_agreement_num</td>
-                        <td style='font-size: 10px;'>$res4_method</td>
-                        <td style='font-size: 10px;'>₱ $res4_p_deci</td>
-                        <td style='font-size: 10px;'>₱ $res4_amt_deci</td>
-                        <td style='font-size: 10px;'>$res4_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res4_number</td>
+                        <td style='font-size: 0.90rem;'>$res4_agreement_num</td>
+                        <td style='font-size: 0.90rem;'>$res4_method</td>
+                        <td style='font-size: 0.90rem;'>₱ $res4_p_deci</td>
+                        <td style='font-size: 0.90rem;'>₱ $res4_amt_deci</td>
+                        <td style='font-size: 0.90rem;'>$res4_format_date</td>
                     </tr>
                     ";
 
@@ -190,7 +189,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='6' style='font-size: 10px;'><b>Total:</b> ₱ $res4_ttl_deci</td>
+                    <td colspan='6' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res4_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -199,7 +198,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this period</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 0.90rem;'> No renewal(s) this period</td>
                     </tr>
                 ";
             }
@@ -223,18 +222,18 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>Total Online / Bank Redemptions (Tubos)</h4>";
+            <h4 style='font-size: 0.90rem;'>Total Online / Bank Redemptions (Tubos)</h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>AN</th>
-                    <th style='font-size: 10px;'>Method</th>
-                    <th style='font-size: 10px;'>Principal</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>AN</th>
+                    <th style='font-size: 0.90rem;'>Method</th>
+                    <th style='font-size: 0.90rem;'>Principal</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res5->num_rows > 0)
@@ -255,12 +254,12 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res5_number</td>
-                        <td style='font-size: 10px;'>$res5_agreement_num</td>
-                        <td style='font-size: 10px;'>$res5_method</td>
-                        <td style='font-size: 10px;'>₱ $res5_p_deci</td>
-                        <td style='font-size: 10px;'>₱ $res5_amt_deci</td>
-                        <td style='font-size: 10px;'>$res5_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res5_number</td>
+                        <td style='font-size: 0.90rem;'>$res5_agreement_num</td>
+                        <td style='font-size: 0.90rem;'>$res5_method</td>
+                        <td style='font-size: 0.90rem;'>₱ $res5_p_deci</td>
+                        <td style='font-size: 0.90rem;'>₱ $res5_amt_deci</td>
+                        <td style='font-size: 0.90rem;'>$res5_format_date</td>
                     </tr>
                     ";
 
@@ -273,7 +272,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='6' style='font-size: 10px;'><b>Total:</b> ₱ $res5_ttl_deci</td>
+                    <td colspan='6' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res5_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -282,7 +281,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this period</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 0.90rem;'> No redemption(s) this period</td>
                     </tr>
                 ";
             }
@@ -304,16 +303,16 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>Miscellaneous Transactions (Debit)</h4>";
+            <h4 style='font-size: 0.90rem;'>Miscellaneous Transactions (Debit)</h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>Label</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>Label</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res6->num_rows > 0)
@@ -331,10 +330,10 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res6_number</td>
-                        <td style='font-size: 10px;'>$res6_t_lbl</td>
-                        <td style='font-size: 10px;'>₱ $res6_amt_deci</td>
-                        <td style='font-size: 10px;'>$res6_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res6_number</td>
+                        <td style='font-size: 0.90rem;'>$res6_t_lbl</td>
+                        <td style='font-size: 0.90rem;'>₱ $res6_amt_deci</td>
+                        <td style='font-size: 0.90rem;'>$res6_format_date</td>
                     </tr>
                     ";
 
@@ -347,7 +346,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='4' style='font-size: 10px;'><b>Total:</b> ₱ $res6_ttl_deci</td>
+                    <td colspan='4' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res6_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -356,7 +355,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this period</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 0.90rem;'> No miscellaneous transaction(s) this period</td>
                     </tr>
                 ";
             }
@@ -366,8 +365,8 @@ if(isset($_POST['branch_id'])) {
     //Credit Records
     //All cash renewals
     echo "
-            <h2 style='font-size: 14px;'>Credits</h2>
-            <h4 style='font-size: 10px;'>Total Cash Renewals </h4>";
+            <h2 style='font-size: 1rem;'>Credits</h2>
+            <h4 style='font-size: 0.90rem;'>Total Cash Renewals </h4>";
 
     $sql7 = "SELECT t.agreement_num, t.method, t.amount, i.principal, t.created_at 
             FROM transactions AS t 
@@ -386,13 +385,13 @@ if(isset($_POST['branch_id'])) {
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>AN</th>
-                    <th style='font-size: 10px;'>Method</th>
-                    <th style='font-size: 10px;'>Principal</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>AN</th>
+                    <th style='font-size: 0.90rem;'>Method</th>
+                    <th style='font-size: 0.90rem;'>Principal</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res7->num_rows > 0)
@@ -413,12 +412,12 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res7_number</td>
-                        <td style='font-size: 10px;'>$res7_agreement_num</td>
-                        <td style='font-size: 10px;'>$res7_method</td>
-                        <td style='font-size: 10px;'>₱ $res7_p_deci</td>
-                        <td style='font-size: 10px;'>₱ $res7_amt_deci</td>
-                        <td style='font-size: 10px;'>$res7_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res7_number</td>
+                        <td style='font-size: 0.90rem;'>$res7_agreement_num</td>
+                        <td style='font-size: 0.90rem;'>$res7_method</td>
+                        <td style='font-size: 0.90rem;'>₱ $res7_p_deci</td>
+                        <td style='font-size: 0.90rem;'>₱ $res7_amt_deci</td>
+                        <td style='font-size: 0.90rem;'>$res7_format_date</td>
                     </tr>
                     ";
 
@@ -431,7 +430,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='6' style='font-size: 10px;'><b>Total:</b> ₱ $res7_ttl_deci</td>
+                    <td colspan='6' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res7_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -440,7 +439,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No renewal(s) this period</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 0.90rem;'> No renewal(s) this period</td>
                     </tr>
                 ";
             }
@@ -464,18 +463,18 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>Total Cash Redemptions (Tubos)</h4>";
+            <h4 style='font-size: 0.90rem;'>Total Cash Redemptions (Tubos)</h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>AN</th>
-                    <th style='font-size: 10px;'>Method</th>
-                    <th style='font-size: 10px;'>Principal</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>AN</th>
+                    <th style='font-size: 0.90rem;'>Method</th>
+                    <th style='font-size: 0.90rem;'>Principal</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res8->num_rows > 0)
@@ -514,7 +513,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='6' style='font-size: 10px;'><b>Total:</b> ₱ $res8_ttl_deci</td>
+                    <td colspan='6' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res8_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -523,7 +522,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='6' class='no_records_found' style='font-size: 10px;'> No redemption(s) this period</td>
+                        <td colspan='6' class='no_records_found' style='font-size: 0.90rem;'> No redemption(s) this period</td>
                     </tr>
                 ";
             }
@@ -545,16 +544,16 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>Miscellaneous Transactions (Credit)</h4>";
+            <h4 style='font-size: 0.90rem;'>Miscellaneous Transactions (Credit)</h4>";
 
     echo "<table>
             <thead>
                 <tr>
-                    <th style='font-size: 10px;'>#</th>
-                    <th style='font-size: 10px;'>Label</th>
-                    <th style='font-size: 10px;'>Amount</th>
-                    <th style='font-size: 10px;'>Transaction Date</th>
-                <tr>
+                    <th style='font-size: 0.90rem;'>#</th>
+                    <th style='font-size: 0.90rem;'>Label</th>
+                    <th style='font-size: 0.90rem;'>Amount</th>
+                    <th style='font-size: 0.90rem;'>Transaction Date</th>
+                </tr>
             </thead>
             <tbody>";
             if($res9->num_rows > 0)
@@ -572,10 +571,10 @@ if(isset($_POST['branch_id'])) {
                     echo 
                     "
                     <tr>
-                        <td style='font-size: 10px;'>$res9_number</td>
-                        <td style='font-size: 10px;'>$res9_t_lbl</td>
-                        <td style='font-size: 10px;'>₱ $res9_amt_deci</td>
-                        <td style='font-size: 10px;'>$res9_format_date</td>
+                        <td style='font-size: 0.90rem;'>$res9_number</td>
+                        <td style='font-size: 0.90rem;'>$res9_t_lbl</td>
+                        <td style='font-size: 0.90rem;'>₱ $res9_amt_deci</td>
+                        <td style='font-size: 0.90rem;'>$res9_format_date</td>
                     </tr>
                     ";
 
@@ -588,7 +587,7 @@ if(isset($_POST['branch_id'])) {
                 echo 
                 "
                 <tr>
-                    <td colspan='4' style='font-size: 10px;'><b>Total:</b> ₱ $res9_ttl_deci</td>
+                    <td colspan='4' style='font-size: 0.90rem;'><b>Total:</b> ₱ $res9_ttl_deci</td>
                 </tr>
                 ";
             }
@@ -597,7 +596,7 @@ if(isset($_POST['branch_id'])) {
                 echo
                 "
                     <tr>
-                        <td colspan='4' class='no_records_found' style='font-size: 10px;'> No miscellaneous transaction(s) this period</td>
+                        <td colspan='4' class='no_records_found' style='font-size: 0.90rem;'> No miscellaneous transaction(s) this period</td>
                     </tr>
                 ";
             }
@@ -639,6 +638,6 @@ if(isset($_POST['branch_id'])) {
 
     echo "
             <br>
-            <h4 style='font-size: 10px;'>End Balance:₱ $br_bal_deci</h4>";
+            <h2 style='font-size: 1rem;'>End Balance: ₱ $br_bal_deci</h2>";
 }
 ?>

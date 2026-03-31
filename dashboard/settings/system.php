@@ -37,10 +37,10 @@ if ($role !== "admin") {
                     <div class="text_cont">
                         <h1>Settings</h1>
                     </div>
-                    <div class="search_cont">
-                        <input type="text" placeholder="<?php echo "What would you like to search this " . date('l') . "?";?>">
+                    <!-- <div class="search_cont">
+                        <input type="text" placeholder="<?php # echo "What would you like to search this " . date('l') . "?";?>">
                         <img src="../../resources/img/icons/search.png" alt="search">
-                    </div>
+                    </div> -->
                     <div class="account_cont">       
                         <div class="profile_circle">
                             <?php
@@ -70,7 +70,7 @@ if ($role !== "admin") {
                                 <?php
                                     $current_page = $_SERVER['PHP_SELF'];
 
-                                    if ($current_page === "/ncash-tracemo/dashboard/settings/account.php" || $current_page === "/ncash-tracemo/dashboard/settings/activity_logs.php" || $current_page === "/ncash-tracemo/dashboard/settings/preferences.php" || $current_page === "/ncash-tracemo/dashboard/settings/security.php" || $current_page === "/ncash-tracemo/dashboard/settings/system.php") { 
+                                    if ($current_page === BASE_URL . "dashboard/settings/account.php" || $current_page === BASE_URL . "dashboard/settings/activity_logs.php" || $current_page === BASE_URL . "dashboard/settings/preferences.php" || $current_page === BASE_URL . "dashboard/settings/security.php" || $current_page === BASE_URL . "dashboard/settings/system.php") { 
                                         echo "<span class=\"message_info\"><img src=\"../../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
                                     } else {
                                         echo "<span class=\"message_info\"><img src=\"../resources/img/icons/bulb.png\" alt=\"info\">" . "You’re in control — adjust your settings any way you like." . "</span>";
@@ -107,7 +107,7 @@ if ($role !== "admin") {
                                     </div> 
                                 </div>
                             </div>
-                            <div class="card_general">
+                            <!-- <div class="card_general">
                                 <div class="card_general_profile" class="card_main">
                                     <div class="profile_text">             
                                         <p>Backup & Restore</p>
@@ -120,7 +120,7 @@ if ($role !== "admin") {
                                 <div class="dropdown_content">
                                     <p>To be implemented soon.</p>
                                 </div> 
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>

@@ -1,2 +1,3 @@
 # Database configuration (specific to each dev)
 config/db_conn.php
+dev/.env

@@ -8,6 +8,8 @@ if ($role !== "admin") {
     header("Location: ../../auth/denied.php");
     exit();
 }
+
+$is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,10 +91,10 @@ if ($role !== "admin") {
                     <div class="text_cont">
                         <h1>Message Log</h1>
                     </div>
-                    <div class="search_cont">
-                        <input type="text" placeholder="<?php echo "What would you like to search this " . date('l') . "?";?>">
+                    <!-- <div class="search_cont">
+                        <input type="text" placeholder="<?php # echo "What would you like to search this " . date('l') . "?";?>">
                         <img src="../../resources/img/icons/search.png" alt="search">
-                    </div>
+                    </div> -->
                     <div class="account_cont">       
                         <div class="profile_circle">
                             <?php
@@ -154,12 +156,14 @@ if ($role !== "admin") {
                             </div>
                             <hr>
                             <?php  
-                                if($is_readonly)
+                                /*
+                                if($is_readonly == 0)
                                 {
                                     echo "<div class=\"disable_btn_cont\">
                                               <button type=\"submit\" name=\"submit\"><img src=\"../../resources/img/icons/delete_forever_w.png\" alt=\"delete\">Delete Log</button>
                                           </div>";
                                 }
+                                */
                             ?>
                         </div>
                             
