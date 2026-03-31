@@ -73,34 +73,24 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 <h2>Archived Data Tabulation</h2>
                             </div>
                             <div class="data_panel_buttonsC">
-                                <div class="search_cont">
-                                    <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
-                                </div>
-                                <?php
+                                <?php 
+                                    include '../includes/search_bar.php'; 
+                                
+                                    $searchColumns = [
+                                        'client_id',
+                                        'fullname',
+                                        'contact',
+                                        'email',
+                                        'address',
+                                        'created_at'
+                                    ];
+
+                                    $where = [];
+
+                                    include '../includes/search_handler.php';
+
                                     $role = $_SESSION['role'];
                                     date_default_timezone_set('Asia/Manila');
-                
-                                    $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, i.due_date, b.branch_name, i.status
-                                            FROM inventory AS i
-                                            INNER JOIN clients AS c ON i.client_id = c.client_id
-                                            INNER JOIN branches AS b ON i.branch_id = b.branch_id";
-                                        
-                                    if($role != 'admin')
-                                    {
-                                        $sql .= " WHERE i.branch_id = ?";
-                                    }
-                
-                                    $stmt = $conn->prepare($sql);
-                
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                    }
-                
-                                    $stmt->execute();
-                                        
-                                    $result = $stmt->get_result();
                                 ?>
                                 <form action="archived_clients.php" method="GET">
                                     <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
@@ -116,7 +106,6 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 </form>
                                 <?php
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
-                                    $where = [];
                                     $orderBy = '';
 
                                     switch ($sorting)
@@ -136,12 +125,12 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                             break;
                                     }
 
-                                    // $where_sql = '';
-                                    // if (!empty($where)) 
-                                    // {
-                                    //     // $sql .= " WHERE " . implode(" AND ", $where);
-                                    //     $where_sql = " WHERE " . implode(" AND ", $where);
-                                    // }
+                                    $where_sql = '';
+                                    if (!empty($where)) 
+                                    {
+                                        // $sql .= " WHERE " . implode(" AND ", $where);
+                                        $where_sql = " WHERE " . implode(" AND ", $where);
+                                    }
                                     /*Count*/
                                     
                                     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -150,12 +139,13 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
 
                                     $sql = "SELECT ca.client_id, ca.fullname, ca.contact, ca.email, ca.address, ca.created_at
                                         FROM clients_archive AS ca
+                                        $where_sql
                                         $orderBy
                                         LIMIT $limit OFFSET $offset";
                                         //$where_sql
 
                                     $count_sql = "SELECT COUNT(*) AS total
-                                        FROM clients_archive";
+                                        FROM clients_archive $where_sql";
                                         //$where_sql";
 
                                     // $sql .= " $orderBy LIMIT $limit OFFSET $offset";
@@ -163,11 +153,18 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     $stmt = $conn->prepare($sql);
                                     $count_stmt = $conn->prepare($count_sql);
 
-                                    // if($role != 'admin')
-                                    // {
-                                    //     $stmt->bind_param("i", $branch_id);
-                                    //     $count_stmt->bind_param("i", $branch_id);
-                                    // }
+                                    $params = [];
+                                    $types = "";
+
+                                    if (!empty($searchValues)) {
+                                        $types .= str_repeat("s", count($searchValues));
+                                        $params = array_merge($params, $searchValues);
+                                    }
+
+                                    if (!empty($params)) {
+                                        $stmt->bind_param($types, ...$params);
+                                        $count_stmt->bind_param($types, ...$params);
+                                    }
 
                                     $stmt->execute();
                                     $result = $stmt->get_result();
@@ -223,6 +220,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                                 </td>
                                             </tr>
                                             ";
+                                            $number++;
                                         }
                                     }
                                     else

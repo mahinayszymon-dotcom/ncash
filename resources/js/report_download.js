@@ -212,7 +212,7 @@ function prepLiquid() {
     const lqBranch = btn.getAttribute('data-branch');
 
     //Performing confirmation alert
-    const isConfirmed = confirm(`Are you sure to turnover all records seen on the table? \n\nThis will generate a file a remove all records afterwards.`);
+    const isConfirmed = confirm(`Are you sure to turnover all records seen on the table? \n\nThis will generate a file and remove all records afterwards.`);
 
     //Function will only run if alert was confirmed
     if (isConfirmed) {

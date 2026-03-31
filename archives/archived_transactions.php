@@ -73,34 +73,37 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 <h2>Archived Data Tabulation</h2>
                             </div>
                             <div class="data_panel_buttonsC">
-                                <div class="search_cont">
-                                    <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
-                                </div>
                                 <?php
+                                    include '../includes/search_bar.php'; 
+                                
+                                    $searchColumns = [
+                                        'i.item_id',
+                                        'i.agreement_num',
+                                        'ta.transaction_id',
+                                        'ta.agreement_num',
+                                        'ta.client_id',
+                                        'ta.type_of_pay',
+                                        'ta.method',
+                                        'c.fullname',
+                                        'i.due_date',
+                                        'i.principal',
+                                        'ia.principal',
+                                        'i.item_name',
+                                        'i.status',
+                                        'ia.item_name',
+                                        'ta.amount',
+                                        'b.branch_name',
+                                        "DATE_FORMAT(i.due_date, '%b %d, %Y')",
+                                        "DATE_FORMAT(i.due_date, '%M %d, %Y')" 
+                                    ];
+
+                                    $where = [];
+
+                                    include '../includes/search_handler.php';
+
                                     $role = $_SESSION['role'];
                                     date_default_timezone_set('Asia/Manila');
-                
-                                    $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, i.due_date, b.branch_name, i.status
-                                            FROM inventory AS i
-                                            INNER JOIN clients AS c ON i.client_id = c.client_id
-                                            INNER JOIN branches AS b ON i.branch_id = b.branch_id";
-                                        
-                                    if($role != 'admin')
-                                    {
-                                        $sql .= " WHERE i.branch_id = ?";
-                                    }
-                
-                                    $stmt = $conn->prepare($sql);
-                
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                    }
-                
-                                    $stmt->execute();
-                                        
-                                    $result = $stmt->get_result();
+                  
                                 ?>
                                 <form action="archived_transactions.php" method="GET">
                                     <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
@@ -136,7 +139,6 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                 <?php
                                     /*Sorting*/
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
-                                    $where = [];
                                     $orderBy = '';
 
                                     switch ($sorting)
@@ -194,7 +196,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     /*Count*/
                                     
                                     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                                    $limit = 12;
+                                    $limit = 10;
                                     $offset = ($page - 1) * $limit;
 
                                     $sql = "SELECT ta.transaction_id, ta.agreement_num, COALESCE(c.fullname, ca.fullname) AS fullname, COALESCE(i.item_name, ia.item_name) AS item_name, COALESCE(i.principal, ia.principal) AS principal, b.branch_name, ta.amount, ta.type_of_pay, ta.method, ta.paid_date, ta.is_linked
@@ -222,10 +224,25 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                     $stmt = $conn->prepare($sql);
                                     $count_stmt = $conn->prepare($count_sql);
 
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                        $count_stmt->bind_param("i", $branch_id);
+                                    $params = [];
+                                    $types = "";
+
+                                    // branch filter
+                                    if ($role != 'admin') {
+                                        $types .= "i";
+                                        $params[] = $branch_id;
+                                    }
+
+                                    // search values
+                                    if (!empty($searchValues)) {
+                                        $types .= str_repeat("s", count($searchValues));
+                                        $params = array_merge($params, $searchValues);
+                                    }
+
+                                    // bind once
+                                    if (!empty($params)) {
+                                        $stmt->bind_param($types, ...$params);
+                                        $count_stmt->bind_param($types, ...$params);
                                     }
 
                                     $stmt->execute();
@@ -367,7 +384,7 @@ $_SESSION['previous_link'] = $_SERVER['PHP_SELF'];
                                         echo
                                             "
                                                 <tr style='height: 43vh; border: none; cursor: auto;'>
-                                                    <td rowspan='5' colspan='7' class='no_records_found'> 
+                                                    <td rowspan='5' colspan='9' class='no_records_found'> 
                                                         <br>
                                                         <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                         <h3 style='font-size: 18px;'>No Records Found</h3>

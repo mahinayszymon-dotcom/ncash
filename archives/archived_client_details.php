@@ -216,7 +216,7 @@ include("../db/branch_fetch.php");
                                         if ($role === "admin")
                                         {
                                             echo '<br><hr>
-                                                <button type="submit" name="delete" onclick="return confirm(\'This process cannot be undone. Are you sure you want to proceed?\');"><img src="../resources/img/icons/delete_forever_w.png" alt="delete">Delete Permanently</button>
+                                                <button style="background-color: var(--red-dark) !important;" type="submit" name="delete" onclick="return confirm(\'This process cannot be undone. Are you sure you want to proceed?\');"><img src="../resources/img/icons/delete_forever_w.png" alt="delete">Delete Permanently</button>
                                                 <div class="archive_text">
                                                     <span class="message_warning"><img src="../resources/img/icons/warning.png" alt="warning">Deleting this data cannot be undone. Once deleted, all items and transactions binded to this client would also be deleted.</span>
                                                 </div>';

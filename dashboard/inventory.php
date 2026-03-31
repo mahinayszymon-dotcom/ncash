@@ -63,11 +63,27 @@ $stmt->execute();
                             <h2>Data Tabulation</h2>
                         </div>
                         <div class="data_panel_buttons">
-                            <div class="search_cont">
-                                <input type="text" placeholder="Search">
-                                <img src="../resources/img/icons/search.png" alt="search">
-                            </div>
                             <?php
+                                include '../includes/search_bar.php'; 
+                            
+                                $searchColumns = [
+                                    'i.item_id',
+                                    'i.agreement_num',
+                                    'c.fullname',
+                                    'i.due_date',
+                                    'i.principal',
+                                    'i.item_name',
+                                    'i.status',
+                                    'i.item_name',
+                                    'b.branch_name',
+                                    "DATE_FORMAT(i.due_date, '%b %d, %Y')",
+                                    "DATE_FORMAT(i.due_date, '%M %d, %Y')" 
+                                ];
+
+                                $where = [];
+
+                                include '../includes/search_handler.php';
+                                
                                 try 
                                 {
                                     $role = $_SESSION['role'];
@@ -142,7 +158,6 @@ $stmt->execute();
                             <?php
                                 /*Sorting*/
                                 $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
-                                $where = [];
                                 $orderBy = '';
 
                                 switch ($sorting)
@@ -209,7 +224,7 @@ $stmt->execute();
 
                                 /*Count*/
                                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                                $limit = 8;
+                                $limit = 7;
                                 $offset = ($page - 1) * $limit;
 
                                 $sql = "SELECT i.item_id, i.agreement_num, c.fullname, i.item_name, i.principal, b.branch_name, i.status, i.due_date, i.created_at
@@ -231,10 +246,25 @@ $stmt->execute();
                                 $stmt = $conn->prepare($sql);
                                 $count_stmt = $conn->prepare($count_sql);
 
-                                if($role != 'admin')
-                                {
-                                    $stmt->bind_param("i", $branch_id);
-                                    $count_stmt->bind_param("i", $branch_id);
+                                $params = [];
+                                $types = "";
+
+                                // branch
+                                if ($role != 'admin') {
+                                    $types .= "i";
+                                    $params[] = $branch_id;
+                                }
+
+                                // search
+                                if (!empty($searchValues)) {
+                                    $types .= str_repeat("s", count($searchValues));
+                                    $params = array_merge($params, $searchValues);
+                                }
+
+                                // bind once
+                                if (!empty($params)) {
+                                    $stmt->bind_param($types, ...$params);
+                                    $count_stmt->bind_param($types, ...$params);
                                 }
 
                                 $stmt->execute();
@@ -333,12 +363,10 @@ $stmt->execute();
                                 {
                                     echo
                                     "
-                                        <tr style='height: 43vh; border: none; cursor: auto;'>
+                                        <tr style='height: auto; border: none; cursor: auto;'>
                                             <td rowspan='5' colspan='8' class='no_records_found'> 
                                                 <br>
-                                                <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
                                                 <h3 style='font-size: 18px;'>No Records Found</h3>
-                                                <br>
                                                 <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
                                                 <br>
                                             </td>

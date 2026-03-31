@@ -3,7 +3,7 @@ include("../config/session_check.php");  // pang check ng session
 include("../config/db_conn.php");   // pang connect sa db
 include("../db/branch_fetch.php"); // para kunin ung related sa branch
 include("../db/db_opening_updates.php"); // updates db for several operations
-
+require_once '../db/month_end_snapshot.php'; // sa kpi
 $is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>
@@ -68,13 +68,28 @@ $is_readonly = $_SESSION['is_readonly'];
                                 <h2>Upcoming Priority Renewals</h2>
                             </div>
                             <div class="data_panel_buttons">
-                                <div class="search_cont">
-                                    <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
-                                </div>
-                                <?php
-                                    $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
+                                <?php 
+                                    include '../includes/search_bar.php'; 
+                                
+                                    $searchColumns = [
+                                        'i.item_id',
+                                        'i.agreement_num',
+                                        'c.fullname',
+                                        'i.due_date',
+                                        'i.principal',
+                                        'i.item_name',
+                                        'i.status',
+                                        'i.item_name',
+                                        'b.branch_name',
+                                        "DATE_FORMAT(i.due_date, '%b %d, %Y')",
+                                        "DATE_FORMAT(i.due_date, '%M %d, %Y')" 
+                                    ];
+
                                     $where = [];
+
+                                    include '../includes/search_handler.php';
+                                
+                                    $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
                                     $orderBy = '';
                                     $where_sql = '';
 
@@ -165,11 +180,26 @@ $is_readonly = $_SESSION['is_readonly'];
        
                                     // $sql .= $orderBy;
                                     // $sql .= " LIMIT 7"; // Ni-limit ko muna sa 7
-        
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                        $count_stmt->bind_param("i", $branch_id);
+
+                                    $params = [];
+                                    $types = "";
+
+                                    // branch filter
+                                    if ($role != 'admin') {
+                                        $types .= "i";
+                                        $params[] = $branch_id;
+                                    }
+
+                                    // search values
+                                    if (!empty($searchValues)) {
+                                        $types .= str_repeat("s", count($searchValues));
+                                        $params = array_merge($params, $searchValues);
+                                    }
+
+                                    // bind if there are params
+                                    if (!empty($params)) {
+                                        $stmt->bind_param($types, ...$params);
+                                        $count_stmt->bind_param($types, ...$params);
                                     }
 
                                     $stmt->execute();
@@ -293,12 +323,10 @@ $is_readonly = $_SESSION['is_readonly'];
                                             echo
                                             "
                                                 <tr style='height: auto; border: none; cursor: auto;'>
-                                                    <td rowspan='5' colspan='8' class='no_records_found'> 
+                                                    <td rowspan='1' colspan='8' class='no_records_found'> 
                                                         <br>
-                                                        <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
-                                                        <h3 style='font-size: 18px;'>No Upcoming Renewals</h3>
-                                                        <br>
-                                                        <p style='font-size: 15px; opacity: 0.85;'>You do not have pawned items nearing a due date.</p>
+                                                        <h3 style='font-size: 18px;'>No Records Found</h3>          
+                                                        <p style='font-size: 15px; opacity: 0.85;'>Try adding new data or search a different category.</p>
                                                         <br>
                                                     </td>
                                                 </tr>

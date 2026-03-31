@@ -40,34 +40,30 @@ $is_readonly = $_SESSION['is_readonly'];
                                 <h2>Data Tabulation</h2>
                             </div>
                             <div class="data_panel_buttons">
-                                <div class="search_cont">
-                                    <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
-                                </div>
                                 <?php
+                                    include '../includes/search_bar.php'; 
+                                
+                                    $searchColumns = [
+                                        'i.item_id',
+                                        'i.agreement_num',
+                                        'c.fullname',
+                                        'i.due_date',
+                                        'i.principal',
+                                        'i.item_name',
+                                        'i.status',
+                                        'i.item_name',
+                                        'b.branch_name',
+                                        "DATE_FORMAT(i.due_date, '%b %d, %Y')",
+                                        "DATE_FORMAT(i.due_date, '%M %d, %Y')" 
+                                    ];
+
+                                    $where = [];
+
+                                    include '../includes/search_handler.php';
+
                                     $role = $_SESSION['role'];
                                     date_default_timezone_set('Asia/Manila');
                 
-                                    $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, i.due_date, b.branch_name, i.status
-                                            FROM inventory AS i
-                                            INNER JOIN clients AS c ON i.client_id = c.client_id
-                                            INNER JOIN branches AS b ON i.branch_id = b.branch_id";
-                                        
-                                    if($role != 'admin')
-                                    {
-                                        $sql .= " WHERE i.branch_id = ?";
-                                    }
-                
-                                    $stmt = $conn->prepare($sql);
-                
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                    }
-                
-                                    $stmt->execute();
-                                        
-                                    $result = $stmt->get_result();
                                 ?>
                                 <form action="transactions.php" method="GET">
                                     <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
@@ -110,7 +106,6 @@ $is_readonly = $_SESSION['is_readonly'];
                                 <?php
                                     /*Sorting*/
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
-                                    $where = [];
                                     $orderBy = '';
 
                                     switch ($sorting)
@@ -192,10 +187,25 @@ $is_readonly = $_SESSION['is_readonly'];
                                     $stmt = $conn->prepare($sql);
                                     $count_stmt = $conn->prepare($count_sql);
 
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                        $count_stmt->bind_param("i", $branch_id);
+                                    $params = [];
+                                    $types = "";
+
+                                    // branch filter
+                                    if ($role != 'admin') {
+                                        $types .= "i";
+                                        $params[] = $branch_id;
+                                    }
+
+                                    // search values
+                                    if (!empty($searchValues)) {
+                                        $types .= str_repeat("s", count($searchValues));
+                                        $params = array_merge($params, $searchValues);
+                                    }
+
+                                    // bind once
+                                    if (!empty($params)) {
+                                        $stmt->bind_param($types, ...$params);
+                                        $count_stmt->bind_param($types, ...$params);
                                     }
 
                                     $stmt->execute();

@@ -38,7 +38,7 @@ $is_readonly = $_SESSION['is_readonly'];
 
         .archive_nav_links a:nth-child(4):hover {
             border: none;
-            border-radius: 5px;
+            border-radius: .31rem;
             /* background-color: var(--red-dark) !important; */
             color: var(--main-content) !important;
             opacity: 1;
@@ -76,34 +76,30 @@ $is_readonly = $_SESSION['is_readonly'];
                                 <h2>Archived Data Tabulation</h2>
                             </div>
                             <div class="data_panel_buttonsC">
-                                <div class="search_cont">
-                                    <input type="text" placeholder="Search">
-                                    <img src="../resources/img/icons/search.png" alt="search">
-                                </div>
-                                <?php
+                                <?php 
+                                    include '../includes/search_bar.php'; 
+                                
+                                    $searchColumns = [
+                                        'il.liquidation_id',
+                                        'il.liquidated_at',
+                                        'il.agreement_num',
+                                        'c.fullname',
+                                        'ca.fullname',
+                                        'il.item_id',
+                                        'il.item_name',
+                                        'il.principal',
+                                        'b.branch_name',
+                                        'il.status',
+                                        'il.due_date',
+                                        'il.created_at',
+                                    ];
+
+                                    $where = [];
+
+                                    include '../includes/search_handler.php';
+
                                     $role = $_SESSION['role'];
                                     date_default_timezone_set('Asia/Manila');
-                
-                                    $sql = "SELECT i.agreement_num, c.fullname, i.item_name, i.principal, i.due_date, b.branch_name, i.status
-                                            FROM inventory AS i
-                                            INNER JOIN clients AS c ON i.client_id = c.client_id
-                                            INNER JOIN branches AS b ON i.branch_id = b.branch_id";
-                                        
-                                    if($role != 'admin')
-                                    {
-                                        $sql .= " WHERE i.branch_id = ?";
-                                    }
-                
-                                    $stmt = $conn->prepare($sql);
-                
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                    }
-                
-                                    $stmt->execute();
-                                        
-                                    $result = $stmt->get_result();
                                 ?>
                                 <form action="archived_transactions.php" method="GET">
                                     <span class="custom-arrow-sort"><img src="../resources/img/icons/filter.png" alt="filter"></span>
@@ -137,7 +133,6 @@ $is_readonly = $_SESSION['is_readonly'];
                                 <?php
                                     /*Sorting*/
                                     $sorting = isset($_GET['branch']) ? $_GET['branch'] : 'default';
-                                    $where = [];
                                     $orderBy = '';
 
                                     switch ($sorting)
@@ -213,10 +208,25 @@ $is_readonly = $_SESSION['is_readonly'];
                                     $stmt = $conn->prepare($sql);
                                     $count_stmt = $conn->prepare($count_sql);
 
-                                    if($role != 'admin')
-                                    {
-                                        $stmt->bind_param("i", $branch_id);
-                                        $count_stmt->bind_param("i", $branch_id);
+                                     $params = [];
+                                    $types = "";
+
+                                    // branch filter
+                                    if ($role != 'admin') {
+                                        $types .= "i";
+                                        $params[] = $branch_id;
+                                    }
+
+                                    // search values
+                                    if (!empty($searchValues)) {
+                                        $types .= str_repeat("s", count($searchValues));
+                                        $params = array_merge($params, $searchValues);
+                                    }
+
+                                    // bind once
+                                    if (!empty($params)) {
+                                        $stmt->bind_param($types, ...$params);
+                                        $count_stmt->bind_param($types, ...$params);
                                     }
 
                                     $stmt->execute();
@@ -262,16 +272,16 @@ $is_readonly = $_SESSION['is_readonly'];
 
                                             $principal_decimal = number_format($principal, 2);
                                             
-                                            $status_style = "font-size: 15px;";
+                                            $status_style = "font-size: .94rem;";
 
                                             if ($status == 'Active') {
-                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400; padding: 5px 8px; border-radius: 5px; background-color: #d2e8ce; color: #739667;";
+                                                $status_style .= "display: inline-block; text-align: center; font-size: .94rem; width: 100%; font-weight: 400; padding: .31rem .5rem; border-radius: .31rem; background-color: #d2e8ce; color: #739667;";
                                             } else if ($status == 'Redeemed') {
-                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #d1d8ed; color: #6c799d;";
+                                                $status_style .= "display: inline-block; text-align: center; font-size: .94rem; width: 100%; font-weight: 400;padding: .31rem .5rem; border-radius: .31rem; background-color: #d1d8ed; color: #6c799d;";
                                             } else if ($status == "Overdue") {
-                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f8dfbf; color: #b68b53;";
+                                                $status_style .= "display: inline-block; text-align: center; font-size: .94rem; width: 100%; font-weight: 400;padding: .31rem .5rem; border-radius: .31rem; background-color: #f8dfbf; color: #b68b53;";
                                             } else {
-                                                $status_style .= "display: inline-block; text-align: center; font-size: 15px; width: 100%; font-weight: 400;padding: 5px 8px; border-radius: 5px; background-color: #f1eceb; color: #a6a094;";
+                                                $status_style .= "display: inline-block; text-align: center; font-size: .94rem; width: 100%; font-weight: 400;padding: .31rem .5rem; border-radius: .31rem; background-color: #f1eceb; color: #a6a094;";
                                             }
             
                                             $format_date = date("d M Y", strtotime($due_date));
@@ -320,9 +330,9 @@ $is_readonly = $_SESSION['is_readonly'];
                                                 <td rowspan='5' colspan='7' class='no_records_found'> 
                                                     <br>
                                                     <img src=\"../resources/img/icons/no_record_big.png\" alt\"no_records_found\">
-                                                    <h3 style='font-size: 18px;'>No Records Found</h3>
+                                                    <h3 style='font-size: 1.13rem;'>No Records Found</h3>
                                                     <br>
-                                                    <p style='font-size: 15px; opacity: 0.85;'>Try searching a different category or create a new data.</p>
+                                                    <p style='font-size: .94rem; opacity: 0.85;'>Try searching a different category or create a new data.</p>
                                                     <br>
                                                 </td>
                                             </tr>
@@ -356,19 +366,31 @@ $is_readonly = $_SESSION['is_readonly'];
                             <div class="data_table_actions_components">
                                 <div class="data_actions">
                                     <button><img src="../resources/img/icons/refresh.png" alt="refresh"><p>Refresh</p></button>
-                                    <span style="font-size: 1rem; color: var(--success); background-color: #e1ede2; padding: 0.6rem 0.5rem; border-radius: 0.5rem; font-weight: 400;">
-                                        Total Amount: ₱ 
-                                        <?php
-                                            $sql = "SELECT SUM(principal) AS total_principal FROM items_liquidated";
-                                            $sum_stmt = $conn->prepare($sql);
-                                            $sum_stmt->execute();
-                                            $sum_result = $sum_stmt->get_result();
-                                            $sum_row = $sum_result->fetch_assoc();
-                                            $total_liquidated = htmlspecialchars($sum_row['total_principal']);
+                                    <span style="font-size: 16px; color: var(--success); background-color: #e1ede2; padding: 9.6px 8px; border-radius: 8px; font-weight: 400;">
+                                    Total Amount: ₱ 
+                                    <?php
+                                        $total_liquidated = 0; 
 
-                                            echo number_format($total_liquidated, 2, '.', ',');
-                                        ?>
-                                    </span>
+                                        if ($role === 'admin') {
+                                            $sql = "SELECT SUM(principal) AS total_principal FROM items_liquidated";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+                                        } else {
+                                            $sql = "SELECT SUM(principal) AS total_principal FROM items_liquidated WHERE branch_id = ?";
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param("i", $_SESSION['branch_id']); 
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+                                        }
+                                        if ($result) {
+                                            $row = $result->fetch_assoc();
+                                            $total_liquidated = $row['total_principal'] ?? 0; 
+                                        }
+                                        
+                                        echo number_format($total_liquidated, 2, '.', ',');
+                                    ?>
+                                </span>
                                     <?php  
                                         $lq_role = $role;
                                         if($lq_role === "admin")

@@ -333,7 +333,7 @@ input[type="checkbox"] {
 
         .search_cont img {
           position: absolute;
-          top: 10;
+          /* top: 10; */
           left: 15;
         }
 
