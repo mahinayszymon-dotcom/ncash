@@ -471,7 +471,7 @@ if($is_readonly == '1')
                                                     {
                                                         $audit_u_id = $_SESSION['user_id'];
                                                         $audit_action = "Deleted";
-                                                        $audit_obj = "EB Transaction";
+                                                        $audit_obj = "Archived Transaction";
                                                         $audit_desc = "Deleted end bal transaction with amount '$fetch_amount'";
 
                                                         $curDate = new DateTime();

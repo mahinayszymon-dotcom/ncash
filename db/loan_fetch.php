@@ -49,6 +49,7 @@
             'message' => 'Agreement number not provided in the request.'
         ]);
     }
+    exit();
 
     $conn->close();
 ?>

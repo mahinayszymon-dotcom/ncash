@@ -4,6 +4,9 @@ include("../config/db_conn.php");   // pang connect sa db
 include("../db/branch_fetch.php"); // para kunin ung related sa branch
 include("../db/db_opening_updates.php"); // updates db for several operations
 require_once '../db/month_end_snapshot.php'; // sa kpi
+
+include("../includes/send_reminders.php");
+
 $is_readonly = $_SESSION['is_readonly'];
 ?>
 <!DOCTYPE html>

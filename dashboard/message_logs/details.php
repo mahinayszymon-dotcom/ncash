@@ -44,7 +44,7 @@ $is_readonly = $_SESSION['is_readonly'];
             $m_notif_id = htmlspecialchars($row['notif_id']);
             $m_branch_id = htmlspecialchars($row['branch_id']);
             $m_client_name = htmlspecialchars($row['fullname']);
-            $m_message = htmlspecialchars($row['message']);
+            $m_message = $row['message'];
             $m_type = htmlspecialchars($row['type']);
             $m_status = htmlspecialchars($row['status']);
             $m_date_sent = htmlspecialchars($row['date_sent']);
@@ -180,9 +180,18 @@ $is_readonly = $_SESSION['is_readonly'];
                                         <span class="label">Subject:</span><strong>Unknown Subject</strong>
                                     </div>
                                 </div>
-                                <div class="email-body">
-                                    <?= $m_message; ?>
-                                </div>
+                                <?php 
+                                if ($m_type === 'Email') 
+                                {
+                                    //let the html render kung ano nalagay sa db
+                                    echo $m_message; 
+                                } 
+                                else 
+                                {
+                                    //handle yung special characters pero preserve yung mga newline (\n)
+                                    echo nl2br(htmlspecialchars($m_message));
+                                }
+                                ?>
                             </div>
                             <div class="result_cont">
                                 <?php
